@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beautyslot — Come vuoi usarlo?</title>
+  <meta name="description" content="Scegli come usare Beautyslot: trova un servizio beauty oppure crea e gestisci il calendario della tua attività." />
+
+  <style>
+    :root{
+      --bg:#f7ecec;
+      --bg-2:#f3e3e4;
+      --rose:#bb8188;
+      --rose-dark:#9d6870;
+      --rose-soft:#d9b8bc;
+      --text:#6f5659;
+      --muted:#957b7f;
+      --line:rgba(173,116,124,.20);
+      --card:rgba(255,255,255,.42);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:"Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.55), transparent 34%),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:44px 20px;
+    }
+
+    .page{
+      width:min(1160px,100%);
+      text-align:center;
+    }
+
+    .brand{
+      display:inline-flex;
+      flex-direction:column;
+      align-items:center;
+      margin-bottom:34px;
+    }
+
+    .brand-mark{
+      width:68px;
+      height:68px;
+      border:1px solid rgba(187,129,136,.42);
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      margin-bottom:12px;
+      box-shadow:0 10px 30px rgba(132,80,87,.08);
+      background:rgba(255,255,255,.20);
+    }
+
+    .brand-mark span{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:38px;
+      line-height:1;
+      color:var(--rose);
+      transform:translateY(-1px);
+    }
+
+    .brand-name{
+      font-family:Georgia,"Times New Roman",serif;
+      color:var(--rose-dark);
+      font-size:31px;
+      letter-spacing:.3px;
+      margin:0;
+      font-weight:500;
+    }
+
+    .brand-tag{
+      font-size:10px;
+      letter-spacing:3.3px;
+      color:var(--muted);
+      margin-top:7px;
+      text-transform:uppercase;
+    }
+
+    .hero{
+      margin:0 auto 36px;
+      max-width:760px;
+    }
+
+    .hero h1{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-weight:400;
+      font-size:clamp(35px,4vw,58px);
+      line-height:1.05;
+      color:#765b5f;
+    }
+
+    .hero p{
+      margin:15px 0 0;
+      font-size:14px;
+      letter-spacing:2.4px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .choices{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:24px;
+      margin-top:36px;
+    }
+
+    .choice{
+      position:relative;
+      min-height:390px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:42px 38px 34px;
+      text-align:left;
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:var(--card);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      box-shadow:0 16px 48px rgba(126,81,87,.07);
+      transition:transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+      overflow:hidden;
+    }
+
+    .choice:hover{
+      transform:translateY(-4px);
+      box-shadow:0 20px 58px rgba(126,81,87,.11);
+      border-color:rgba(173,116,124,.32);
+    }
+
+    .choice:before{
+      content:"";
+      position:absolute;
+      right:-56px;
+      top:-56px;
+      width:190px;
+      height:190px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(208,162,168,.20), rgba(208,162,168,0));
+      pointer-events:none;
+    }
+
+    .eyebrow{
+      font-size:11px;
+      letter-spacing:3px;
+      text-transform:uppercase;
+      color:var(--rose);
+      margin-bottom:24px;
+    }
+
+    .choice h2{
+      margin:0 0 10px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-weight:400;
+      font-size:36px;
+      color:#75595e;
+    }
+
+    .choice .lead{
+      margin:0 0 22px;
+      font-size:18px;
+      line-height:1.5;
+      color:#816a6e;
+      max-width:420px;
+    }
+
+    .choice .desc{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.75;
+      max-width:460px;
+    }
+
+    .action{
+      margin-top:34px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:max-content;
+      min-width:210px;
+      height:46px;
+      padding:0 24px;
+      border-radius:999px;
+      border:1px solid rgba(169,108,116,.42);
+      color:var(--rose-dark);
+      text-decoration:none;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:2.2px;
+      text-transform:uppercase;
+      background:rgba(255,255,255,.30);
+      transition:all .25s ease;
+    }
+
+    .action:hover{
+      background:rgba(255,255,255,.58);
+      transform:translateY(-1px);
+      box-shadow:0 8px 24px rgba(133,79,87,.08);
+    }
+
+    .login{
+      margin-top:32px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .login a{
+      color:var(--rose-dark);
+      text-decoration:none;
+      border-bottom:1px solid rgba(157,104,112,.35);
+      padding-bottom:2px;
+      margin-left:4px;
+    }
+
+    .login a:hover{
+      border-bottom-color:var(--rose-dark);
+    }
+
+    @media (max-width:780px){
+      body{padding:28px 16px}
+      .brand{margin-bottom:27px}
+      .choices{grid-template-columns:1fr}
+      .choice{min-height:330px;padding:34px 28px 30px}
+      .choice h2{font-size:31px}
+      .hero p{font-size:11px;letter-spacing:2px}
+      .action{width:100%}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="brand" aria-label="Beautyslot">
+      <div class="brand-mark" aria-hidden="true"><span>B</span></div>
+      <h2 class="brand-name">Beautyslot</h2>
+      <div class="brand-tag">Book beauty. Your way.</div>
+    </header>
+
+    <section class="hero">
+      <h1>Come vuoi usare Beautyslot?</h1>
+      <p>Scegli il tuo percorso</p>
+    </section>
+
+    <section class="choices" aria-label="Scelta profilo">
+      <article class="choice">
+        <div>
+          <div class="eyebrow">Per chi prenota</div>
+          <h2>Sono un cliente</h2>
+          <p class="lead">Cerco un servizio beauty vicino a me.</p>
+          <p class="desc">
+            Trova parrucchieri, barber, estetiste e professionisti disponibili
+            in base a ciò di cui hai bisogno, alla tua posizione e agli orari liberi.
+          </p>
+        </div>
+        <a class="action" href="cliente.html">Trova un servizio</a>
+      </article>
+
+      <article class="choice">
+        <div>
+          <div class="eyebrow">Per chi lavora nel beauty</div>
+          <h2>Sono un professionista</h2>
+          <p class="lead">Voglio gestire la mia attività con Beautyslot.</p>
+          <p class="desc">
+            Crea il tuo profilo, imposta servizi, prezzi e disponibilità,
+            organizza il calendario e ricevi prenotazioni online dai tuoi clienti.
+          </p>
+        </div>
+        <a class="action" href="professionista.html">Crea il tuo calendario</a>
+      </article>
+    </section>
+
+    <div class="login">
+      Hai già un account?
+      <a href="login.html">Accedi</a>
+    </div>
+  </main>
+</body>
+</html>
