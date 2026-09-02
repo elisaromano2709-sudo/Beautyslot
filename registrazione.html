@@ -358,6 +358,10 @@
           email,
           password: passwordValue,
           options: {
+            emailRedirectTo:
+              tipo === "cliente"
+                ? "https://beauty-slot.it/scelta-trattamenti.html"
+                : "https://beauty-slot.it/login.html",
             data: {
               telefono: telefono,
               tipo_utente: tipo
@@ -370,21 +374,17 @@
         if (data.user) {
           form.reset();
 
-          if (tipo === "cliente") {
-            sessionStorage.setItem("beautyslot_tipo_utente", "cliente");
-            window.location.href = new URL(
-              "scelta-trattamenti.html",
-              window.location.href
-            ).href;
+          if (!data.session) {
+            alert(
+              "Registrazione completata. Ti abbiamo inviato una email di verifica. " +
+              "Apri la mail e conferma il tuo account prima di accedere."
+            );
+
+            window.location.href = "login.html?verifica=1";
             return;
           }
 
-          alert(
-            "Registrazione completata. " +
-            (data.session
-              ? "Il tuo account è attivo."
-              : "Controlla la tua email per confermare l'account.")
-          );
+          window.location.href = "login.html";
         }
       } catch (error) {
         console.error(error);
