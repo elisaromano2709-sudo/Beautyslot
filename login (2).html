@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beautyslot — Accesso</title>
+  <meta name="description" content="Accedi al tuo account Beautyslot." />
+
+  <style>
+    :root{
+      --bg:#f7ecec;
+      --bg-2:#f3e3e4;
+      --rose:#bb8188;
+      --rose-dark:#9d6870;
+      --text:#6f5659;
+      --muted:#957b7f;
+      --line:rgba(173,116,124,.22);
+      --card:rgba(255,255,255,.48);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:"Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.58), transparent 34%),
+        linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
+    }
+
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:36px 18px;
+    }
+
+    .page{
+      width:min(560px,100%);
+      text-align:center;
+    }
+
+    .brand{
+      margin-bottom:26px;
+    }
+
+    .brand-name{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:34px;
+      font-weight:400;
+      color:var(--rose-dark);
+      letter-spacing:.2px;
+    }
+
+    .brand-tag{
+      margin-top:7px;
+      font-size:10px;
+      letter-spacing:3.1px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .card{
+      text-align:left;
+      padding:36px 34px 30px;
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:var(--card);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      box-shadow:0 18px 54px rgba(126,81,87,.08);
+    }
+
+    .kicker{
+      text-align:center;
+      font-size:11px;
+      letter-spacing:2.8px;
+      text-transform:uppercase;
+      color:var(--rose);
+      margin-bottom:14px;
+    }
+
+    h1{
+      margin:0;
+      text-align:center;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:38px;
+      line-height:1.1;
+      font-weight:400;
+      color:#765b5f;
+    }
+
+    .intro{
+      margin:14px auto 28px;
+      max-width:430px;
+      text-align:center;
+      font-size:14px;
+      line-height:1.65;
+      color:var(--muted);
+    }
+
+    .field{
+      margin-bottom:18px;
+    }
+
+    label{
+      display:block;
+      margin:0 0 8px 2px;
+      font-size:11px;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:#7c666a;
+    }
+
+    input{
+      width:100%;
+      height:52px;
+      border:1px solid rgba(169,108,116,.28);
+      border-radius:16px;
+      background:rgba(255,255,255,.55);
+      padding:0 16px;
+      color:#665155;
+      font-size:15px;
+      outline:none;
+      transition:border-color .22s ease, box-shadow .22s ease, background .22s ease;
+    }
+
+    input::placeholder{
+      color:#b09da0;
+    }
+
+    input:focus{
+      border-color:rgba(169,108,116,.58);
+      background:rgba(255,255,255,.76);
+      box-shadow:0 0 0 4px rgba(187,129,136,.08);
+    }
+
+    .password-wrap{
+      position:relative;
+    }
+
+    .password-wrap input{
+      padding-right:72px;
+    }
+
+    .show-password{
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      border:0;
+      background:transparent;
+      color:var(--rose-dark);
+      font-size:10px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      cursor:pointer;
+      padding:8px 0;
+    }
+
+    .submit{
+      margin-top:8px;
+      width:100%;
+      min-height:50px;
+      border-radius:999px;
+      border:1px solid rgba(169,108,116,.42);
+      background:rgba(255,255,255,.36);
+      color:var(--rose-dark);
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:2.2px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:all .25s ease;
+    }
+
+    .submit:hover{
+      background:rgba(255,255,255,.62);
+      transform:translateY(-1px);
+      box-shadow:0 8px 24px rgba(133,79,87,.08);
+    }
+
+    .submit:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .resend{
+      margin-top:12px;
+      width:100%;
+      min-height:46px;
+      border-radius:999px;
+      border:1px solid rgba(169,108,116,.26);
+      background:transparent;
+      color:var(--rose-dark);
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:all .25s ease;
+    }
+
+    .resend:hover{
+      background:rgba(255,255,255,.42);
+      border-color:rgba(169,108,116,.42);
+    }
+
+    .resend:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .message{
+      display:none;
+      margin-top:16px;
+      padding:12px 14px;
+      border-radius:14px;
+      text-align:center;
+      font-size:13px;
+      line-height:1.45;
+      border:1px solid rgba(169,108,116,.20);
+      background:rgba(255,255,255,.46);
+      color:var(--muted);
+    }
+
+    .message.show{display:block}
+
+    .links{
+      margin-top:22px;
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .links + .links{
+      margin-top:12px;
+    }
+
+    .links a,
+    .back{
+      color:var(--rose-dark);
+      text-decoration:none;
+      border-bottom:1px solid rgba(157,104,112,.34);
+      padding-bottom:2px;
+    }
+
+    .back-row{
+      margin-top:24px;
+      text-align:center;
+      font-size:12px;
+    }
+
+    @media (max-width:560px){
+      body{padding:24px 14px}
+      .card{padding:30px 22px 26px;border-radius:22px}
+      h1{font-size:33px}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <header class="brand">
+      <h2 class="brand-name">Beautyslot</h2>
+      <div class="brand-tag">Book beauty. Your way.</div>
+    </header>
+
+    <section class="card">
+      <div class="kicker">Accesso</div>
+      <h1>Bentornati su Beautyslot</h1>
+      <p class="intro">
+        Inserisci email e password per accedere al tuo account.
+      </p>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            placeholder="nome@email.it"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="password-wrap">
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Inserisci la password"
+              required
+            >
+            <button class="show-password" type="button" id="togglePassword">
+              Mostra
+            </button>
+          </div>
+        </div>
+
+        <button class="submit" type="submit" id="submitButton">
+          Accedi
+        </button>
+
+        <button class="resend" type="button" id="resendButton">
+          Invia nuova email di conferma
+        </button>
+      </form>
+
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+
+      <div class="links">
+        Non hai ancora un account?
+        <a href="registrazione.html">Registrati</a>
+      </div>
+    </section>
+
+    <div class="back-row">
+      <a class="back" href="index.html">← Torna indietro</a>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
+    const supabaseClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const submitButton = document.getElementById("submitButton");
+    const resendButton = document.getElementById("resendButton");
+    const message = document.getElementById("message");
+
+    togglePassword.addEventListener("click", function () {
+      const visible = passwordInput.type === "text";
+      passwordInput.type = visible ? "password" : "text";
+      togglePassword.textContent = visible ? "Mostra" : "Nascondi";
+    });
+
+    function showMessage(text) {
+      message.textContent = text;
+      message.classList.add("show");
+    }
+
+
+    resendButton.addEventListener("click", async function () {
+      const email = emailInput.value.trim();
+
+      if (!email) {
+        showMessage("Inserisci prima la tua email.");
+        emailInput.focus();
+        return;
+      }
+
+      resendButton.disabled = true;
+      resendButton.textContent = "Invio in corso...";
+
+      try {
+        const { error } = await supabaseClient.auth.resend({
+          type: "signup",
+          email: email,
+          options: {
+            emailRedirectTo: "https://elisaromano2709-sudo.github.io/Beautyslot/login.html"
+          }
+        });
+
+        if (error) throw error;
+
+        showMessage(
+          "Ti abbiamo inviato una nuova email di conferma. Controlla anche Spam o Posta indesiderata."
+        );
+      } catch (error) {
+        console.error(error);
+
+        let text = "Non è stato possibile inviare la nuova email.";
+        const msg = (error.message || "").toLowerCase();
+
+        if (msg.includes("rate") || msg.includes("too many")) {
+          text = "Hai richiesto troppe email in poco tempo. Attendi e riprova più tardi.";
+        } else if (error.message) {
+          text = "Errore: " + error.message;
+        }
+
+        showMessage(text);
+      } finally {
+        resendButton.disabled = false;
+        resendButton.textContent = "Invia nuova email di conferma";
+      }
+    });
+
+    form.addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      submitButton.disabled = true;
+      submitButton.textContent = "Accesso...";
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        const tipoUtente =
+          data.user?.user_metadata?.tipo_utente ||
+          data.user?.raw_user_meta_data?.tipo_utente ||
+          "";
+
+        if (tipoUtente === "cliente") {
+          sessionStorage.setItem("beautyslot_tipo_utente", "cliente");
+          window.location.href = new URL(
+            "scelta-trattamenti.html",
+            window.location.href
+          ).href;
+          return;
+        }
+
+        if (tipoUtente === "professionista") {
+          sessionStorage.setItem("beautyslot_tipo_utente", "professionista");
+          showMessage("Accesso effettuato correttamente. L'area professionista sarà collegata al prossimo passaggio.");
+          return;
+        }
+
+        showMessage("Accesso effettuato correttamente.");
+      } catch (error) {
+        console.error(error);
+
+        let text = "Email o password non corretti.";
+        if (error.message && error.message.toLowerCase().includes("email not confirmed")) {
+          text = "Devi prima confermare il tuo indirizzo email.";
+        }
+
+        showMessage(text);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Accedi";
+      }
+    });
+  </script>
+</body>
+</html>
