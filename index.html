@@ -196,6 +196,9 @@
     }
 
     .action{
+      position:relative;
+      z-index:10;
+      pointer-events:auto;
       margin-top:34px;
       display:inline-flex;
       align-items:center;
@@ -276,7 +279,7 @@
             in base a ciò di cui hai bisogno, alla tua posizione e agli orari liberi.
           </p>
         </div>
-        <a class="action" href="registrazione.html?tipo=cliente">Trova un servizio</a>
+        <a class="action" href="https://elisaromano2709-sudo.github.io/Beautyslot/registrazione.html?tipo=cliente&v=20260902-2005" data-tipo="cliente">Trova un servizio</a>
       </article>
 
       <article class="choice">
@@ -289,13 +292,23 @@
             organizza il calendario e ricevi prenotazioni online dai tuoi clienti.
           </p>
         </div>
-        <a class="action" href="registrazione.html?tipo=professionista">Crea il tuo calendario</a>
+        <a class="action" href="https://elisaromano2709-sudo.github.io/Beautyslot/registrazione.html?tipo=professionista&v=20260902-2005" data-tipo="professionista">Crea il tuo calendario</a>
       </article>
     </section>
 
     <div class="login">
       Hai già un account?
       <a href="login.html">Accedi</a>
+    </div>
   </main>
+
+  <script>
+    document.querySelectorAll('a.action[data-tipo]').forEach(function (link) {
+      link.addEventListener('click', function () {
+        sessionStorage.setItem('beautyslot_tipo_utente', link.dataset.tipo);
+      });
+    });
+  </script>
+
 </body>
 </html>
