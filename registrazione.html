@@ -301,10 +301,7 @@
     );
 
     const params = new URLSearchParams(window.location.search);
-    const tipoDaUrl = params.get("tipo");
-    const tipoSalvato = sessionStorage.getItem("beautyslot_tipo_utente");
-
-    const tipo = (tipoDaUrl === "professionista" || tipoSalvato === "professionista")
+    const tipo = params.get("tipo") === "professionista"
       ? "professionista"
       : "cliente";
 
@@ -371,13 +368,23 @@
         if (error) throw error;
 
         if (data.user) {
+          form.reset();
+
+          if (tipo === "cliente") {
+            sessionStorage.setItem("beautyslot_tipo_utente", "cliente");
+            window.location.href = new URL(
+              "scelta-trattamenti.html",
+              window.location.href
+            ).href;
+            return;
+          }
+
           alert(
             "Registrazione completata. " +
             (data.session
               ? "Il tuo account è attivo."
               : "Controlla la tua email per confermare l'account.")
           );
-          form.reset();
         }
       } catch (error) {
         console.error(error);
