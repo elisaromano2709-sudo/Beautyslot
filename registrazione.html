@@ -301,7 +301,10 @@
     );
 
     const params = new URLSearchParams(window.location.search);
-    const tipo = params.get("tipo") === "professionista"
+    const tipoDaUrl = params.get("tipo");
+    const tipoSalvato = sessionStorage.getItem("beautyslot_tipo_utente");
+
+    const tipo = (tipoDaUrl === "professionista" || tipoSalvato === "professionista")
       ? "professionista"
       : "cliente";
 
