@@ -190,32 +190,6 @@
       transform:none;
     }
 
-    .resend{
-      margin-top:12px;
-      width:100%;
-      min-height:46px;
-      border-radius:999px;
-      border:1px solid rgba(169,108,116,.26);
-      background:transparent;
-      color:var(--rose-dark);
-      font-size:10px;
-      font-weight:600;
-      letter-spacing:1.5px;
-      text-transform:uppercase;
-      cursor:pointer;
-      transition:all .25s ease;
-    }
-
-    .resend:hover{
-      background:rgba(255,255,255,.42);
-      border-color:rgba(169,108,116,.42);
-    }
-
-    .resend:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
     .message{
       display:none;
       margin-top:16px;
@@ -311,10 +285,6 @@
         <button class="submit" type="submit" id="submitButton">
           Accedi
         </button>
-
-        <button class="resend" type="button" id="resendButton">
-          Invia nuova email di conferma
-        </button>
       </form>
 
       <div id="message" class="message" role="status" aria-live="polite"></div>
@@ -346,7 +316,6 @@
     const passwordInput = document.getElementById("password");
     const togglePassword = document.getElementById("togglePassword");
     const submitButton = document.getElementById("submitButton");
-    const resendButton = document.getElementById("resendButton");
     const message = document.getElementById("message");
 
     togglePassword.addEventListener("click", function () {
@@ -359,52 +328,6 @@
       message.textContent = text;
       message.classList.add("show");
     }
-
-
-    resendButton.addEventListener("click", async function () {
-      const email = emailInput.value.trim();
-
-      if (!email) {
-        showMessage("Inserisci prima la tua email.");
-        emailInput.focus();
-        return;
-      }
-
-      resendButton.disabled = true;
-      resendButton.textContent = "Invio in corso...";
-
-      try {
-        const { error } = await supabaseClient.auth.resend({
-          type: "signup",
-          email: email,
-          options: {
-            emailRedirectTo: "https://elisaromano2709-sudo.github.io/Beautyslot/login.html"
-          }
-        });
-
-        if (error) throw error;
-
-        showMessage(
-          "Ti abbiamo inviato una nuova email di conferma. Controlla anche Spam o Posta indesiderata."
-        );
-      } catch (error) {
-        console.error(error);
-
-        let text = "Non è stato possibile inviare la nuova email.";
-        const msg = (error.message || "").toLowerCase();
-
-        if (msg.includes("rate") || msg.includes("too many")) {
-          text = "Hai richiesto troppe email in poco tempo. Attendi e riprova più tardi.";
-        } else if (error.message) {
-          text = "Errore: " + error.message;
-        }
-
-        showMessage(text);
-      } finally {
-        resendButton.disabled = false;
-        resendButton.textContent = "Invia nuova email di conferma";
-      }
-    });
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
