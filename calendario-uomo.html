@@ -518,8 +518,8 @@
     /*
       LOGICA DISPONIBILITÀ
       --------------------
-      Gli orari mostrati restano a intervalli di 30 minuti, ma la disponibilità
-      viene calcolata sull'intera durata del trattamento selezionato.
+      Gli orari vengono generati dinamicamente in base alla durata del trattamento,
+      agli appuntamenti già presenti e alla fine reale di ogni prenotazione.
 
       Esempio:
       - trattamento da 60 min
@@ -537,20 +537,10 @@
       return (hours * 60) + minutes;
     }
 
-    function getCandidateTimesForDate(){
-      if(!selectedDate) return [];
-
-      const base = [
-        "09:00","09:30","10:00","10:30","11:00","11:30",
-        "12:00","15:00","15:30","16:00","16:30","17:00","17:30","18:00"
-      ];
-
-      const day = selectedDate.getDay();
-
-      // Sabato: come nella versione originale, ultimi ingressi ridotti.
-      if(day === 6) return base.slice(0, 11);
-
-      return base;
+    function minutesToTime(totalMinutes){
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return String(hours).padStart(2, "0") + ":" + String(minutes).padStart(2, "0");
     }
 
     function getOpeningIntervalsForDate(){
@@ -580,18 +570,36 @@
       ];
     }
 
+    /*
+      Crea soltanto una griglia tecnica di riferimento per simulare gli
+      appuntamenti già presenti nel demo. NON è più la griglia degli orari
+      prenotabili mostrati al cliente.
+    */
+    function getDemoReferenceTimes(){
+      if(!selectedDate) return [];
+
+      const result = [];
+
+      getOpeningIntervalsForDate().forEach(interval => {
+        for(let minute = interval.start; minute < interval.end; minute += 30){
+          result.push(minutesToTime(minute));
+        }
+      });
+
+      return result;
+    }
+
     function getBusyIntervalsForDate(){
       if(!selectedDate) return [];
 
       /*
         Blocchi/appuntamenti demo già esistenti.
-        Ogni intervallo occupato viene trattato come un periodo reale.
-        Quando Supabase sarà collegato, qui arriveranno appuntamenti e blocchi reali.
+        Ogni intervallo viene gestito con inizio e fine reali in minuti.
+        Con Supabase questo array arriverà dagli appuntamenti e dai blocchi reali.
       */
       const busyIntervals = [];
-      const times = getCandidateTimesForDate();
 
-      times.forEach(time => {
+      getDemoReferenceTimes().forEach(time => {
         const seed =
           selectedDate.getDate() +
           time.charCodeAt(0) +
@@ -601,14 +609,15 @@
           const start = timeToMinutes(time);
           busyIntervals.push({
             start,
-            end: start + 30,
+            end:start + 30,
             source:"existing"
           });
         }
       });
 
-      // Aggiunge le prenotazioni appena confermate in questa sessione.
+      // Prenotazioni confermate durante questa sessione.
       const key = dateKey(selectedDate);
+
       sessionBookings
         .filter(booking => booking.date === key)
         .forEach(booking => {
@@ -619,7 +628,64 @@
           });
         });
 
-      return busyIntervals;
+      return busyIntervals.sort((a,b) => a.start - b.start);
+    }
+
+    function minuteIsInsideOpeningHours(minute){
+      return getOpeningIntervalsForDate().some(interval =>
+        minute >= interval.start && minute < interval.end
+      );
+    }
+
+    /*
+      Gli orari NON sono più rigidamente fissi ogni 30 minuti.
+
+      Regola:
+      - manteniamo gli orari-base ogni 30 minuti;
+      - aggiungiamo SOLO la fine REALE di un appuntamento già presente.
+
+      Quindi:
+      - 09:00-09:35 -> compare 09:35;
+      - 15:00-15:55 -> compare 15:55;
+      - NON vengono inventati orari come 09:55 o 10:55 soltanto
+        per "riempire" un buco prima di un altro appuntamento.
+    */
+    function getCandidateTimesForDate(){
+      if(!selectedDate) return [];
+
+      const candidates = new Set();
+      const openings = getOpeningIntervalsForDate();
+      const busyIntervals = getBusyIntervalsForDate();
+
+      openings.forEach(interval => {
+        // Inizio fascia.
+        candidates.add(interval.start);
+
+        // Orari-base ogni 30 minuti, solo come punti di scelta iniziali.
+        for(let minute = interval.start; minute < interval.end; minute += 30){
+          candidates.add(minute);
+        }
+
+      });
+
+      busyIntervals.forEach(interval => {
+        // Mostra l'inizio reale dell'appuntamento già occupato.
+        if(minuteIsInsideOpeningHours(interval.start)){
+          candidates.add(interval.start);
+        }
+
+        // La FINE reale dell'appuntamento diventa subito un nuovo possibile inizio.
+        // Esempi: 15:35, 15:45, 15:55, 17:30...
+        if(minuteIsInsideOpeningHours(interval.end)){
+          candidates.add(interval.end);
+        }
+
+      });
+
+      return [...candidates]
+        .filter(minute => minuteIsInsideOpeningHours(minute))
+        .sort((a,b) => a - b)
+        .map(minutesToTime);
     }
 
     function fitsInsideOpeningHours(start, end){
@@ -771,7 +837,10 @@
         if(slot.status === "available"){
           btn.addEventListener("click", () => {
             selectedTime = time;
-            document.getElementById("sumTime").textContent = time;
+            const selectedStart = timeToMinutes(time);
+            const selectedEnd = selectedStart + selectedService.duration;
+            document.getElementById("sumTime").textContent =
+              time + " – " + minutesToTime(selectedEnd);
             clearSlotWarning();
             bookButton.textContent = "Conferma prenotazione";
             renderTimes();
@@ -855,7 +924,8 @@
 
       text.textContent =
         selectedService.name + " presso " + salon.name +
-        ", " + formatLongDate(selectedDate) + " alle " + bookedTime + ".";
+        ", " + formatLongDate(selectedDate) +
+        " dalle " + bookedTime + " alle " + minutesToTime(bookedEnd) + ".";
 
       confirmation.classList.add("show");
       confirmation.scrollIntoView({behavior:"smooth", block:"nearest"});
@@ -864,7 +934,8 @@
       // Dopo la conferma aggiorna subito la griglia:
       // tutti gli orari coperti dalla durata diventano barrati/scuri.
       selectedTime = null;
-      document.getElementById("sumTime").textContent = "Prenotazione confermata alle " + bookedTime;
+      document.getElementById("sumTime").textContent =
+        "Prenotazione confermata " + bookedTime + " – " + minutesToTime(bookedEnd);
       bookButton.textContent = "Prenotazione confermata";
       bookButton.disabled = true;
       renderTimes();
