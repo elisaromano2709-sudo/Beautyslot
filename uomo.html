@@ -965,13 +965,75 @@
     }
 
     @media(max-width:620px){
+      /*
+        Header mobile compatto:
+        la colonna profilo contiene sia "Ciao Nome" sia l'omino,
+        quindi non può essere forzata a soli 48px.
+        Limitiamo invece correttamente gli elementi per evitare
+        qualsiasi overflow orizzontale.
+      */
       .topbar{
-        grid-template-columns:48px 1fr 48px;
-        padding:12px 12px;
+        width:100%;
+        max-width:100vw;
+        grid-template-columns:40px minmax(0,1fr) minmax(0,104px);
+        column-gap:4px;
+        padding:8px 8px;
+        overflow:hidden;
+      }
+
+      .topbar > *{
+        min-width:0;
+      }
+
+      .topbar .icon-btn{
+        width:38px;
+        height:38px;
+      }
+
+      .brand{
+        min-width:0;
+        overflow:hidden;
       }
 
       .brand-name{
-        font-size:24px;
+        font-size:21px;
+        white-space:nowrap;
+      }
+
+      .brand-tag{
+        margin-top:4px;
+        font-size:6.5px;
+        letter-spacing:1.55px;
+        white-space:nowrap;
+      }
+
+      .profile-area{
+        width:100%;
+        max-width:104px;
+        min-width:0;
+        gap:3px;
+        justify-self:end;
+        overflow:hidden;
+      }
+
+      .hello-user{
+        min-width:0;
+        max-width:62px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:10.5px;
+      }
+
+      .profile-area .profile-icon{
+        flex:0 0 36px;
+        width:36px;
+        height:36px;
+      }
+
+      .profile-icon svg{
+        width:19px;
+        height:19px;
       }
 
       .hero{
@@ -1004,6 +1066,44 @@
         bottom:16px;
       }
     }
+
+    @media(max-width:380px){
+      .topbar{
+        grid-template-columns:38px minmax(0,1fr) minmax(0,92px);
+        padding-left:6px;
+        padding-right:6px;
+      }
+
+      .topbar .icon-btn{
+        width:36px;
+        height:36px;
+      }
+
+      .brand-name{
+        font-size:19px;
+      }
+
+      .brand-tag{
+        font-size:6px;
+        letter-spacing:1.25px;
+      }
+
+      .profile-area{
+        max-width:92px;
+      }
+
+      .hello-user{
+        max-width:52px;
+        font-size:10px;
+      }
+
+      .profile-area .profile-icon{
+        flex-basis:34px;
+        width:34px;
+        height:34px;
+      }
+    }
+
   </style>
 </head>
 
