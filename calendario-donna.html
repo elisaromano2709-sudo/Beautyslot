@@ -304,7 +304,23 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
+    const authClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true
+        }
+      }
+    );
+
     const SALONS = {
       "hair-01": {name:"Atelier Hair", category:"Parrucchiere"},
       "beauty-01": {name:"Maison Beauty", category:"Estetista"},
@@ -908,15 +924,83 @@
       renderMonth();
     });
 
-    bookButton.addEventListener("click", () => {
+    bookButton.addEventListener("click", async () => {
       if(!(selectedService && selectedDate && selectedTime)) return;
+
+      /*
+        L'utente può esplorare liberamente salone, servizi, calendario
+        e orari anche senza account.
+
+        Il controllo Auth avviene SOLO quando prova a confermare.
+      */
+      try{
+        const { data, error } = await authClient.auth.getUser();
+        const user = data?.user || null;
+
+        if(error || !user){
+          /*
+            Nessuna prenotazione viene registrata prima dell'accesso.
+            Portiamo direttamente alla registrazione cliente.
+          */
+          sessionStorage.setItem(
+            "beautyslot_pending_booking",
+            JSON.stringify({
+              gender: "donna",
+              salonId: salonId,
+              salon: salon.name,
+              serviceId: selectedService.id,
+              serviceName: selectedService.name,
+              duration: selectedService.duration,
+              dateKey: dateKey(selectedDate),
+              date: formatLongDate(selectedDate),
+              time: selectedTime
+            })
+          );
+
+          window.location.href =
+            "registrazione.html?tipo=cliente";
+
+          return;
+        }
+      }catch(error){
+        console.error(
+          "Beautyslot controllo autenticazione prenotazione:",
+          error
+        );
+
+        sessionStorage.setItem(
+          "beautyslot_pending_booking",
+          JSON.stringify({
+            gender: "donna",
+            salonId: salonId,
+            salon: salon.name,
+            serviceId: selectedService.id,
+            serviceName: selectedService.name,
+            duration: selectedService.duration,
+            dateKey: dateKey(selectedDate),
+            date: formatLongDate(selectedDate),
+            time: selectedTime
+          })
+        );
+
+        window.location.href =
+          "registrazione.html?tipo=cliente";
+
+        return;
+      }
+
+      // Da qui in poi l'utente è realmente autenticato.
 
       // Ricontrollo finale prima della conferma.
       const slot = getSlotStatus(selectedTime);
       if(slot.status !== "available"){
-        showSlotWarning(slot.reason || "Questo orario non è più disponibile.");
+        showSlotWarning(
+          slot.reason ||
+          "Questo orario non è più disponibile."
+        );
         selectedTime = null;
-        document.getElementById("sumTime").textContent = "Seleziona un orario";
+        document.getElementById("sumTime").textContent =
+          "Seleziona un orario";
         renderTimes();
         updateBookButton();
         return;
@@ -924,7 +1008,8 @@
 
       const bookedTime = selectedTime;
       const bookedStart = timeToMinutes(bookedTime);
-      const bookedEnd = bookedStart + selectedService.duration;
+      const bookedEnd =
+        bookedStart + selectedService.duration;
 
       // Registra l'intero intervallo della prenotazione.
       sessionBookings.push({
@@ -936,15 +1021,33 @@
       });
 
       // Salva il riepilogo per la pagina di conferma.
-      sessionStorage.setItem("beautyslot_last_booking", JSON.stringify({
-        salon:salon.name,
-        service:selectedService.name + " · " + selectedService.duration + " min",
-        date:formatLongDate(selectedDate),
-        time:bookedTime + " – " + minutesToTime(bookedEnd)
-      }));
+      sessionStorage.setItem(
+        "beautyslot_last_booking",
+        JSON.stringify({
+          salon:salon.name,
+          service:
+            selectedService.name +
+            " · " +
+            selectedService.duration +
+            " min",
+          date:formatLongDate(selectedDate),
+          time:
+            bookedTime +
+            " – " +
+            minutesToTime(bookedEnd)
+        })
+      );
 
-      // Apre subito la pagina di conferma dedicata.
-      window.location.href = "./conferma-prenotazione-donna.html";
+      /*
+        Se esisteva una prenotazione pendente da utente anonimo,
+        ora non serve più.
+      */
+      sessionStorage.removeItem(
+        "beautyslot_pending_booking"
+      );
+
+      window.location.href =
+        "./conferma-prenotazione-donna.html";
     });
 
     renderServices();
