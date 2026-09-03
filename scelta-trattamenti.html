@@ -472,7 +472,6 @@
     </section>
 
     <div class="bottom">
-      <button class="continue" id="continueButton" type="button" disabled>Continua</button>
       <div class="status" id="status" aria-live="polite"></div>
       <a class="back" href="index.html">← Torna alla scelta del profilo</a>
     </div>
@@ -497,7 +496,6 @@
     );
 
     const cards = [...document.querySelectorAll(".choice")];
-    const continueButton = document.getElementById("continueButton");
     const status = document.getElementById("status");
 
     let selected = null;
@@ -522,11 +520,6 @@
         card.setAttribute("aria-disabled", locked ? "true" : "false");
       });
 
-      if(locked){
-        continueButton.disabled = true;
-      }else if(selected){
-        continueButton.disabled = false;
-      }
     }
 
     function saveBeautyslotIdentity(user){
@@ -822,7 +815,6 @@
         selected
       );
 
-      continueButton.disabled = false;
       status.textContent = "";
     }
 
@@ -910,11 +902,6 @@
         }
       );
     });
-
-    continueButton.addEventListener(
-      "click",
-      goToSelected
-    );
 
     /*
       Ripristina l'ultima scelta visiva, ma senza forzare
