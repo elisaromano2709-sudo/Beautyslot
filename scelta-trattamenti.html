@@ -509,6 +509,10 @@
         if(card.dataset.target === "donna" && event.target.classList.contains("select-label")){
           window.location.href = "donna.html";
         }
+
+        if(card.dataset.target === "uomo" && event.target.classList.contains("select-label")){
+          window.location.href = "uomo.html";
+        }
       });
 
       card.addEventListener("keydown", function(event){
@@ -527,7 +531,10 @@
         return;
       }
 
-      status.textContent = "Perfetto: hai scelto i trattamenti Uomo.";
+      if(selected === "uomo"){
+        window.location.href = "uomo.html";
+        return;
+      }
     });
 
     const saved = sessionStorage.getItem("beautyslot_target_trattamenti");
