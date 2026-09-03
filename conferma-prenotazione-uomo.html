@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautyslot — Prenotazione confermata</title>
+  <meta name="description" content="Conferma della prenotazione Beautyslot.">
+  <style>
+    :root{
+      --bg1:#eef5fa;
+      --bg2:#e7f0f7;
+      --accent:#86abc7;
+      --dark:#5f87a5;
+      --text:#5f5558;
+      --muted:#8d8386;
+      --white:#ffffff;
+      --line:color-mix(in srgb,var(--dark) 18%,transparent);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:"Helvetica Neue",Arial,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 10%,rgba(255,255,255,.88),transparent 34%),
+        linear-gradient(180deg,var(--bg1),var(--bg2));
+    }
+
+    .card{
+      width:min(560px,100%);
+      padding:38px 30px 30px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:rgba(255,255,255,.82);
+      box-shadow:0 26px 70px rgba(60,45,50,.10);
+      text-align:center;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+    }
+
+    .brand{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:29px;
+      font-weight:400;
+      color:var(--dark);
+    }
+
+    .tag{
+      margin-top:6px;
+      font-size:8px;
+      letter-spacing:2.5px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .check{
+      width:82px;
+      height:82px;
+      margin:28px auto 22px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:var(--dark);
+      box-shadow:0 14px 30px color-mix(in srgb,var(--dark) 22%,transparent);
+    }
+
+    .check svg{
+      width:40px;
+      height:40px;
+      fill:none;
+      stroke:#fff;
+      stroke-width:2.2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    h1{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(30px,6vw,42px);
+      font-weight:400;
+      color:var(--dark);
+    }
+
+    .subtitle{
+      margin:11px auto 0;
+      max-width:410px;
+      font-size:13px;
+      line-height:1.6;
+      color:var(--muted);
+    }
+
+    .details{
+      margin:26px 0 0;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.66);
+      text-align:left;
+      display:none;
+    }
+
+    .details.show{display:block}
+
+    .row{
+      display:grid;
+      grid-template-columns:105px 1fr;
+      gap:12px;
+      padding:8px 0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .row:last-child{border-bottom:0}
+
+    .label{
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .value{
+      font-size:13px;
+      line-height:1.45;
+      color:var(--text);
+    }
+
+    .redirect{
+      margin-top:24px;
+      font-size:10px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+
+    .progress{
+      height:4px;
+      margin-top:16px;
+      overflow:hidden;
+      border-radius:999px;
+      background:color-mix(in srgb,var(--dark) 12%,transparent);
+    }
+
+    .progress > span{
+      display:block;
+      width:100%;
+      height:100%;
+      border-radius:inherit;
+      background:var(--dark);
+      transform-origin:left center;
+      animation:countdown 4s linear forwards;
+    }
+
+    @keyframes countdown{
+      from{transform:scaleX(1)}
+      to{transform:scaleX(0)}
+    }
+
+    @media(max-width:520px){
+      .card{padding:32px 20px 24px;border-radius:24px}
+      .row{grid-template-columns:1fr;gap:4px}
+      .check{width:74px;height:74px}
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h2 class="brand">Beautyslot</h2>
+    <div class="tag">BEAUTYSLOT UOMO</div>
+
+    <div class="check" aria-hidden="true">
+      <svg viewBox="0 0 48 48">
+        <path d="M12 25.5l8 8L36 16"></path>
+      </svg>
+    </div>
+
+    <h1>Prenotazione confermata</h1>
+    <p class="subtitle">Il tuo appuntamento Beautyslot è stato registrato.</p>
+
+    <section class="details" id="details">
+      <div class="row">
+        <div class="label">Salone</div>
+        <div class="value" id="detailSalon"></div>
+      </div>
+      <div class="row">
+        <div class="label">Trattamento</div>
+        <div class="value" id="detailService"></div>
+      </div>
+      <div class="row">
+        <div class="label">Data</div>
+        <div class="value" id="detailDate"></div>
+      </div>
+      <div class="row">
+        <div class="label">Orario</div>
+        <div class="value" id="detailTime"></div>
+      </div>
+    </section>
+
+    <div class="redirect">Tra pochi secondi tornerai automaticamente alla pagina principale.</div>
+    <div class="progress" aria-hidden="true"><span></span></div>
+  </main>
+
+  <script>
+    const bookingRaw = sessionStorage.getItem("beautyslot_last_booking");
+
+    if(bookingRaw){
+      try{
+        const booking = JSON.parse(bookingRaw);
+
+        document.getElementById("detailSalon").textContent = booking.salon || "—";
+        document.getElementById("detailService").textContent = booking.service || "—";
+        document.getElementById("detailDate").textContent = booking.date || "—";
+        document.getElementById("detailTime").textContent = booking.time || "—";
+
+        document.getElementById("details").classList.add("show");
+      }catch(error){
+        console.warn("Impossibile leggere il riepilogo prenotazione.", error);
+      }
+    }
+
+    setTimeout(function(){
+      window.location.replace("./uomo.html");
+    }, 4000);
+  </script>
+</body>
+</html>
