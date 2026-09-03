@@ -474,11 +474,6 @@
       cursor:pointer;
     }
 
-    .menu-navigation{
-      display:block;
-      text-decoration:none;
-    }
-
     .menu-item:hover,
     .menu-item.active{
       background:#fff4f7;
@@ -969,13 +964,75 @@
     }
 
     @media(max-width:620px){
+      /*
+        Header mobile compatto:
+        la colonna profilo contiene sia "Ciao Nome" sia l'omino,
+        quindi non può essere forzata a soli 48px.
+        Limitiamo invece correttamente gli elementi per evitare
+        qualsiasi overflow orizzontale.
+      */
       .topbar{
-        grid-template-columns:48px 1fr 48px;
-        padding:12px 12px;
+        width:100%;
+        max-width:100vw;
+        grid-template-columns:40px minmax(0,1fr) minmax(0,104px);
+        column-gap:4px;
+        padding:8px 8px;
+        overflow:hidden;
+      }
+
+      .topbar > *{
+        min-width:0;
+      }
+
+      .topbar .icon-btn{
+        width:38px;
+        height:38px;
+      }
+
+      .brand{
+        min-width:0;
+        overflow:hidden;
       }
 
       .brand-name{
-        font-size:24px;
+        font-size:21px;
+        white-space:nowrap;
+      }
+
+      .brand-tag{
+        margin-top:4px;
+        font-size:6.5px;
+        letter-spacing:1.55px;
+        white-space:nowrap;
+      }
+
+      .profile-area{
+        width:100%;
+        max-width:104px;
+        min-width:0;
+        gap:3px;
+        justify-self:end;
+        overflow:hidden;
+      }
+
+      .hello-user{
+        min-width:0;
+        max-width:62px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        font-size:10.5px;
+      }
+
+      .profile-area .profile-icon{
+        flex:0 0 36px;
+        width:36px;
+        height:36px;
+      }
+
+      .profile-icon svg{
+        width:19px;
+        height:19px;
       }
 
       .hero{
@@ -1008,6 +1065,44 @@
         bottom:16px;
       }
     }
+
+    @media(max-width:380px){
+      .topbar{
+        grid-template-columns:38px minmax(0,1fr) minmax(0,92px);
+        padding-left:6px;
+        padding-right:6px;
+      }
+
+      .topbar .icon-btn{
+        width:36px;
+        height:36px;
+      }
+
+      .brand-name{
+        font-size:19px;
+      }
+
+      .brand-tag{
+        font-size:6px;
+        letter-spacing:1.25px;
+      }
+
+      .profile-area{
+        max-width:92px;
+      }
+
+      .hello-user{
+        max-width:52px;
+        font-size:10px;
+      }
+
+      .profile-area .profile-icon{
+        flex-basis:34px;
+        width:34px;
+        height:34px;
+      }
+    }
+
   </style>
 </head>
 
@@ -1074,7 +1169,7 @@
           <h3>Atelier Hair</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Taglio, piega, colore e trattamenti professionali per capelli.</p>
-          <a class="book" href="salone-donna.html?id=hair-01">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=hair-01&v=20260903-navfix2">Scopri il salone</a>
         </div>
       </article>
 
@@ -1092,7 +1187,7 @@
           <h3>Maison Beauty</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Viso, corpo, ceretta, sopracciglia e trattamenti estetici.</p>
-          <a class="book" href="salone-donna.html?id=beauty-01">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=beauty-01&v=20260903-navfix2">Scopri il centro</a>
         </div>
       </article>
 
@@ -1110,7 +1205,7 @@
           <h3>Nails Studio</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.7</span></div>
           <p class="shop-desc">Manicure, gel, semipermanente, ricostruzione e nail art.</p>
-          <a class="book" href="salone-donna.html?id=nails-01">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=nails-01&v=20260903-navfix2">Scopri il salone</a>
         </div>
       </article>
 
@@ -1128,7 +1223,7 @@
           <h3>Skin & Wellness</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Laser, epilazione, sopracciglia e percorsi benessere.</p>
-          <a class="book" href="salone-donna.html?id=wellness-01">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=wellness-01&v=20260903-navfix2">Scopri il centro</a>
         </div>
       </article>
 
@@ -1146,7 +1241,7 @@
           <h3>Blush Hair Lab</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Styling, balayage, colore e cura personalizzata dei capelli.</p>
-          <a class="book" href="salone-donna.html?id=hair-02">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=hair-02&v=20260903-navfix2">Scopri il salone</a>
         </div>
       </article>
 
@@ -1164,7 +1259,7 @@
           <h3>Pure Beauty</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.6</span></div>
           <p class="shop-desc">Trattamenti viso e corpo, epilazione e cura dello sguardo.</p>
-          <a class="book" href="salone-donna.html?id=beauty-02">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=beauty-02&v=20260903-navfix2">Scopri il centro</a>
         </div>
       </article>
 
@@ -1185,11 +1280,6 @@
         <button class="menu-item" data-filter="estetista">Estetista</button>
         <button class="menu-item" data-filter="unghie">Unghie</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
-      </div>
-
-      <p class="menu-label" style="margin-top:28px">Il mio account</p>
-      <div class="menu-list">
-        <a class="menu-item menu-navigation" href="./mie-prenotazioni.html?tema=donna">Le mie prenotazioni</a>
       </div>
     </aside>
   </div>
@@ -1271,13 +1361,10 @@
       helloUser.textContent = cleanName ? "Ciao " + cleanName : "";
     }
 
-    /*
-      Non mostriamo più il nome dal localStorage prima di sapere quale
-      account Supabase è realmente autenticato. Evita che il nome del
-      vecchio account compaia sul nuovo account.
-    */
-    showBeautyslotGreeting("");
+    // Mostra subito il nome salvato durante registrazione/login.
+    showBeautyslotGreeting(localStorage.getItem("beautyslot_nome"));
 
+    // Se esiste una sessione Supabase, sincronizza il nome con i metadata reali.
     (async function syncBeautyslotUserName(){
       try{
         const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
@@ -1287,33 +1374,17 @@
           SUPABASE_PUBLISHABLE_KEY
         );
 
-        const { data, error } = await authClient.auth.getUser();
+        const { data } = await authClient.auth.getUser();
         const user = data?.user;
 
-        if(error || !user){
-          localStorage.removeItem("beautyslot_nome");
-          localStorage.removeItem("beautyslot_cognome");
-          localStorage.removeItem("beautyslot_full_name");
-          localStorage.removeItem("beautyslot_user_id");
-          localStorage.removeItem("beautyslot_email");
-          return;
-        }
-
-        const storedUserId = localStorage.getItem("beautyslot_user_id");
-        if(storedUserId && storedUserId !== user.id){
-          localStorage.removeItem("beautyslot_nome");
-          localStorage.removeItem("beautyslot_cognome");
-          localStorage.removeItem("beautyslot_full_name");
-          localStorage.removeItem("beautyslot_user_id");
-          localStorage.removeItem("beautyslot_email");
-        }
+        if(!user) return;
 
         const metadata = user.user_metadata || {};
         let firstName =
           metadata.nome ||
           (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
 
-        // Compatibilità con account vecchi privi dei metadata nome/cognome.
+        // Compatibilità con account vecchi, creati prima dei campi Nome/Cognome.
         if(!firstName && user.email){
           const emailPrefix = user.email.split("@")[0];
           const firstPart = emailPrefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, "");
@@ -1322,18 +1393,9 @@
           }
         }
 
-        localStorage.setItem("beautyslot_user_id", user.id || "");
-        localStorage.setItem("beautyslot_email", user.email || "");
-
         if(firstName){
           localStorage.setItem("beautyslot_nome", firstName);
           showBeautyslotGreeting(firstName);
-        }
-        if(metadata.cognome){
-          localStorage.setItem("beautyslot_cognome", metadata.cognome);
-        }
-        if(metadata.full_name){
-          localStorage.setItem("beautyslot_full_name", metadata.full_name);
         }
       }catch(error){
         console.warn("Beautyslot: impossibile recuperare il nome utente.", error);
@@ -1841,7 +1903,7 @@
     const menuButton = document.getElementById("menuButton");
     const closeMenu = document.getElementById("closeMenu");
     const cards = [...document.querySelectorAll(".shop-card")];
-    const menuItems = [...document.querySelectorAll(".menu-item[data-filter]")];
+    const menuItems = [...document.querySelectorAll(".menu-item")];
     const resultCount = document.getElementById("resultCount");
     const sectionTitle = document.getElementById("sectionTitle");
     const searchInput = document.getElementById("searchInput");
