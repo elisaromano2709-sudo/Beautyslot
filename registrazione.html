@@ -381,6 +381,19 @@
       submitButton.textContent = "Registrazione...";
 
       try {
+        /*
+          Se su questo browser era già collegato un altro account,
+          lo disconnettiamo PRIMA di creare il nuovo account.
+          Così la nuova registrazione non può ereditare la vecchia sessione.
+        */
+        await supabaseClient.auth.signOut();
+        localStorage.removeItem("beautyslot_nome");
+        localStorage.removeItem("beautyslot_cognome");
+        localStorage.removeItem("beautyslot_full_name");
+        localStorage.removeItem("beautyslot_user_id");
+        localStorage.removeItem("beautyslot_email");
+        sessionStorage.removeItem("beautyslot_tipo_utente");
+
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password: passwordValue,
@@ -402,23 +415,33 @@
         if (error) throw error;
 
         if (data.user) {
-          localStorage.setItem("beautyslot_nome", nome);
-          localStorage.setItem("beautyslot_cognome", cognome);
-          localStorage.setItem("beautyslot_full_name", (nome + " " + cognome).trim());
+          /*
+            NON salviamo nome/email come utente attivo prima della conferma.
+            Verranno salvati solo quando Supabase avrà una sessione realmente
+            autenticata per questo specifico user.id.
+          */
+          sessionStorage.setItem("beautyslot_pending_user_id", data.user.id || "");
+          sessionStorage.setItem("beautyslot_pending_email", email);
 
           form.reset();
 
           if (!data.session) {
-            alert(
-              "Registrazione completata. Ti abbiamo inviato una email di verifica. " +
-              "Apri la mail e conferma il tuo account prima di accedere."
-            );
-
             window.location.href = "attesa-conferma.html";
             return;
           }
 
-          window.location.href = "login.html";
+          /*
+            Se il progetto non richiedesse conferma email e Supabase restituisse
+            subito una sessione, sincronizziamo comunque l'identità corretta.
+          */
+          localStorage.setItem("beautyslot_user_id", data.user.id || "");
+          localStorage.setItem("beautyslot_email", data.user.email || email);
+          localStorage.setItem("beautyslot_nome", nome);
+          localStorage.setItem("beautyslot_cognome", cognome);
+          localStorage.setItem("beautyslot_full_name", (nome + " " + cognome).trim());
+
+          window.location.href =
+            tipo === "cliente" ? "scelta-trattamenti.html" : "login.html";
         }
       } catch (error) {
         console.error(error);
