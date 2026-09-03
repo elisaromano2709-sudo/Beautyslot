@@ -98,13 +98,15 @@
       box-shadow:var(--shadow);
     }
 
+
     .salon-image{
       position:relative;
       height:clamp(250px,43vw,440px);
       overflow:hidden;
       background:
-        linear-gradient(135deg,rgba(187,129,136,.15),rgba(255,255,255,.65)),
-        #e7f0f6;
+        linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.72)),
+        var(--bg);
+      border-bottom:1px solid var(--line);
     }
 
     .salon-image img{
@@ -315,6 +317,10 @@
     }
 
     @media(max-width:650px){
+      .salon-image{
+        height:265px;
+      }
+
       .page{
         width:calc(100% - 20px);
         margin-top:14px;
@@ -331,10 +337,6 @@
       .info-grid,
       .actions{
         grid-template-columns:1fr;
-      }
-
-      .salon-image{
-        height:265px;
       }
     }
   </style>
@@ -555,7 +557,6 @@
       calendarActive.style.display = "none";
       calendarInactive.style.display = "block";
     }
-
     const imageBox = document.getElementById("salonImage");
 
     if(salon.image){
