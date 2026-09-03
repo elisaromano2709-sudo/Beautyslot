@@ -103,7 +103,7 @@
         <div class="row"><div class="label">Orario</div><div class="value" id="time">—</div></div>
         <div class="booking-actions">
           <button class="action-btn primary" id="mapButton" type="button">Apri mappa</button>
-          <button class="action-btn danger" id="cancelButton" type="button">Gestisci appuntamento</button>
+          <button class="action-btn danger" id="cancelButton" type="button">Disdici appuntamento</button>
         </div>
       </div>
 
@@ -112,9 +112,8 @@
   </main>
 
   <div class="cancel-modal" id="cancelModal" aria-hidden="true">
-    <div class="cancel-dialog" role="dialog" aria-modal="true" aria-labelledby="cancelTitle" aria-describedby="cancelText">
-      <h2 id="cancelTitle">Disdire l’appuntamento?</h2>
-      <p id="cancelText">Stai per disdire l’appuntamento<span id="cancelSalonText"></span>. Vuoi confermare?</p>
+    <div class="cancel-dialog" role="dialog" aria-modal="true" aria-labelledby="cancelTitle">
+      <h2 id="cancelTitle">Vuoi disdire l'appuntamento?</h2>
       <div class="cancel-dialog-actions">
         <button class="action-btn" id="keepBookingButton" type="button">No, mantieni appuntamento</button>
         <button class="action-btn danger" id="confirmCancelButton" type="button">Conferma disdetta</button>
@@ -189,14 +188,12 @@
     const mapButton = document.getElementById("mapButton");
     const cancelButton = document.getElementById("cancelButton");
     const cancelModal = document.getElementById("cancelModal");
-    const cancelSalonText = document.getElementById("cancelSalonText");
     const keepBookingButton = document.getElementById("keepBookingButton");
     const confirmCancelButton = document.getElementById("confirmCancelButton");
 
     let activeBookingRaw = null;
 
     function openCancelModal(booking){
-      cancelSalonText.textContent = booking?.salon ? " presso " + booking.salon : "";
       cancelModal.classList.add("open");
       cancelModal.setAttribute("aria-hidden", "false");
       confirmCancelButton.focus();
