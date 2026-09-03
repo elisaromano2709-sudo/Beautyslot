@@ -364,6 +364,37 @@
       }).format(d);
     }
 
+    function renderServices(){
+      servicesBox.innerHTML = "";
+
+      SERVICES.forEach(service => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "service";
+        if(selectedService && selectedService.id === service.id){
+          btn.classList.add("selected");
+        }
+
+        btn.innerHTML =
+          '<span class="service-name">' + service.name + '</span>' +
+          '<span class="service-meta">' +
+            '<span>' + service.duration + ' min</span>' +
+            '<span>' + service.price + '</span>' +
+          '</span>';
+
+        btn.addEventListener("click", () => {
+          selectedService = service;
+          document.getElementById("sumService").textContent =
+            service.name + " · " + service.duration + " min · " + service.price;
+
+          renderServices();
+          updateBookButton();
+        });
+
+        servicesBox.appendChild(btn);
+      });
+    }
+
     function renderMonth(){
       daysBox.innerHTML = "";
 
