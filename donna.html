@@ -47,7 +47,7 @@
       top:0;
       z-index:40;
       display:grid;
-      grid-template-columns:52px 1fr 52px;
+      grid-template-columns:52px 1fr auto;
       align-items:center;
       padding:14px 18px;
       background:rgba(255,255,255,.92);
@@ -105,6 +105,26 @@
       letter-spacing:2.6px;
       text-transform:uppercase;
       color:#9c9495;
+    }
+
+
+    .profile-area{
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:8px;
+      min-width:max-content;
+    }
+
+    .hello-user{
+      font-size:13px;
+      font-weight:500;
+      white-space:nowrap;
+      color:var(--rose-dark);
+    }
+
+    .hello-user:empty{
+      display:none;
     }
 
     .profile-icon svg{
@@ -797,6 +817,15 @@
     }
 
     @media(max-width:620px){
+
+      .hello-user{
+        max-width:105px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        font-size:12px;
+      }
+
+
       .map-modal{
         padding:0;
       }
@@ -991,12 +1020,15 @@
       <div class="brand-tag">Book beauty. Your way.</div>
     </div>
 
-    <a class="icon-btn profile-icon" href="login.html" aria-label="Profilo">
-      <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="8" r="3.4"></circle>
-        <path d="M5.4 19c.8-4.1 3-6.2 6.6-6.2s5.8 2.1 6.6 6.2"></path>
-      </svg>
-    </a>
+    <div class="profile-area">
+      <span class="hello-user" id="helloUser"></span>
+      <a class="icon-btn profile-icon" href="login.html" aria-label="Profilo">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="3.4"></circle>
+          <path d="M5.4 19c.8-4.1 3-6.2 6.6-6.2s5.8 2.1 6.6 6.2"></path>
+        </svg>
+      </a>
+    </div>
   </header>
 
   <section class="hero">
@@ -1209,10 +1241,68 @@
   </div>
 
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 
   <script>
+
+    // Saluto personale accanto all'icona profilo.
+    const helloUser = document.getElementById("helloUser");
+
+    function beautyslotCapitalizeName(value){
+      const clean = (value || "").trim();
+      if(!clean) return "";
+      return clean.charAt(0).toUpperCase() + clean.slice(1);
+    }
+
+    function showBeautyslotGreeting(name){
+      const cleanName = beautyslotCapitalizeName(name);
+      helloUser.textContent = cleanName ? "Ciao " + cleanName : "";
+    }
+
+    // Mostra subito il nome salvato durante registrazione/login.
+    showBeautyslotGreeting(localStorage.getItem("beautyslot_nome"));
+
+    // Se esiste una sessione Supabase, sincronizza il nome con i metadata reali.
+    (async function syncBeautyslotUserName(){
+      try{
+        const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+        const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+        const authClient = supabase.createClient(
+          SUPABASE_URL,
+          SUPABASE_PUBLISHABLE_KEY
+        );
+
+        const { data } = await authClient.auth.getUser();
+        const user = data?.user;
+
+        if(!user) return;
+
+        const metadata = user.user_metadata || {};
+        let firstName =
+          metadata.nome ||
+          (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
+
+        // Compatibilità con account vecchi, creati prima dei campi Nome/Cognome.
+        if(!firstName && user.email){
+          const emailPrefix = user.email.split("@")[0];
+          const firstPart = emailPrefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, "");
+          if(firstPart){
+            firstName = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+          }
+        }
+
+        if(firstName){
+          localStorage.setItem("beautyslot_nome", firstName);
+          showBeautyslotGreeting(firstName);
+        }
+      }catch(error){
+        console.warn("Beautyslot: impossibile recuperare il nome utente.", error);
+      }
+    })();
+
+
 
     const mapButton = document.getElementById("mapButton");
     const mapModal = document.getElementById("mapModal");
