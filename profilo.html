@@ -256,7 +256,19 @@
           <section class="section">
             <h2 class="section-title">Cambia account</h2>
             <p class="section-text">Esci da questo profilo e accedi con un altro account Beautyslot.</p>
-            <button class="button secondary" type="button" id="changeAccount">Cambia account</button>
+
+            <button class="button secondary" type="button" id="changeAccount">
+              Cambia account
+            </button>
+
+            <button
+              class="button secondary"
+              type="button"
+              id="logoutButton"
+              style="margin-top:14px;"
+            >
+              Logout
+            </button>
           </section>
         </div>
       </div>
@@ -615,12 +627,45 @@
         "Password aggiornata correttamente. Ora puoi usare la nuova password.";
     });
 
-    document.getElementById("changeAccount").addEventListener("click", async () => {
-      await client.auth.signOut();
+    function clearBeautyslotSessionData(){
       localStorage.removeItem("beautyslot_nome");
       localStorage.removeItem("beautyslot_cognome");
       localStorage.removeItem("beautyslot_full_name");
-      window.location.href = "login.html";
+      localStorage.removeItem("beautyslot_user_id");
+      localStorage.removeItem("beautyslot_email");
+
+      sessionStorage.removeItem("beautyslot_tipo_utente");
+      sessionStorage.removeItem("beautyslot_pending_user_id");
+      sessionStorage.removeItem("beautyslot_pending_email");
+      sessionStorage.removeItem("beautyslot_recovery_email");
+    }
+
+    async function performLogout(destination){
+      try{
+        const { error } = await client.auth.signOut();
+
+        if(error){
+          console.error("Beautyslot logout:", error);
+        }
+      }catch(error){
+        console.error("Beautyslot logout:", error);
+      }finally{
+        clearBeautyslotSessionData();
+        window.location.replace(destination);
+      }
+    }
+
+    document.getElementById("changeAccount").addEventListener("click", async () => {
+      await performLogout("login.html");
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", async () => {
+      const destination =
+        tema === "uomo"
+          ? "uomo.html"
+          : "donna.html";
+
+      await performLogout(destination);
     });
 
     loadProfile();
