@@ -487,37 +487,182 @@
       stroke-linejoin:round;
     }
 
-    .map-preview{
+
+    .map-modal{
       position:fixed;
-      left:18px;
-      bottom:92px;
-      z-index:61;
-      width:min(360px,calc(100vw - 36px));
+      inset:0;
+      z-index:100;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       padding:18px;
+      background:rgba(25,19,21,.34);
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .24s ease, visibility .24s ease;
+    }
+
+    .map-modal.open{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .map-shell{
+      width:min(1120px,100%);
+      height:min(760px,calc(100vh - 36px));
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
       border:1px solid var(--line);
-      border-radius:22px;
+      border-radius:28px;
       background:#fff;
-      box-shadow:0 24px 60px rgba(44,34,36,.16);
+      box-shadow:0 32px 90px rgba(30,24,26,.24);
+      transform:translateY(14px) scale(.985);
+      transition:transform .24s ease;
+    }
+
+    .map-modal.open .map-shell{
+      transform:translateY(0) scale(1);
+    }
+
+    .map-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.96);
+    }
+
+    .map-title-wrap h4{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:25px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .map-title-wrap p{
+      margin:5px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .map-close{
+      flex:0 0 auto;
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:50%;
+      background:#f6f4f4;
+      color:#6d6667;
+      font-size:24px;
+      line-height:1;
+      cursor:pointer;
+    }
+
+    .map-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:12px 16px;
+      overflow-x:auto;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      scrollbar-width:none;
+    }
+
+    .map-tools::-webkit-scrollbar{
       display:none;
     }
 
-    .map-preview.open{
+    .map-chip,
+    .locate-btn{
+      flex:0 0 auto;
+      min-height:38px;
+      padding:0 15px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:#6d6667;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .map-chip.active{
+      border-color:color-mix(in srgb, var(--rose-dark) 42%, transparent);
+      background:color-mix(in srgb, var(--rose) 10%, white);
+      color:var(--rose-dark);
+    }
+
+    .locate-btn{
+      margin-left:auto;
+      color:var(--rose-dark);
+      border-color:color-mix(in srgb, var(--rose-dark) 30%, transparent);
+    }
+
+    .map-frame-wrap{
+      position:relative;
+      flex:1;
+      min-height:320px;
+      background:#eef1f2;
+    }
+
+    .map-frame{
+      width:100%;
+      height:100%;
+      border:0;
       display:block;
     }
 
-    .map-preview h4{
-      margin:0 0 9px;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:22px;
-      font-weight:400;
-      color:#6d555a;
+    .map-status{
+      position:absolute;
+      left:50%;
+      top:16px;
+      transform:translateX(-50%);
+      z-index:2;
+      max-width:calc(100% - 32px);
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.94);
+      box-shadow:0 8px 24px rgba(0,0,0,.10);
+      color:#6d6667;
+      font-size:11px;
+      text-align:center;
+      pointer-events:none;
     }
 
-    .map-preview p{
-      margin:0;
-      font-size:13px;
-      line-height:1.55;
-      color:var(--muted);
+    @media(max-width:620px){
+      .map-modal{
+        padding:0;
+      }
+
+      .map-shell{
+        width:100%;
+        height:100%;
+        border-radius:0;
+        border:0;
+      }
+
+      .map-head{
+        padding:14px 15px;
+      }
+
+      .map-title-wrap h4{
+        font-size:22px;
+      }
+
+      .map-tools{
+        padding:10px 12px;
+      }
+
+      .locate-btn{
+        margin-left:0;
+      }
     }
 
     .floating-favorites{
@@ -845,9 +990,37 @@
     </svg>
   </button>
 
-  <div class="map-preview" id="mapPreview">
-    <h4>Mappa vicino a te</h4>
-    <p>Qui collegheremo la mappa per trovare parrucchieri, estetiste, nail artist e centri benessere vicini alla tua posizione.</p>
+  <div class="map-modal" id="mapModal" aria-hidden="true">
+    <div class="map-shell" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+      <div class="map-head">
+        <div class="map-title-wrap">
+          <h4 id="mapTitle">Mappa vicino a te</h4>
+          <p>Visualizza la tua zona e scegli la categoria che vuoi cercare.</p>
+        </div>
+        <button class="map-close" id="mapClose" aria-label="Chiudi mappa">×</button>
+      </div>
+
+      <div class="map-tools">
+
+      <button class="map-chip active" data-map-filter="tutti">Tutti</button>
+      <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
+      <button class="map-chip" data-map-filter="estetista">Estetiste</button>
+      <button class="map-chip" data-map-filter="unghie">Unghie</button>
+      <button class="map-chip" data-map-filter="benessere">Benessere</button>
+        <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
+      </div>
+
+      <div class="map-frame-wrap">
+        <div class="map-status" id="mapStatus">Cerco la tua posizione…</div>
+        <iframe
+          class="map-frame"
+          id="mapFrame"
+          title="Mappa dei professionisti vicini"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
   </div>
 
   <button class="floating-favorites" id="favoritesButton" aria-label="Preferiti">
@@ -865,20 +1038,110 @@
   <script>
 
     const mapButton = document.getElementById("mapButton");
-    const mapPreview = document.getElementById("mapPreview");
+    const mapModal = document.getElementById("mapModal");
+    const mapClose = document.getElementById("mapClose");
+    const mapFrame = document.getElementById("mapFrame");
+    const mapStatus = document.getElementById("mapStatus");
+    const locateButton = document.getElementById("locateButton");
+    const mapChips = [...document.querySelectorAll(".map-chip")];
 
-    mapButton.addEventListener("click", () => {
-      mapPreview.classList.toggle("open");
+    let lastMapPosition = null;
+    let activeMapFilter = "tutti";
+
+    function osmEmbedUrl(lat, lon){
+      const deltaLat = 0.035;
+      const deltaLon = 0.055;
+
+      const left = lon - deltaLon;
+      const right = lon + deltaLon;
+      const bottom = lat - deltaLat;
+      const top = lat + deltaLat;
+
+      return "https://www.openstreetmap.org/export/embed.html"
+        + "?bbox=" + encodeURIComponent(left + "," + bottom + "," + right + "," + top)
+        + "&layer=mapnik"
+        + "&marker=" + encodeURIComponent(lat + "," + lon);
+    }
+
+    function showPosition(lat, lon){
+      lastMapPosition = { lat, lon };
+      mapFrame.src = osmEmbedUrl(lat, lon);
+      mapStatus.textContent = "Sei qui · filtro: " + activeMapFilter;
+    }
+
+    function locateUser(){
+      mapStatus.textContent = "Cerco la tua posizione…";
+
+      if(!navigator.geolocation){
+        showPosition(40.3515, 18.1750);
+        mapStatus.textContent = "Geolocalizzazione non disponibile.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function(position){
+          showPosition(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+        },
+        function(){
+          showPosition(40.3515, 18.1750);
+          mapStatus.textContent = "Posizione non disponibile. Puoi comunque esplorare la mappa.";
+        },
+        {
+          enableHighAccuracy:true,
+          timeout:8000,
+          maximumAge:60000
+        }
+      );
+    }
+
+    function openMap(){
+      mapModal.classList.add("open");
+      mapModal.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+
+      if(lastMapPosition){
+        showPosition(lastMapPosition.lat, lastMapPosition.lon);
+      } else {
+        locateUser();
+      }
+    }
+
+    function closeMap(){
+      mapModal.classList.remove("open");
+      mapModal.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+
+    mapButton.addEventListener("click", openMap);
+    mapClose.addEventListener("click", closeMap);
+    locateButton.addEventListener("click", locateUser);
+
+    mapModal.addEventListener("click", function(event){
+      if(event.target === mapModal){
+        closeMap();
+      }
     });
 
-    document.addEventListener("click", (event) => {
-      if(
-        mapPreview.classList.contains("open") &&
-        !mapPreview.contains(event.target) &&
-        !mapButton.contains(event.target)
-      ){
-        mapPreview.classList.remove("open");
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape" && mapModal.classList.contains("open")){
+        closeMap();
       }
+    });
+
+    mapChips.forEach(function(chip){
+      chip.addEventListener("click", function(){
+        activeMapFilter = chip.dataset.mapFilter;
+        mapChips.forEach(function(item){
+          item.classList.toggle("active", item === chip);
+        });
+
+        if(lastMapPosition){
+          mapStatus.textContent = "Sei qui · filtro: " + activeMapFilter;
+        }
+      });
     });
 
     const drawerBackdrop = document.getElementById("drawerBackdrop");
