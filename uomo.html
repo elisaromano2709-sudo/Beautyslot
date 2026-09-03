@@ -470,6 +470,11 @@
       cursor:pointer;
     }
 
+    .menu-navigation{
+      display:block;
+      text-decoration:none;
+    }
+
     .menu-item:hover,
     .menu-item.active{
       background:#eef6fb;
@@ -1157,6 +1162,11 @@
         <button class="menu-item" data-filter="parrucchiere">Parrucchiere</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
+
+      <p class="menu-label" style="margin-top:28px">Il mio account</p>
+      <div class="menu-list">
+        <a class="menu-item menu-navigation" href="./mie-prenotazioni.html?tema=uomo">Le mie prenotazioni</a>
+      </div>
     </aside>
   </div>
 
@@ -1778,7 +1788,7 @@
     const menuButton = document.getElementById("menuButton");
     const closeMenu = document.getElementById("closeMenu");
     const cards = [...document.querySelectorAll(".shop-card")];
-    const menuItems = [...document.querySelectorAll(".menu-item")];
+    const menuItems = [...document.querySelectorAll(".menu-item[data-filter]")];
     const resultCount = document.getElementById("resultCount");
     const sectionTitle = document.getElementById("sectionTitle");
     const searchInput = document.getElementById("searchInput");
