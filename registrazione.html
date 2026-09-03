@@ -230,6 +230,31 @@
       <form id="registrationForm" novalidate>
         <input type="hidden" id="tipoUtente" name="tipoUtente" value="cliente">
 
+
+        <div class="field">
+          <label for="nome">Nome</label>
+          <input
+            id="nome"
+            name="nome"
+            type="text"
+            autocomplete="given-name"
+            placeholder="Nome"
+            required
+          >
+        </div>
+
+        <div class="field">
+          <label for="cognome">Cognome</label>
+          <input
+            id="cognome"
+            name="cognome"
+            type="text"
+            autocomplete="family-name"
+            placeholder="Cognome"
+            required
+          >
+        </div>
+
         <div class="field">
           <label for="email">Email</label>
           <input
@@ -346,6 +371,8 @@
         return;
       }
 
+      const nome = document.getElementById("nome").value.trim();
+      const cognome = document.getElementById("cognome").value.trim();
       const email = document.getElementById("email").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const passwordValue = password.value;
@@ -363,6 +390,9 @@
                 ? "https://beauty-slot.it/scelta-trattamenti.html"
                 : "https://beauty-slot.it/login.html",
             data: {
+              nome: nome,
+              cognome: cognome,
+              full_name: (nome + " " + cognome).trim(),
               telefono: telefono,
               tipo_utente: tipo
             }
@@ -372,6 +402,10 @@
         if (error) throw error;
 
         if (data.user) {
+          localStorage.setItem("beautyslot_nome", nome);
+          localStorage.setItem("beautyslot_cognome", cognome);
+          localStorage.setItem("beautyslot_full_name", (nome + " " + cognome).trim());
+
           form.reset();
 
           if (!data.session) {
