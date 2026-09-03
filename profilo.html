@@ -294,16 +294,29 @@
 
     function getNameFromUser(user){
       const metadata = user?.user_metadata || {};
+
+      /*
+        Il profilo NON usa più il nome salvato da un account precedente.
+        La fonte principale è sempre l'utente Supabase autenticato.
+      */
       let nome =
         metadata.nome ||
-        (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "") ||
-        localStorage.getItem("beautyslot_nome") || "";
+        (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
 
       if(!nome && user?.email){
         const prefix = user.email.split("@")[0];
         nome = prefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g,"");
       }
+
       return capitalize(nome);
+    }
+
+    function clearStoredIdentity(){
+      localStorage.removeItem("beautyslot_nome");
+      localStorage.removeItem("beautyslot_cognome");
+      localStorage.removeItem("beautyslot_full_name");
+      localStorage.removeItem("beautyslot_user_id");
+      localStorage.removeItem("beautyslot_email");
     }
 
     async function loadProfile(){
@@ -315,6 +328,16 @@
       }
 
       const user = data.user;
+
+      /*
+        Se il browser conserva dati appartenenti a un altro user.id,
+        li eliminiamo prima di mostrare qualsiasi informazione.
+      */
+      const storedUserId = localStorage.getItem("beautyslot_user_id");
+      if(storedUserId && storedUserId !== user.id){
+        clearStoredIdentity();
+      }
+
       const metadata = user.user_metadata || {};
       const nome = getNameFromUser(user);
       const cognome = (metadata.cognome || "").trim();
@@ -331,7 +354,10 @@
           "Ti invieremo un codice di verifica a " + currentUserEmail + ".";
       }
 
+      localStorage.setItem("beautyslot_user_id", user.id || "");
+      localStorage.setItem("beautyslot_email", currentUserEmail);
       if(nome) localStorage.setItem("beautyslot_nome", nome);
+      if(cognome) localStorage.setItem("beautyslot_cognome", cognome);
       if(fullName) localStorage.setItem("beautyslot_full_name", fullName);
 
       document.getElementById("profileContent").hidden = false;
