@@ -478,11 +478,152 @@
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
+    const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+    const authClient = supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true
+        }
+      }
+    );
+
     const cards = [...document.querySelectorAll(".choice")];
     const continueButton = document.getElementById("continueButton");
     const status = document.getElementById("status");
     let selected = null;
+
+    function saveBeautyslotIdentity(user){
+      if(!user) return;
+
+      const metadata = user.user_metadata || {};
+      const nome =
+        metadata.nome ||
+        (metadata.full_name
+          ? metadata.full_name.trim().split(/\s+/)[0]
+          : "");
+
+      localStorage.setItem("beautyslot_user_id", user.id || "");
+      localStorage.setItem("beautyslot_email", user.email || "");
+
+      if(nome){
+        localStorage.setItem("beautyslot_nome", nome);
+      }else{
+        localStorage.removeItem("beautyslot_nome");
+      }
+
+      if(metadata.cognome){
+        localStorage.setItem("beautyslot_cognome", metadata.cognome);
+      }else{
+        localStorage.removeItem("beautyslot_cognome");
+      }
+
+      if(metadata.full_name){
+        localStorage.setItem("beautyslot_full_name", metadata.full_name);
+      }else if(nome){
+        localStorage.setItem(
+          "beautyslot_full_name",
+          [nome, metadata.cognome || ""].filter(Boolean).join(" ")
+        );
+      }else{
+        localStorage.removeItem("beautyslot_full_name");
+      }
+
+      if(metadata.tipo_utente){
+        sessionStorage.setItem(
+          "beautyslot_tipo_utente",
+          metadata.tipo_utente
+        );
+      }
+    }
+
+    function cleanAuthUrl(){
+      window.history.replaceState(
+        {},
+        document.title,
+        window.location.origin + window.location.pathname
+      );
+    }
+
+    async function acquireConfirmedSession(){
+      try{
+        const url = new URL(window.location.href);
+        const hashParams = new URLSearchParams(
+          window.location.hash.replace(/^#/, "")
+        );
+
+        const authError =
+          hashParams.get("error_description") ||
+          url.searchParams.get("error_description");
+
+        if(authError){
+          status.textContent =
+            "Non è stato possibile completare la conferma: " + authError;
+          return;
+        }
+
+        const code = url.searchParams.get("code");
+
+        if(code){
+          const flowId = url.searchParams.get("sb_flow_id");
+          const { error } =
+            await authClient.auth.exchangeCodeForSession(
+              code,
+              flowId ? { flowId } : undefined
+            );
+
+          if(error){
+            console.warn("Beautyslot PKCE:", error);
+          }
+        }
+
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
+
+        if(accessToken && refreshToken){
+          const { error } = await authClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          if(error) throw error;
+        }
+
+        const { data, error } = await authClient.auth.getSession();
+        if(error) throw error;
+
+        if(data?.session?.user){
+          saveBeautyslotIdentity(data.session.user);
+          sessionStorage.removeItem("beautyslot_pending_user_id");
+          sessionStorage.removeItem("beautyslot_pending_email");
+
+          status.textContent =
+            "Email confermata. Sei già connesso a Beautyslot.";
+
+          cleanAuthUrl();
+
+          setTimeout(() => {
+            if(status.textContent ===
+              "Email confermata. Sei già connesso a Beautyslot."){
+              status.textContent = "";
+            }
+          }, 2400);
+        }
+      }catch(error){
+        console.error(
+          "Beautyslot: errore acquisizione sessione dopo conferma.",
+          error
+        );
+        status.textContent =
+          "La conferma è avvenuta, ma non è stato possibile mantenere l'accesso automatico.";
+      }
+    }
 
     function selectCard(card){
       selected = card.dataset.target;
@@ -536,6 +677,8 @@
         return;
       }
     });
+
+    acquireConfirmedSession();
 
     const saved = sessionStorage.getItem("beautyslot_target_trattamenti");
     if(saved === "donna" || saved === "uomo"){
