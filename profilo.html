@@ -217,7 +217,9 @@
                     type="text"
                     inputmode="numeric"
                     autocomplete="one-time-code"
+                    minlength="6"
                     maxlength="6"
+                    pattern="[0-9]{6}"
                     placeholder="000000"
                   >
                 </div>
@@ -253,7 +255,7 @@
                 </div>
 
                 <button class="button primary" type="button" id="saveRecoveryPassword">
-                  Imposta nuova password
+                  Aggiorna password
                 </button>
 
                 <div class="message" id="recoveryPasswordMessage"></div>
@@ -383,6 +385,14 @@
     const saveRecoveryPassword = document.getElementById("saveRecoveryPassword");
     const recoveryPasswordMessage = document.getElementById("recoveryPasswordMessage");
 
+    const recoveryCodeInput = document.getElementById("recoveryCode");
+
+    recoveryCodeInput.addEventListener("input", () => {
+      recoveryCodeInput.value = recoveryCodeInput.value
+        .replace(/\D/g, "")
+        .slice(0, 6);
+    });
+
     forgotPassword.addEventListener("click", () => {
       recoveryBox.classList.toggle("open");
 
@@ -401,15 +411,30 @@
         return;
       }
 
+      verifiedBox.classList.remove("open");
+      codeRow.classList.remove("open");
+      recoveryCodeInput.value = "";
+      document.getElementById("recoveryPassword").value = "";
+      document.getElementById("recoveryPasswordConfirm").value = "";
+      verifyCodeMessage.className = "message";
+      verifyCodeMessage.textContent = "";
+      recoveryPasswordMessage.className = "message";
+      recoveryPasswordMessage.textContent = "";
+
       sendRecoveryCode.disabled = true;
       sendRecoveryCode.textContent = "Invio in corso…";
 
-      const { error } = await client.auth.signInWithOtp({
-        email: currentUserEmail,
-        options: {
-          shouldCreateUser: false
+      const recoveryRedirect = new URL(
+        "profilo.html?tema=" + encodeURIComponent(tema),
+        window.location.href
+      ).href;
+
+      const { error } = await client.auth.resetPasswordForEmail(
+        currentUserEmail,
+        {
+          redirectTo: recoveryRedirect
         }
-      });
+      );
 
       sendRecoveryCode.disabled = false;
       sendRecoveryCode.textContent = "Invia di nuovo il codice";
@@ -421,13 +446,13 @@
       }
 
       sendCodeMessage.className = "message ok";
-      sendCodeMessage.textContent = "Codice inviato. Controlla la tua email.";
+      sendCodeMessage.textContent = "Codice di verifica inviato. Controlla la tua email Beautyslot.";
       codeRow.classList.add("open");
-      document.getElementById("recoveryCode").focus();
+      recoveryCodeInput.focus();
     });
 
     verifyRecoveryCode.addEventListener("click", async () => {
-      const code = document.getElementById("recoveryCode").value.trim();
+      const code = recoveryCodeInput.value.trim();
 
       verifyCodeMessage.className = "message";
       verifyCodeMessage.textContent = "";
@@ -444,7 +469,7 @@
       const { error } = await client.auth.verifyOtp({
         email: currentUserEmail,
         token: code,
-        type: "email"
+        type: "recovery"
       });
 
       verifyRecoveryCode.disabled = false;
@@ -489,7 +514,7 @@
       });
 
       saveRecoveryPassword.disabled = false;
-      saveRecoveryPassword.textContent = "Imposta nuova password";
+      saveRecoveryPassword.textContent = "Aggiorna password";
 
       if(error){
         recoveryPasswordMessage.className = "message error";
@@ -500,7 +525,7 @@
 
       document.getElementById("recoveryPassword").value = "";
       document.getElementById("recoveryPasswordConfirm").value = "";
-      document.getElementById("recoveryCode").value = "";
+      recoveryCodeInput.value = "";
 
       recoveryPasswordMessage.className = "message ok";
       recoveryPasswordMessage.textContent =
