@@ -926,8 +926,7 @@
       const bookedStart = timeToMinutes(bookedTime);
       const bookedEnd = bookedStart + selectedService.duration;
 
-      // Salva l'intero intervallo: es. 11:00 + 60 min occupa 11:00-12:00,
-      // quindi anche lo slot delle 11:30 diventa automaticamente occupato.
+      // Registra l'intero intervallo della prenotazione.
       sessionBookings.push({
         date:dateKey(selectedDate),
         start:bookedStart,
@@ -936,26 +935,16 @@
         serviceName:selectedService.name
       });
 
-      const confirmation = document.getElementById("confirmation");
-      const text = document.getElementById("confirmationText");
+      // Salva il riepilogo per la pagina di conferma.
+      sessionStorage.setItem("beautyslot_last_booking", JSON.stringify({
+        salon:salon.name,
+        service:selectedService.name + " · " + selectedService.duration + " min",
+        date:formatLongDate(selectedDate),
+        time:bookedTime + " – " + minutesToTime(bookedEnd)
+      }));
 
-      text.textContent =
-        selectedService.name + " presso " + salon.name +
-        ", " + formatLongDate(selectedDate) +
-        " dalle " + bookedTime + " alle " + minutesToTime(bookedEnd) + ".";
-
-      confirmation.classList.add("show");
-      confirmation.scrollIntoView({behavior:"smooth", block:"nearest"});
-      clearSlotWarning();
-
-      // Dopo la conferma aggiorna subito la griglia:
-      // tutti gli orari coperti dalla durata diventano barrati/scuri.
-      selectedTime = null;
-      document.getElementById("sumTime").textContent =
-        "Prenotazione confermata " + bookedTime + " – " + minutesToTime(bookedEnd);
-      bookButton.textContent = "Prenotazione confermata";
-      bookButton.disabled = true;
-      renderTimes();
+      // Apre subito la pagina di conferma dedicata.
+      window.location.href = "./conferma-prenotazione-donna.html";
     });
 
     renderServices();
