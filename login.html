@@ -346,13 +346,24 @@
       submitButton.textContent = "Accesso...";
 
       try {
+        /*
+          Un login esplicito deve sostituire qualsiasi account precedente
+          presente nello stesso browser.
+        */
+        await supabaseClient.auth.signOut();
+        localStorage.removeItem("beautyslot_nome");
+        localStorage.removeItem("beautyslot_cognome");
+        localStorage.removeItem("beautyslot_full_name");
+        localStorage.removeItem("beautyslot_user_id");
+        localStorage.removeItem("beautyslot_email");
+        sessionStorage.removeItem("beautyslot_tipo_utente");
+
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
 
         if (error) throw error;
-
 
         const metadata = data.user?.user_metadata || {};
         let nomeUtente =
@@ -369,6 +380,9 @@
           }
         }
 
+        localStorage.setItem("beautyslot_user_id", data.user?.id || "");
+        localStorage.setItem("beautyslot_email", data.user?.email || email);
+
         if (nomeUtente) {
           localStorage.setItem("beautyslot_nome", nomeUtente);
         }
@@ -379,6 +393,11 @@
 
         if (metadata.full_name) {
           localStorage.setItem("beautyslot_full_name", metadata.full_name);
+        } else if (nomeUtente) {
+          localStorage.setItem(
+            "beautyslot_full_name",
+            [nomeUtente, metadata.cognome || ""].filter(Boolean).join(" ")
+          );
         }
 
         const tipoUtente =
