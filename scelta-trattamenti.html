@@ -483,6 +483,7 @@
   <script>
     const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
     const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
     const authClient = supabase.createClient(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY,
@@ -498,193 +499,479 @@
     const cards = [...document.querySelectorAll(".choice")];
     const continueButton = document.getElementById("continueButton");
     const status = document.getElementById("status");
+
     let selected = null;
+    let authInitializationFinished = false;
+
+    const currentUrl = new URL(window.location.href);
+    const hashParams = new URLSearchParams(
+      window.location.hash.replace(/^#/, "")
+    );
+
+    const arrivedFromSupabase =
+      Boolean(currentUrl.searchParams.get("code")) ||
+      Boolean(hashParams.get("access_token")) ||
+      Boolean(hashParams.get("refresh_token")) ||
+      Boolean(hashParams.get("error")) ||
+      Boolean(currentUrl.searchParams.get("error"));
+
+    function setChoicesLocked(locked){
+      cards.forEach(card => {
+        card.style.pointerEvents = locked ? "none" : "";
+        card.style.opacity = locked ? ".64" : "";
+        card.setAttribute("aria-disabled", locked ? "true" : "false");
+      });
+
+      if(locked){
+        continueButton.disabled = true;
+      }else if(selected){
+        continueButton.disabled = false;
+      }
+    }
 
     function saveBeautyslotIdentity(user){
       if(!user) return;
 
       const metadata = user.user_metadata || {};
-      const nome =
+
+      let firstName =
         metadata.nome ||
-        (metadata.full_name
-          ? metadata.full_name.trim().split(/\s+/)[0]
-          : "");
+        (
+          metadata.full_name
+            ? metadata.full_name.trim().split(/\s+/)[0]
+            : ""
+        );
 
-      localStorage.setItem("beautyslot_user_id", user.id || "");
-      localStorage.setItem("beautyslot_email", user.email || "");
+      if(!firstName && user.email){
+        const emailPrefix = user.email.split("@")[0];
+        const firstPart =
+          emailPrefix
+            .split(/[._-]/)[0]
+            .replace(/[^a-zA-ZÀ-ÿ]/g, "");
 
-      if(nome){
-        localStorage.setItem("beautyslot_nome", nome);
+        if(firstPart){
+          firstName =
+            firstPart.charAt(0).toUpperCase() +
+            firstPart.slice(1).toLowerCase();
+        }
+      }
+
+      localStorage.setItem(
+        "beautyslot_user_id",
+        user.id || ""
+      );
+
+      localStorage.setItem(
+        "beautyslot_email",
+        user.email || ""
+      );
+
+      if(firstName){
+        localStorage.setItem(
+          "beautyslot_nome",
+          firstName
+        );
       }else{
-        localStorage.removeItem("beautyslot_nome");
+        localStorage.removeItem(
+          "beautyslot_nome"
+        );
       }
 
       if(metadata.cognome){
-        localStorage.setItem("beautyslot_cognome", metadata.cognome);
+        localStorage.setItem(
+          "beautyslot_cognome",
+          metadata.cognome
+        );
       }else{
-        localStorage.removeItem("beautyslot_cognome");
+        localStorage.removeItem(
+          "beautyslot_cognome"
+        );
       }
 
       if(metadata.full_name){
-        localStorage.setItem("beautyslot_full_name", metadata.full_name);
-      }else if(nome){
         localStorage.setItem(
           "beautyslot_full_name",
-          [nome, metadata.cognome || ""].filter(Boolean).join(" ")
+          metadata.full_name
+        );
+      }else if(firstName){
+        localStorage.setItem(
+          "beautyslot_full_name",
+          [
+            firstName,
+            metadata.cognome || ""
+          ]
+            .filter(Boolean)
+            .join(" ")
         );
       }else{
-        localStorage.removeItem("beautyslot_full_name");
-      }
-
-      if(metadata.tipo_utente){
-        sessionStorage.setItem(
-          "beautyslot_tipo_utente",
-          metadata.tipo_utente
+        localStorage.removeItem(
+          "beautyslot_full_name"
         );
       }
-    }
 
-    function cleanAuthUrl(){
-      window.history.replaceState(
-        {},
-        document.title,
-        window.location.origin + window.location.pathname
+      const tipoUtente =
+        metadata.tipo_utente || "";
+
+      if(tipoUtente){
+        sessionStorage.setItem(
+          "beautyslot_tipo_utente",
+          tipoUtente
+        );
+      }
+
+      sessionStorage.removeItem(
+        "beautyslot_pending_user_id"
+      );
+
+      sessionStorage.removeItem(
+        "beautyslot_pending_email"
       );
     }
 
-    async function acquireConfirmedSession(){
-      try{
-        const url = new URL(window.location.href);
-        const hashParams = new URLSearchParams(
-          window.location.hash.replace(/^#/, "")
+    function cleanSupabaseRedirectFromUrl(){
+      const cleanUrl =
+        window.location.origin +
+        window.location.pathname;
+
+      window.history.replaceState(
+        {},
+        document.title,
+        cleanUrl
+      );
+    }
+
+    async function waitForPersistedSession(maxMilliseconds = 5000){
+      const started = Date.now();
+
+      while(Date.now() - started < maxMilliseconds){
+        const { data } =
+          await authClient.auth.getSession();
+
+        if(data?.session?.user){
+          return data.session;
+        }
+
+        await new Promise(
+          resolve => setTimeout(resolve, 120)
         );
+      }
+
+      return null;
+    }
+
+    async function initializeSupabaseAuth(){
+      if(arrivedFromSupabase){
+        setChoicesLocked(true);
+        status.textContent =
+          "Conferma completata. Stiamo aprendo il tuo account Beautyslot…";
+      }
+
+      try{
+        const code =
+          currentUrl.searchParams.get("code");
 
         const authError =
           hashParams.get("error_description") ||
-          url.searchParams.get("error_description");
+          currentUrl.searchParams.get("error_description");
 
         if(authError){
-          status.textContent =
-            "Non è stato possibile completare la conferma: " + authError;
-          return;
+          throw new Error(
+            decodeURIComponent(authError)
+          );
         }
 
-        const code = url.searchParams.get("code");
-
+        /*
+          Caso PKCE: Supabase torna con ?code=...
+        */
         if(code){
-          const flowId = url.searchParams.get("sb_flow_id");
           const { error } =
             await authClient.auth.exchangeCodeForSession(
-              code,
-              flowId ? { flowId } : undefined
+              code
             );
 
           if(error){
-            console.warn("Beautyslot PKCE:", error);
+            throw error;
           }
         }
 
-        const accessToken = hashParams.get("access_token");
-        const refreshToken = hashParams.get("refresh_token");
+        /*
+          Caso implicit flow: Supabase torna con
+          #access_token=...&refresh_token=...
+          Li salviamo esplicitamente PRIMA di permettere di entrare
+          in donna.html oppure uomo.html.
+        */
+        const accessToken =
+          hashParams.get("access_token");
+
+        const refreshToken =
+          hashParams.get("refresh_token");
 
         if(accessToken && refreshToken){
-          const { error } = await authClient.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          });
-          if(error) throw error;
+          const { error } =
+            await authClient.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+          if(error){
+            throw error;
+          }
         }
 
-        const { data, error } = await authClient.auth.getSession();
-        if(error) throw error;
+        /*
+          Aspettiamo davvero che la sessione sia persistita.
+          Questo elimina il problema per cui l'utente cliccava
+          Donna/Uomo mentre Supabase stava ancora elaborando il redirect.
+        */
+        const session =
+          await waitForPersistedSession(
+            arrivedFromSupabase ? 5000 : 700
+          );
 
-        if(data?.session?.user){
-          saveBeautyslotIdentity(data.session.user);
-          sessionStorage.removeItem("beautyslot_pending_user_id");
-          sessionStorage.removeItem("beautyslot_pending_email");
+        if(session?.user){
+          const { data: userData, error: userError } =
+            await authClient.auth.getUser();
 
-          status.textContent =
-            "Email confermata. Sei già connesso a Beautyslot.";
+          if(userError){
+            throw userError;
+          }
 
-          cleanAuthUrl();
+          const user =
+            userData?.user ||
+            session.user;
 
-          setTimeout(() => {
-            if(status.textContent ===
-              "Email confermata. Sei già connesso a Beautyslot."){
-              status.textContent = "";
-            }
-          }, 2400);
+          saveBeautyslotIdentity(user);
+
+          if(arrivedFromSupabase){
+            cleanSupabaseRedirectFromUrl();
+
+            status.textContent =
+              "Email confermata. Sei già connesso a Beautyslot.";
+
+            setTimeout(() => {
+              if(
+                status.textContent ===
+                "Email confermata. Sei già connesso a Beautyslot."
+              ){
+                status.textContent = "";
+              }
+            }, 1800);
+          }
+        }else if(arrivedFromSupabase){
+          throw new Error(
+            "La conferma email è arrivata, ma Supabase non ha salvato la sessione nel browser."
+          );
         }
+
       }catch(error){
         console.error(
-          "Beautyslot: errore acquisizione sessione dopo conferma.",
+          "Beautyslot sessione dopo conferma:",
           error
         );
-        status.textContent =
-          "La conferma è avvenuta, ma non è stato possibile mantenere l'accesso automatico.";
+
+        if(arrivedFromSupabase){
+          status.textContent =
+            "Non è stato possibile completare l'accesso automatico. " +
+            (error?.message || "Riprova dal link ricevuto via email.");
+        }
+
+      }finally{
+        authInitializationFinished = true;
+        setChoicesLocked(false);
       }
     }
 
     function selectCard(card){
+      if(!authInitializationFinished && arrivedFromSupabase){
+        return;
+      }
+
       selected = card.dataset.target;
 
       cards.forEach(function(item){
         const isSelected = item === card;
-        item.classList.toggle("selected", isSelected);
-        item.setAttribute("aria-pressed", String(isSelected));
-        item.querySelector(".select-label").textContent =
+
+        item.classList.toggle(
+          "selected",
           isSelected
-            ? (selected === "donna" ? "Donna selezionata" : "Uomo selezionato")
-            : (item.dataset.target === "donna" ? "Scegli donna" : "Scegli uomo");
+        );
+
+        item.setAttribute(
+          "aria-pressed",
+          String(isSelected)
+        );
+
+        item.querySelector(
+          ".select-label"
+        ).textContent =
+          isSelected
+            ? (
+                selected === "donna"
+                  ? "Donna selezionata"
+                  : "Uomo selezionato"
+              )
+            : (
+                item.dataset.target === "donna"
+                  ? "Scegli donna"
+                  : "Scegli uomo"
+              );
       });
 
-      sessionStorage.setItem("beautyslot_target_trattamenti", selected);
+      sessionStorage.setItem(
+        "beautyslot_target_trattamenti",
+        selected
+      );
+
       continueButton.disabled = false;
       status.textContent = "";
     }
 
-    cards.forEach(function(card){
-      card.addEventListener("click", function(event){
-        selectCard(card);
-
-        if(card.dataset.target === "donna" && event.target.classList.contains("select-label")){
-          window.location.href = "donna.html";
-        }
-
-        if(card.dataset.target === "uomo" && event.target.classList.contains("select-label")){
-          window.location.href = "uomo.html";
-        }
-      });
-
-      card.addEventListener("keydown", function(event){
-        if(event.key === "Enter" || event.key === " "){
-          event.preventDefault();
-          selectCard(card);
-        }
-      });
-    });
-
-    continueButton.addEventListener("click", function(){
+    async function goToSelected(){
       if(!selected) return;
 
+      /*
+        Se siamo arrivati dalla conferma email, NON si naviga
+        finché l'inizializzazione Auth non è terminata.
+      */
+      if(!authInitializationFinished){
+        status.textContent =
+          "Attendi un istante: stiamo completando il tuo accesso.";
+        return;
+      }
+
+      if(arrivedFromSupabase){
+        const { data } =
+          await authClient.auth.getSession();
+
+        if(!data?.session?.user){
+          status.textContent =
+            "Accesso non ancora disponibile. Attendi un istante e riprova.";
+          return;
+        }
+      }
+
       if(selected === "donna"){
-        window.location.href = "donna.html";
+        window.location.href =
+          "donna.html";
         return;
       }
 
       if(selected === "uomo"){
-        window.location.href = "uomo.html";
-        return;
+        window.location.href =
+          "uomo.html";
       }
+    }
+
+    cards.forEach(function(card){
+      card.addEventListener(
+        "click",
+        function(event){
+          if(
+            !authInitializationFinished &&
+            arrivedFromSupabase
+          ){
+            status.textContent =
+              "Stiamo completando il tuo accesso Beautyslot…";
+            return;
+          }
+
+          selectCard(card);
+
+          if(
+            event.target.classList.contains(
+              "select-label"
+            )
+          ){
+            goToSelected();
+          }
+        }
+      );
+
+      card.addEventListener(
+        "keydown",
+        function(event){
+          if(
+            event.key === "Enter" ||
+            event.key === " "
+          ){
+            event.preventDefault();
+
+            if(
+              !authInitializationFinished &&
+              arrivedFromSupabase
+            ){
+              status.textContent =
+                "Stiamo completando il tuo accesso Beautyslot…";
+              return;
+            }
+
+            selectCard(card);
+          }
+        }
+      );
     });
 
-    acquireConfirmedSession();
+    continueButton.addEventListener(
+      "click",
+      goToSelected
+    );
 
-    const saved = sessionStorage.getItem("beautyslot_target_trattamenti");
-    if(saved === "donna" || saved === "uomo"){
-      const savedCard = document.querySelector('.choice[data-target="' + saved + '"]');
-      if(savedCard) selectCard(savedCard);
+    /*
+      Ripristina l'ultima scelta visiva, ma senza forzare
+      la navigazione.
+    */
+    const saved =
+      sessionStorage.getItem(
+        "beautyslot_target_trattamenti"
+      );
+
+    if(
+      saved === "donna" ||
+      saved === "uomo"
+    ){
+      const savedCard =
+        document.querySelector(
+          '.choice[data-target="' +
+          saved +
+          '"]'
+        );
+
+      if(savedCard){
+        selected = saved;
+
+        cards.forEach(item => {
+          const isSelected =
+            item === savedCard;
+
+          item.classList.toggle(
+            "selected",
+            isSelected
+          );
+
+          item.setAttribute(
+            "aria-pressed",
+            String(isSelected)
+          );
+
+          item.querySelector(
+            ".select-label"
+          ).textContent =
+            isSelected
+              ? (
+                  selected === "donna"
+                    ? "Donna selezionata"
+                    : "Uomo selezionato"
+                )
+              : (
+                  item.dataset.target === "donna"
+                    ? "Scegli donna"
+                    : "Scegli uomo"
+                );
+        });
+      }
     }
+
+    initializeSupabaseAuth();
   </script>
 </body>
 </html>
