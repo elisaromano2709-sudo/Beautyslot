@@ -158,7 +158,27 @@
     }
     .time:hover{border-color:var(--accent)}
     .time.selected{background:var(--accent-dark);border-color:var(--accent-dark);color:#fff}
-    .time.busy{opacity:.35;text-decoration:line-through;cursor:not-allowed}
+    .time.busy{
+      opacity:.55;
+      background:var(--bg2);
+      color:var(--accent-dark);
+      border-color:rgba(95,135,165,.34);
+      text-decoration:line-through;
+      text-decoration-thickness:1.5px;
+      cursor:not-allowed
+    }
+    .slot-warning{
+      display:none;
+      margin-top:11px;
+      padding:11px 13px;
+      border:1px solid rgba(95,135,165,.22);
+      border-radius:13px;
+      background:rgba(255,255,255,.72);
+      color:var(--accent-dark);
+      font-size:11px;
+      line-height:1.45;
+    }
+    .slot-warning.show{display:block}
     .empty{padding:20px;border:1px dashed var(--line);border-radius:15px;color:var(--muted);font-size:12px;text-align:center}
     .summary{display:grid;gap:14px}
     .summary-row{padding-bottom:13px;border-bottom:1px solid var(--line)}
@@ -248,6 +268,7 @@
         <div class="times-wrap">
           <h2 class="section-title">3. Scegli l'orario</h2>
           <div class="times" id="times"></div>
+          <div class="slot-warning" id="slotWarning" role="alert" aria-live="polite"></div>
         </div>
       </div>
 
@@ -343,10 +364,15 @@
     const timesBox = document.getElementById("times");
     const monthLabel = document.getElementById("monthLabel");
     const bookButton = document.getElementById("bookButton");
+    const slotWarning = document.getElementById("slotWarning");
 
     let selectedService = null;
     let selectedDate = null;
     let selectedTime = null;
+
+    // Prenotazioni confermate durante questa sessione.
+    // In seguito verranno lette/salvate su Supabase.
+    const sessionBookings = [];
 
     const todayBase = new Date();
     let shownYear = todayBase.getFullYear();
@@ -362,6 +388,23 @@
       return new Intl.DateTimeFormat("it-IT", {
         weekday:"long", day:"numeric", month:"long", year:"numeric"
       }).format(d);
+    }
+
+    function dateKey(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return y + "-" + m + "-" + day;
+    }
+
+    function showSlotWarning(message){
+      slotWarning.textContent = message;
+      slotWarning.classList.add("show");
+    }
+
+    function clearSlotWarning(){
+      slotWarning.textContent = "";
+      slotWarning.classList.remove("show");
     }
 
     function renderServices(){
@@ -384,10 +427,19 @@
 
         btn.addEventListener("click", () => {
           selectedService = service;
+
+          // Il cambio trattamento cambia la durata richiesta:
+          // l'orario eventualmente scelto va quindi ricalcolato.
+          selectedTime = null;
+
           document.getElementById("sumService").textContent =
             service.name + " · " + service.duration + " min · " + service.price;
+          document.getElementById("sumTime").textContent = "Seleziona un orario";
+          clearSlotWarning();
+          bookButton.textContent = "Conferma prenotazione";
 
           renderServices();
+          renderTimes();
           updateBookButton();
         });
 
@@ -450,6 +502,8 @@
 
             document.getElementById("sumDate").textContent = formatLongDate(d);
             document.getElementById("sumTime").textContent = "Seleziona un orario";
+            clearSlotWarning();
+            bookButton.textContent = "Conferma prenotazione";
 
             renderMonth();
             renderTimes();
@@ -461,7 +515,29 @@
       }
     }
 
-    function getTimesForDate(){
+    /*
+      LOGICA DISPONIBILITÀ
+      --------------------
+      Gli orari mostrati restano a intervalli di 30 minuti, ma la disponibilità
+      viene calcolata sull'intera durata del trattamento selezionato.
+
+      Esempio:
+      - trattamento da 60 min
+      - 11:00-11:30 occupato
+      - 11:30 libero
+      Se dopo le 11:30 non esistono 60 minuti consecutivi realmente liberi,
+      le 11:30 vengono automaticamente bloccate.
+
+      Quando i calendari saranno collegati a Supabase, basterà sostituire
+      getBusyIntervalsForDate() e getOpeningIntervalsForDate() con i dati reali.
+    */
+
+    function timeToMinutes(time){
+      const [hours, minutes] = time.split(":").map(Number);
+      return (hours * 60) + minutes;
+    }
+
+    function getCandidateTimesForDate(){
       if(!selectedDate) return [];
 
       const base = [
@@ -470,14 +546,192 @@
       ];
 
       const day = selectedDate.getDay();
+
+      // Sabato: come nella versione originale, ultimi ingressi ridotti.
       if(day === 6) return base.slice(0, 11);
+
       return base;
     }
 
-    function isBusy(time){
+    function getOpeningIntervalsForDate(){
+      if(!selectedDate) return [];
+
+      const day = selectedDate.getDay();
+
+      // Domenica chiuso.
+      if(day === 0) return [];
+
+      /*
+        Orari demo del salone.
+        La fascia mattutina termina alle 12:00: un trattamento deve essere
+        COMPLETAMENTE concluso entro l'orario di chiusura.
+        In seguito questi orari arriveranno dal profilo reale del salone su Supabase.
+      */
+      if(day === 6){
+        return [
+          {start: timeToMinutes("09:00"), end: timeToMinutes("12:00")},
+          {start: timeToMinutes("15:00"), end: timeToMinutes("17:00")}
+        ];
+      }
+
+      return [
+        {start: timeToMinutes("09:00"), end: timeToMinutes("12:00")},
+        {start: timeToMinutes("15:00"), end: timeToMinutes("18:30")}
+      ];
+    }
+
+    function getBusyIntervalsForDate(){
+      if(!selectedDate) return [];
+
+      /*
+        Blocchi/appuntamenti demo già esistenti.
+        Ogni intervallo occupato viene trattato come un periodo reale.
+        Quando Supabase sarà collegato, qui arriveranno appuntamenti e blocchi reali.
+      */
+      const busyIntervals = [];
+      const times = getCandidateTimesForDate();
+
+      times.forEach(time => {
+        const seed =
+          selectedDate.getDate() +
+          time.charCodeAt(0) +
+          time.charCodeAt(3);
+
+        if(seed % 5 === 0){
+          const start = timeToMinutes(time);
+          busyIntervals.push({
+            start,
+            end: start + 30,
+            source:"existing"
+          });
+        }
+      });
+
+      // Aggiunge le prenotazioni appena confermate in questa sessione.
+      const key = dateKey(selectedDate);
+      sessionBookings
+        .filter(booking => booking.date === key)
+        .forEach(booking => {
+          busyIntervals.push({
+            start:booking.start,
+            end:booking.end,
+            source:"session"
+          });
+        });
+
+      return busyIntervals;
+    }
+
+    function fitsInsideOpeningHours(start, end){
+      const openingIntervals = getOpeningIntervalsForDate();
+
+      return openingIntervals.some(interval =>
+        start >= interval.start && end <= interval.end
+      );
+    }
+
+    function startIsInsideOpeningHours(start){
+      const openingIntervals = getOpeningIntervalsForDate();
+
+      return openingIntervals.some(interval =>
+        start >= interval.start && start < interval.end
+      );
+    }
+
+    function overlapsBusyInterval(start, end){
+      const busyIntervals = getBusyIntervalsForDate();
+
+      return busyIntervals.some(interval =>
+        start < interval.end && end > interval.start
+      );
+    }
+
+    function isStartTimeOccupied(start){
+      const busyIntervals = getBusyIntervalsForDate();
+
+      return busyIntervals.some(interval =>
+        start >= interval.start && start < interval.end
+      );
+    }
+
+    function isPastTimeToday(startMinutes){
       if(!selectedDate) return false;
-      const seed = selectedDate.getDate() + time.charCodeAt(0) + time.charCodeAt(3);
-      return seed % 5 === 0;
+
+      const now = new Date();
+      const isToday =
+        selectedDate.getFullYear() === now.getFullYear() &&
+        selectedDate.getMonth() === now.getMonth() &&
+        selectedDate.getDate() === now.getDate();
+
+      if(!isToday) return false;
+
+      const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+      return startMinutes <= currentMinutes;
+    }
+
+    /*
+      Restituisce tre stati diversi:
+      - occupied: l'orario stesso è già dentro un appuntamento/blocco -> barrato e non cliccabile
+      - invalid: l'orario di partenza è libero, ma il trattamento non ci sta -> cliccabile con avviso
+      - available: prenotabile
+    */
+    function getSlotStatus(time){
+      if(!selectedDate || !selectedService){
+        return {
+          status:"invalid",
+          reason:"Seleziona prima un trattamento."
+        };
+      }
+
+      const start = timeToMinutes(time);
+      const end = start + selectedService.duration;
+
+      if(isPastTimeToday(start)){
+        return {
+          status:"occupied",
+          reason:"Orario già trascorso."
+        };
+      }
+
+      if(isStartTimeOccupied(start)){
+        return {
+          status:"occupied",
+          reason:"Orario già prenotato."
+        };
+      }
+
+      if(!startIsInsideOpeningHours(start)){
+        return {
+          status:"invalid",
+          reason:"Impossibile selezionare questo orario: il salone è chiuso."
+        };
+      }
+
+      if(!fitsInsideOpeningHours(start, end)){
+        return {
+          status:"invalid",
+          reason:
+            "Impossibile selezionare le " + time +
+            ": non c'è abbastanza tempo per " +
+            selectedService.name + " (" + selectedService.duration +
+            " min) prima della chiusura."
+        };
+      }
+
+      if(overlapsBusyInterval(start, end)){
+        return {
+          status:"invalid",
+          reason:
+            "Impossibile selezionare le " + time +
+            ": non ci sono " + selectedService.duration +
+            " minuti consecutivi liberi. Il trattamento si sovrapporrebbe a un altro appuntamento."
+        };
+      }
+
+      return {
+        status:"available",
+        reason:""
+      };
     }
 
     function renderTimes(){
@@ -488,7 +742,12 @@
         return;
       }
 
-      const times = getTimesForDate();
+      if(!selectedService){
+        timesBox.innerHTML = '<div class="empty" style="grid-column:1/-1">Seleziona prima un trattamento per calcolare gli orari disponibili.</div>';
+        return;
+      }
+
+      const times = getCandidateTimesForDate();
 
       times.forEach(time => {
         const btn = document.createElement("button");
@@ -496,20 +755,37 @@
         btn.className = "time";
         btn.textContent = time;
 
-        const busy = isBusy(time);
-        if(busy){
+        const slot = getSlotStatus(time);
+
+        // Solo gli orari realmente occupati vengono barrati/scuriti.
+        if(slot.status === "occupied"){
           btn.classList.add("busy");
           btn.disabled = true;
-          btn.title = "Orario non disponibile";
+          btn.title = slot.reason;
         }
 
-        if(selectedTime === time) btn.classList.add("selected");
+        if(selectedTime === time && slot.status === "available"){
+          btn.classList.add("selected");
+        }
 
-        if(!busy){
+        if(slot.status === "available"){
           btn.addEventListener("click", () => {
             selectedTime = time;
             document.getElementById("sumTime").textContent = time;
+            clearSlotWarning();
+            bookButton.textContent = "Conferma prenotazione";
             renderTimes();
+            updateBookButton();
+          });
+        }
+
+        // L'orario parte libero, ma non basta per completare il trattamento:
+        // resta visivamente normale e spiega il motivo al click.
+        if(slot.status === "invalid"){
+          btn.addEventListener("click", () => {
+            selectedTime = null;
+            document.getElementById("sumTime").textContent = "Seleziona un orario";
+            showSlotWarning(slot.reason);
             updateBookButton();
           });
         }
@@ -549,17 +825,49 @@
     bookButton.addEventListener("click", () => {
       if(!(selectedService && selectedDate && selectedTime)) return;
 
+      // Ricontrollo finale prima della conferma.
+      const slot = getSlotStatus(selectedTime);
+      if(slot.status !== "available"){
+        showSlotWarning(slot.reason || "Questo orario non è più disponibile.");
+        selectedTime = null;
+        document.getElementById("sumTime").textContent = "Seleziona un orario";
+        renderTimes();
+        updateBookButton();
+        return;
+      }
+
+      const bookedTime = selectedTime;
+      const bookedStart = timeToMinutes(bookedTime);
+      const bookedEnd = bookedStart + selectedService.duration;
+
+      // Salva l'intero intervallo: es. 11:00 + 60 min occupa 11:00-12:00,
+      // quindi anche lo slot delle 11:30 diventa automaticamente occupato.
+      sessionBookings.push({
+        date:dateKey(selectedDate),
+        start:bookedStart,
+        end:bookedEnd,
+        serviceId:selectedService.id,
+        serviceName:selectedService.name
+      });
+
       const confirmation = document.getElementById("confirmation");
       const text = document.getElementById("confirmationText");
 
       text.textContent =
         selectedService.name + " presso " + salon.name +
-        ", " + formatLongDate(selectedDate) + " alle " + selectedTime + ".";
+        ", " + formatLongDate(selectedDate) + " alle " + bookedTime + ".";
 
       confirmation.classList.add("show");
       confirmation.scrollIntoView({behavior:"smooth", block:"nearest"});
+      clearSlotWarning();
+
+      // Dopo la conferma aggiorna subito la griglia:
+      // tutti gli orari coperti dalla durata diventano barrati/scuri.
+      selectedTime = null;
+      document.getElementById("sumTime").textContent = "Prenotazione confermata alle " + bookedTime;
       bookButton.textContent = "Prenotazione confermata";
       bookButton.disabled = true;
+      renderTimes();
     });
 
     renderServices();
