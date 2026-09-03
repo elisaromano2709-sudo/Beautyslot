@@ -474,29 +474,13 @@
       cursor:pointer;
     }
 
+    .menu-navigation{
+      display:block;
+      text-decoration:none;
+    }
+
     .menu-item:hover,
     .menu-item.active{
-      background:#fff4f7;
-      color:var(--rose-dark);
-    }
-
-    .menu-bookings{
-      display:none;
-      width:100%;
-      margin-top:7px;
-      padding:15px 16px;
-      border:0;
-      border-radius:16px;
-      text-align:left;
-      background:transparent;
-      color:#5d5556;
-      font-size:15px;
-      line-height:1.2;
-      text-decoration:none;
-      cursor:pointer;
-    }
-
-    .menu-bookings:hover{
       background:#fff4f7;
       color:var(--rose-dark);
     }
@@ -1338,13 +1322,10 @@
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
 
-      <a
-        class="menu-bookings"
-        id="bookingsMenuLink"
-        href="mie-prenotazioni.html?tema=donna"
-      >
-        Le mie prenotazioni
-      </a>
+      <p class="menu-label" style="margin-top:28px">Il mio account</p>
+      <div class="menu-list">
+        <a class="menu-item menu-navigation" href="./mie-prenotazioni.html?tema=donna">Le mie prenotazioni</a>
+      </div>
     </aside>
   </div>
 
@@ -1413,7 +1394,6 @@
 
     // Saluto personale accanto all'icona profilo.
     const helloUser = document.getElementById("helloUser");
-    const bookingsMenuLink = document.getElementById("bookingsMenuLink");
 
     function beautyslotCapitalizeName(value){
       const clean = (value || "").trim();
@@ -1426,10 +1406,13 @@
       helloUser.textContent = cleanName ? "Ciao " + cleanName : "";
     }
 
-    // Mostra subito il nome salvato durante registrazione/login.
-    showBeautyslotGreeting(localStorage.getItem("beautyslot_nome"));
+    /*
+      Non mostriamo più il nome dal localStorage prima di sapere quale
+      account Supabase è realmente autenticato. Evita che il nome del
+      vecchio account compaia sul nuovo account.
+    */
+    showBeautyslotGreeting("");
 
-    // Se esiste una sessione Supabase, sincronizza il nome con i metadata reali.
     (async function syncBeautyslotUserName(){
       try{
         const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
@@ -1439,18 +1422,25 @@
           SUPABASE_PUBLISHABLE_KEY
         );
 
-        const { data } = await authClient.auth.getUser();
+        const { data, error } = await authClient.auth.getUser();
         const user = data?.user;
 
-        if(!user){
-          if(bookingsMenuLink){
-            bookingsMenuLink.style.display = "none";
-          }
+        if(error || !user){
+          localStorage.removeItem("beautyslot_nome");
+          localStorage.removeItem("beautyslot_cognome");
+          localStorage.removeItem("beautyslot_full_name");
+          localStorage.removeItem("beautyslot_user_id");
+          localStorage.removeItem("beautyslot_email");
           return;
         }
 
-        if(bookingsMenuLink){
-          bookingsMenuLink.style.display = "block";
+        const storedUserId = localStorage.getItem("beautyslot_user_id");
+        if(storedUserId && storedUserId !== user.id){
+          localStorage.removeItem("beautyslot_nome");
+          localStorage.removeItem("beautyslot_cognome");
+          localStorage.removeItem("beautyslot_full_name");
+          localStorage.removeItem("beautyslot_user_id");
+          localStorage.removeItem("beautyslot_email");
         }
 
         const metadata = user.user_metadata || {};
@@ -1458,7 +1448,7 @@
           metadata.nome ||
           (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
 
-        // Compatibilità con account vecchi, creati prima dei campi Nome/Cognome.
+        // Compatibilità con account vecchi privi dei metadata nome/cognome.
         if(!firstName && user.email){
           const emailPrefix = user.email.split("@")[0];
           const firstPart = emailPrefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, "");
@@ -1467,9 +1457,18 @@
           }
         }
 
+        localStorage.setItem("beautyslot_user_id", user.id || "");
+        localStorage.setItem("beautyslot_email", user.email || "");
+
         if(firstName){
           localStorage.setItem("beautyslot_nome", firstName);
           showBeautyslotGreeting(firstName);
+        }
+        if(metadata.cognome){
+          localStorage.setItem("beautyslot_cognome", metadata.cognome);
+        }
+        if(metadata.full_name){
+          localStorage.setItem("beautyslot_full_name", metadata.full_name);
         }
       }catch(error){
         console.warn("Beautyslot: impossibile recuperare il nome utente.", error);
@@ -1977,7 +1976,7 @@
     const menuButton = document.getElementById("menuButton");
     const closeMenu = document.getElementById("closeMenu");
     const cards = [...document.querySelectorAll(".shop-card")];
-    const menuItems = [...document.querySelectorAll(".menu-item")];
+    const menuItems = [...document.querySelectorAll(".menu-item[data-filter]")];
     const resultCount = document.getElementById("resultCount");
     const sectionTitle = document.getElementById("sectionTitle");
     const searchInput = document.getElementById("searchInput");
