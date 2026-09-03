@@ -1024,6 +1024,8 @@
       sessionStorage.setItem(
         "beautyslot_last_booking",
         JSON.stringify({
+          tema:"donna",
+          salonId:salonId,
           salon:salon.name,
           service:
             selectedService.name +
@@ -1036,6 +1038,13 @@
             " – " +
             minutesToTime(bookedEnd)
         })
+      );
+
+      // Mantiene separata la prenotazione della sezione Donna.
+      // La chiave generale resta per compatibilità con la pagina di conferma già esistente.
+      sessionStorage.setItem(
+        "beautyslot_last_booking_donna",
+        sessionStorage.getItem("beautyslot_last_booking")
       );
 
       /*

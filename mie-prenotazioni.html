@@ -90,6 +90,59 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const tema = params.get("tema") === "uomo" ? "uomo" : "donna";
+    const bookingStorageKey = "beautyslot_last_booking_" + tema;
+
+    // Compatibilità con le prenotazioni create prima della separazione Donna/Uomo.
+    // Una vecchia prenotazione viene assegnata alla sezione corretta solo se il tema
+    // è già salvato oppure se il salone è uno di quelli presenti nel demo attuale.
+    const donnaSalons = new Set([
+      "Atelier Hair",
+      "Maison Beauty",
+      "Nails Studio",
+      "Skin & Wellness",
+      "Blush Hair Lab",
+      "Pure Beauty"
+    ]);
+
+    const uomoSalons = new Set([
+      "Gentlemen Barber",
+      "Urban Hair Men",
+      "Man Wellness",
+      "The Barber Club",
+      "Man Style Studio"
+    ]);
+
+    function getBookingTheme(booking){
+      const explicitTheme = booking?.tema || booking?.gender || "";
+      if(explicitTheme === "donna" || explicitTheme === "uomo") return explicitTheme;
+      if(donnaSalons.has(booking?.salon)) return "donna";
+      if(uomoSalons.has(booking?.salon)) return "uomo";
+      return "";
+    }
+
+    function getThemeBookingRaw(){
+      const currentRaw = sessionStorage.getItem(bookingStorageKey);
+      if(currentRaw) return currentRaw;
+
+      const legacyRaw = sessionStorage.getItem("beautyslot_last_booking");
+      if(!legacyRaw) return null;
+
+      try{
+        const legacyBooking = JSON.parse(legacyRaw);
+        const legacyTheme = getBookingTheme(legacyBooking);
+        if(!legacyTheme) return null;
+
+        const legacyThemeKey = "beautyslot_last_booking_" + legacyTheme;
+        if(!sessionStorage.getItem(legacyThemeKey)){
+          sessionStorage.setItem(legacyThemeKey, legacyRaw);
+        }
+
+        return legacyTheme === tema ? legacyRaw : null;
+      }catch(error){
+        console.warn("Beautyslot migrazione prenotazione precedente:", error);
+        return null;
+      }
+    }
 
     if(tema === "uomo"){
       document.body.classList.add("uomo");
@@ -115,7 +168,7 @@
         encodeURIComponent(query || "Beautyslot");
     }
 
-    const raw = sessionStorage.getItem("beautyslot_last_booking");
+    const raw = getThemeBookingRaw();
     if(raw){
       try{
         const booking = JSON.parse(raw);
@@ -138,7 +191,15 @@
 
           if(!confirmed) return;
 
-          sessionStorage.removeItem("beautyslot_last_booking");
+          sessionStorage.removeItem(bookingStorageKey);
+
+          // Rimuove anche la chiave generale soltanto se contiene proprio
+          // la stessa prenotazione che si sta disdicendo.
+          const globalRaw = sessionStorage.getItem("beautyslot_last_booking");
+          if(globalRaw && globalRaw === raw){
+            sessionStorage.removeItem("beautyslot_last_booking");
+          }
+
           bookingBox.classList.remove("show");
           emptyBox.textContent = "Appuntamento disdetto. Non ci sono prenotazioni disponibili in questa sessione.";
           emptyBox.style.display = "block";
