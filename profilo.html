@@ -126,7 +126,6 @@
     .message{display:none;margin-top:12px;padding:12px 14px;border-radius:13px;font-size:12px;line-height:1.5}
     .message.ok{display:block;background:rgba(102,153,122,.10);color:#52715e}
     .message.error{display:block;background:rgba(160,89,96,.10);color:#86545a}
-    .loading{min-height:300px;display:grid;place-items:center;color:var(--muted);font-size:13px}
     @media(max-width:560px){
       .page{width:calc(100% - 18px);margin-top:14px}
       .profile-card{border-radius:23px}
@@ -148,8 +147,6 @@
 
   <main class="page">
     <section class="profile-card">
-      <div id="loading" class="loading">Caricamento profilo…</div>
-
       <div id="profileContent" hidden>
         <div class="profile-head">
           <div class="avatar" aria-hidden="true">
@@ -335,7 +332,6 @@
       if(nome) localStorage.setItem("beautyslot_nome", nome);
       if(fullName) localStorage.setItem("beautyslot_full_name", fullName);
 
-      document.getElementById("loading").hidden = true;
       document.getElementById("profileContent").hidden = false;
     }
 
