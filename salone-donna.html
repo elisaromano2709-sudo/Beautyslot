@@ -3,6 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- BEAUTYSLOT_NAV_FIX_DONNA_V3 -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
   <title>Beautyslot — Salone Donna</title>
   <meta name="description" content="Scheda del salone su Beautyslot.">
 
@@ -343,7 +348,7 @@
 
 <body>
   <header class="topbar">
-    <a class="back" href="./donna.html" aria-label="Torna a Donna">←</a>
+    <a class="back" id="salonBackButton" href="https://beauty-slot.it/donna.html" data-nav-fix="BEAUTYSLOT_NAV_FIX_DONNA_V3" aria-label="Torna a Donna">←</a>
 
     <div class="brand">
       <h2 class="brand-name">Beautyslot</h2>
@@ -593,6 +598,17 @@
         }
       }
     };
+
+
+    // BEAUTYSLOT_NAV_FIX_DONNA_V3: navigazione forzata, indipendente dalla cronologia browser.
+    const salonBackButton = document.getElementById("salonBackButton");
+    if(salonBackButton){
+      salonBackButton.addEventListener("click", function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        window.location.replace("https://beauty-slot.it/donna.html");
+      }, true);
+    }
 
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id") || "hair-01";
