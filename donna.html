@@ -736,6 +736,62 @@
       box-shadow:0 3px 12px rgba(0,0,0,.25);
     }
 
+
+    /* Nasconde completamente i pulsanti testuali di Leaflet Draw:
+       Finish / Delete last point / Cancel */
+    .leaflet-draw-actions{
+      display:none !important;
+    }
+
+    /* Nasconde il toolbar standard: usiamo tre pulsanti Beautyslot */
+    .leaflet-draw.leaflet-control{
+      display:none !important;
+    }
+
+    .beautyslot-draw-control{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      margin-top:10px;
+      margin-left:10px;
+    }
+
+    .beautyslot-draw-btn{
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      padding:0;
+      border:1px solid rgba(70,70,70,.16);
+      border-radius:9px;
+      background:#fff;
+      color:#555;
+      box-shadow:0 2px 10px rgba(0,0,0,.12);
+      cursor:pointer;
+    }
+
+    .beautyslot-draw-btn:hover{
+      background:#f7f7f7;
+    }
+
+    .beautyslot-draw-btn.active{
+      color:var(--rose-dark);
+      border-color:var(--rose-dark);
+      background:var(--soft);
+      box-shadow:0 0 0 2px rgba(127,127,127,.08);
+    }
+
+    .beautyslot-draw-btn svg{
+      width:20px;
+      height:20px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      pointer-events:none;
+    }
+
     @media(max-width:620px){
       .map-modal{
         padding:0;
@@ -1231,45 +1287,158 @@
       drawnItems = new L.FeatureGroup();
       beautyMap.addLayer(drawnItems);
 
-      drawControl = new L.Control.Draw({
-        position:"topleft",
-        draw:{
-          polygon:{
+
+      // --------------------------------------------------
+      // CONTROLLI DISEGNO BEAUTYSLOT
+      // Nessun tasto testuale "Finish / Cancel / Delete..."
+      // --------------------------------------------------
+
+      const drawColor =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--rose-dark").trim() || "#9f6271";
+
+      let activeDrawMode = null;
+      let activeDrawHandler = null;
+
+      function stopDrawing(){
+        if(activeDrawHandler){
+          activeDrawHandler.disable();
+        }
+
+        activeDrawHandler = null;
+        activeDrawMode = null;
+
+        document
+          .querySelectorAll(".beautyslot-draw-btn")
+          .forEach(function(btn){
+            btn.classList.remove("active");
+          });
+      }
+
+      function startDrawing(mode, button){
+        // Se ripremi lo stesso pulsante, il disegno si annulla.
+        if(activeDrawMode === mode){
+          stopDrawing();
+          mapStatus.textContent = "Disegno annullato.";
+          return;
+        }
+
+        stopDrawing();
+
+        if(mode === "circle"){
+          activeDrawHandler = new L.Draw.Circle(beautyMap,{
+            shapeOptions:{
+              color:drawColor,
+              weight:2,
+              fillOpacity:.12
+            }
+          });
+        }
+
+        if(mode === "polygon"){
+          activeDrawHandler = new L.Draw.Polygon(beautyMap,{
             allowIntersection:false,
             showArea:true,
             shapeOptions:{
-              color:getComputedStyle(document.documentElement)
-                .getPropertyValue("--rose-dark").trim() || "#9f6271",
+              color:drawColor,
               weight:2,
               fillOpacity:.12
             }
-          },
-          circle:{
-            shapeOptions:{
-              color:getComputedStyle(document.documentElement)
-                .getPropertyValue("--rose-dark").trim() || "#9f6271",
-              weight:2,
-              fillOpacity:.12
-            }
-          },
-          rectangle:false,
-          polyline:false,
-          marker:false,
-          circlemarker:false
-        },
-        edit:{
-          featureGroup:drawnItems,
-          edit:true,
-          remove:true
+          });
+        }
+
+        activeDrawMode = mode;
+        button.classList.add("active");
+        activeDrawHandler.enable();
+
+        mapStatus.textContent =
+          mode === "circle"
+            ? "Trascina sulla mappa per creare il cerchio."
+            : "Tocca i punti del poligono e chiudilo toccando il primo punto.";
+      }
+
+      function deleteLastArea(){
+        stopDrawing();
+
+        if(activeAreaLayer && drawnItems.hasLayer(activeAreaLayer)){
+          drawnItems.removeLayer(activeAreaLayer);
+        }
+
+        activeAreaLayer = null;
+        areaResult.classList.remove("open");
+        mapStatus.textContent = "Ultima area eliminata.";
+      }
+
+      const BeautyDrawControl = L.Control.extend({
+        options:{ position:"topleft" },
+
+        onAdd:function(){
+          const container =
+            L.DomUtil.create("div","beautyslot-draw-control");
+
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+
+          const circleBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          circleBtn.type = "button";
+          circleBtn.title = "Disegna cerchio";
+          circleBtn.setAttribute("aria-label","Disegna cerchio");
+          circleBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<circle cx="12" cy="12" r="7.5"></circle>' +
+            '</svg>';
+
+          const polygonBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          polygonBtn.type = "button";
+          polygonBtn.title = "Disegna poligono";
+          polygonBtn.setAttribute("aria-label","Disegna poligono");
+          polygonBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path d="M5 6l7-3 7 5-2 10-9 2-4-7z"></path>' +
+            '</svg>';
+
+          const trashBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          trashBtn.type = "button";
+          trashBtn.title = "Elimina ultima area";
+          trashBtn.setAttribute("aria-label","Elimina ultima area");
+          trashBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path d="M5 7h14"></path>' +
+              '<path d="M9 7V4h6v3"></path>' +
+              '<path d="M7 7l1 13h8l1-13"></path>' +
+            '</svg>';
+
+          L.DomEvent.on(circleBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            startDrawing("circle",circleBtn);
+          });
+
+          L.DomEvent.on(polygonBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            startDrawing("polygon",polygonBtn);
+          });
+
+          L.DomEvent.on(trashBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            deleteLastArea();
+          });
+
+          return container;
         }
       });
 
-      beautyMap.addControl(drawControl);
+      beautyMap.addControl(new BeautyDrawControl());
+
 
       beautyMap.on(L.Draw.Event.CREATED, function(event){
         drawnItems.clearLayers();
         activeAreaLayer = event.layer;
         drawnItems.addLayer(activeAreaLayer);
+
+        stopDrawing();
         updateAreaAnalysis();
       });
 
