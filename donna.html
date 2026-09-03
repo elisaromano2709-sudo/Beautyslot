@@ -480,6 +480,27 @@
       color:var(--rose-dark);
     }
 
+    .menu-bookings{
+      display:none;
+      width:100%;
+      margin-top:7px;
+      padding:15px 16px;
+      border:0;
+      border-radius:16px;
+      text-align:left;
+      background:transparent;
+      color:#5d5556;
+      font-size:15px;
+      line-height:1.2;
+      text-decoration:none;
+      cursor:pointer;
+    }
+
+    .menu-bookings:hover{
+      background:#fff4f7;
+      color:var(--rose-dark);
+    }
+
 
     .floating-map{
       position:fixed;
@@ -1316,6 +1337,14 @@
         <button class="menu-item" data-filter="unghie">Unghie</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
+
+      <a
+        class="menu-bookings"
+        id="bookingsMenuLink"
+        href="mie-prenotazioni.html?tema=donna"
+      >
+        Le mie prenotazioni
+      </a>
     </aside>
   </div>
 
@@ -1384,6 +1413,7 @@
 
     // Saluto personale accanto all'icona profilo.
     const helloUser = document.getElementById("helloUser");
+    const bookingsMenuLink = document.getElementById("bookingsMenuLink");
 
     function beautyslotCapitalizeName(value){
       const clean = (value || "").trim();
@@ -1412,7 +1442,16 @@
         const { data } = await authClient.auth.getUser();
         const user = data?.user;
 
-        if(!user) return;
+        if(!user){
+          if(bookingsMenuLink){
+            bookingsMenuLink.style.display = "none";
+          }
+          return;
+        }
+
+        if(bookingsMenuLink){
+          bookingsMenuLink.style.display = "block";
+        }
 
         const metadata = user.user_metadata || {};
         let firstName =
