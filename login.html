@@ -353,6 +353,34 @@
 
         if (error) throw error;
 
+
+        const metadata = data.user?.user_metadata || {};
+        let nomeUtente =
+          metadata.nome ||
+          (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
+
+        // Fallback per vecchi account creati prima dei campi Nome/Cognome.
+        // Se l'email è, ad esempio, samuel.rossi@..., mostra "Samuel".
+        if (!nomeUtente && data.user?.email) {
+          const emailPrefix = data.user.email.split("@")[0];
+          const firstPart = emailPrefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, "");
+          if (firstPart) {
+            nomeUtente = firstPart.charAt(0).toUpperCase() + firstPart.slice(1).toLowerCase();
+          }
+        }
+
+        if (nomeUtente) {
+          localStorage.setItem("beautyslot_nome", nomeUtente);
+        }
+
+        if (metadata.cognome) {
+          localStorage.setItem("beautyslot_cognome", metadata.cognome);
+        }
+
+        if (metadata.full_name) {
+          localStorage.setItem("beautyslot_full_name", metadata.full_name);
+        }
+
         const tipoUtente =
           data.user?.user_metadata?.tipo_utente ||
           data.user?.raw_user_meta_data?.tipo_utente ||
