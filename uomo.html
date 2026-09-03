@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautyslot — Uomo</title>
+  <meta name="description" content="Scopri barbieri, parrucchieri uomo, estetica e benessere su Beautyslot.">
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --rose:#86abc7;
+      --rose-dark:#5f87a5;
+      --text:#3f3f3f;
+      --muted:#86817f;
+      --line:rgba(77,77,77,.10);
+      --soft:#f4f8fb;
+      --card:#ffffff;
+      --shadow:0 18px 50px rgba(43,36,38,.08);
+      --shadow-2:0 24px 70px rgba(43,36,38,.13);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:"Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+      background:var(--bg);
+    }
+
+    body{
+      min-height:100vh;
+    }
+
+    button,input{
+      font:inherit;
+    }
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:40;
+      display:grid;
+      grid-template-columns:52px 1fr 52px;
+      align-items:center;
+      padding:14px 18px;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(14px);
+      -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--line);
+    }
+
+    .icon-btn{
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:50%;
+      background:transparent;
+      color:#555;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .icon-btn:hover{
+      background:#f1f6f9;
+    }
+
+    .hamburger{
+      display:flex;
+      flex-direction:column;
+      gap:5px;
+    }
+
+    .hamburger span{
+      width:21px;
+      height:1.8px;
+      border-radius:99px;
+      background:currentColor;
+    }
+
+    .brand{
+      text-align:center;
+      line-height:1;
+    }
+
+    .brand-name{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .brand-tag{
+      margin-top:6px;
+      font-size:8px;
+      letter-spacing:2.6px;
+      text-transform:uppercase;
+      color:#9c9495;
+    }
+
+    .profile-icon svg{
+      width:21px;
+      height:21px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.65;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .hero{
+      width:min(1180px,calc(100% - 34px));
+      margin:28px auto 22px;
+      padding:34px 30px;
+      border-radius:30px;
+      background:
+        radial-gradient(circle at 18% 25%,rgba(134,171,199,.16),transparent 26%),
+        radial-gradient(circle at 82% 35%,rgba(210,228,241,.28),transparent 28%),
+        linear-gradient(135deg,#fff 0%,#f7fbfe 100%);
+      border:1px solid rgba(134,171,199,.18);
+    }
+
+    .hero-kicker{
+      font-size:11px;
+      letter-spacing:2.3px;
+      text-transform:uppercase;
+      color:var(--rose);
+      font-weight:600;
+    }
+
+    .hero h1{
+      margin:10px 0 9px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(31px,5vw,52px);
+      font-weight:400;
+      color:#6d555a;
+    }
+
+    .hero p{
+      margin:0;
+      max-width:650px;
+      font-size:15px;
+      line-height:1.7;
+      color:var(--muted);
+    }
+
+    .search-wrap{
+      width:min(1180px,calc(100% - 34px));
+      margin:0 auto 26px;
+      display:flex;
+      gap:12px;
+    }
+
+    .search-box{
+      flex:1;
+      position:relative;
+    }
+
+    .search-box input{
+      width:100%;
+      height:52px;
+      padding:0 18px 0 48px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      outline:none;
+      background:#fff;
+      box-shadow:0 8px 24px rgba(43,36,38,.04);
+      color:var(--text);
+    }
+
+    .search-box input:focus{
+      border-color:rgba(134,171,199,.40);
+      box-shadow:0 0 0 4px rgba(134,171,199,.09);
+    }
+
+    .search-box svg{
+      position:absolute;
+      left:18px;
+      top:50%;
+      transform:translateY(-50%);
+      width:18px;
+      height:18px;
+      fill:none;
+      stroke:#8d8586;
+      stroke-width:1.7;
+    }
+
+    .section{
+      width:min(1180px,calc(100% - 34px));
+      margin:0 auto;
+    }
+
+    .section-head{
+      display:flex;
+      align-items:end;
+      justify-content:space-between;
+      gap:20px;
+      margin:8px 0 18px;
+    }
+
+    .section-head h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:29px;
+      font-weight:400;
+      color:#6d555a;
+    }
+
+    .result-count{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:20px;
+      padding-bottom:110px;
+    }
+
+    .shop-card{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:26px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+      transition:transform .22s ease,box-shadow .22s ease;
+    }
+
+    .shop-card:hover{
+      transform:translateY(-4px);
+      box-shadow:var(--shadow-2);
+    }
+
+    .shop-image{
+      position:relative;
+      height:205px;
+      background:
+        linear-gradient(135deg,rgba(134,171,199,.20),rgba(255,255,255,.6)),
+        #edf4f8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .shop-image::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.08));
+      pointer-events:none;
+    }
+
+    .shop-mark{
+      width:76px;
+      height:76px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(255,255,255,.82);
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;
+      color:var(--rose-dark);
+      box-shadow:0 12px 32px rgba(56,39,44,.08);
+    }
+
+    .fav-btn{
+      position:absolute;
+      top:14px;
+      right:14px;
+      z-index:4;
+      width:40px;
+      height:40px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:50%;
+      background:rgba(255,255,255,.88);
+      color:#7d7173;
+      cursor:pointer;
+      box-shadow:0 8px 22px rgba(0,0,0,.08);
+    }
+
+    .fav-btn svg{
+      width:20px;
+      height:20px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+    }
+
+    .fav-btn.active{
+      color:#d3a540;
+    }
+
+    .fav-btn.active svg{
+      fill:currentColor;
+    }
+
+    .shop-body{
+      padding:20px 20px 21px;
+    }
+
+    .category{
+      display:inline-flex;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f3f8fc;
+      color:var(--rose-dark);
+      font-size:10px;
+      letter-spacing:.7px;
+      text-transform:uppercase;
+      font-weight:600;
+    }
+
+    .shop-card h3{
+      margin:12px 0 7px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:23px;
+      font-weight:400;
+      color:#5c4c4f;
+    }
+
+    .shop-meta{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:13px;
+    }
+
+    .shop-desc{
+      margin:0;
+      font-size:13px;
+      line-height:1.55;
+      color:#7e7775;
+    }
+
+    .book{
+      width:100%;
+      min-height:44px;
+      margin-top:17px;
+      border:1px solid rgba(134,171,199,.42);
+      border-radius:999px;
+      background:#fff;
+      color:var(--rose-dark);
+      cursor:pointer;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:1.1px;
+      text-transform:uppercase;
+    }
+
+    .book:hover{
+      background:#f4f9fc;
+    }
+
+    .drawer-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:70;
+      background:rgba(25,19,21,.22);
+      opacity:0;
+      visibility:hidden;
+      transition:.24s ease;
+    }
+
+    .drawer-backdrop.open{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .drawer{
+      position:absolute;
+      top:0;
+      left:0;
+      width:min(340px,86vw);
+      height:100%;
+      padding:28px 24px;
+      background:#fff;
+      transform:translateX(-100%);
+      transition:.26s ease;
+      box-shadow:20px 0 50px rgba(0,0,0,.10);
+    }
+
+    .drawer-backdrop.open .drawer{
+      transform:translateX(0);
+    }
+
+    .drawer-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:34px;
+    }
+
+    .drawer-title{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:26px;
+      color:var(--rose-dark);
+    }
+
+    .close-btn{
+      width:40px;
+      height:40px;
+      border:0;
+      border-radius:50%;
+      background:#f8f5f5;
+      cursor:pointer;
+      font-size:20px;
+      color:#776d6f;
+    }
+
+    .menu-label{
+      margin:0 0 10px;
+      font-size:10px;
+      letter-spacing:2px;
+      text-transform:uppercase;
+      color:#aaa2a3;
+    }
+
+    .menu-list{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .menu-item{
+      width:100%;
+      padding:15px 16px;
+      border:0;
+      border-radius:16px;
+      text-align:left;
+      background:transparent;
+      color:#5d5556;
+      font-size:15px;
+      cursor:pointer;
+    }
+
+    .menu-item:hover,
+    .menu-item.active{
+      background:#eef6fb;
+      color:var(--rose-dark);
+    }
+
+
+    .floating-map{
+      position:fixed;
+      left:22px;
+      bottom:22px;
+      z-index:60;
+      width:58px;
+      height:58px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(134,171,199,.28);
+      border-radius:50%;
+      background:#fff;
+      color:var(--rose-dark);
+      box-shadow:0 18px 38px rgba(44,34,36,.15);
+      cursor:pointer;
+      transition:transform .22s ease, box-shadow .22s ease, background .22s ease;
+    }
+
+    .floating-map:hover{
+      transform:translateY(-2px);
+      background:#f4f9fc;
+      box-shadow:0 22px 44px rgba(44,34,36,.18);
+    }
+
+    .floating-map svg{
+      width:27px;
+      height:27px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.55;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .map-preview{
+      position:fixed;
+      left:18px;
+      bottom:92px;
+      z-index:61;
+      width:min(360px,calc(100vw - 36px));
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      box-shadow:0 24px 60px rgba(44,34,36,.16);
+      display:none;
+    }
+
+    .map-preview.open{
+      display:block;
+    }
+
+    .map-preview h4{
+      margin:0 0 9px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      font-weight:400;
+      color:#5f7180;
+    }
+
+    .map-preview p{
+      margin:0;
+      font-size:13px;
+      line-height:1.55;
+      color:var(--muted);
+    }
+
+    .floating-favorites{
+      position:fixed;
+      right:22px;
+      bottom:22px;
+      z-index:60;
+      width:58px;
+      height:58px;
+      display:grid;
+      place-items:center;
+      border:1px solid rgba(134,171,199,.28);
+      border-radius:50%;
+      background:#fff;
+      color:#d2a440;
+      box-shadow:0 18px 38px rgba(44,34,36,.15);
+      cursor:pointer;
+    }
+
+    .floating-favorites svg{
+      width:27px;
+      height:27px;
+      fill:currentColor;
+      stroke:currentColor;
+      stroke-width:1.2;
+    }
+
+    .fav-count{
+      position:absolute;
+      top:-2px;
+      right:-2px;
+      min-width:20px;
+      height:20px;
+      padding:0 5px;
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      background:var(--rose-dark);
+      color:#fff;
+      font-size:10px;
+      font-weight:700;
+    }
+
+    .favorites-panel{
+      position:fixed;
+      right:18px;
+      bottom:92px;
+      z-index:61;
+      width:min(360px,calc(100vw - 36px));
+      max-height:440px;
+      overflow:auto;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:#fff;
+      box-shadow:0 24px 60px rgba(44,34,36,.16);
+      display:none;
+    }
+
+    .favorites-panel.open{
+      display:block;
+    }
+
+    .favorites-panel h4{
+      margin:0 0 13px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      font-weight:400;
+      color:#6d555a;
+    }
+
+    .favorite-empty{
+      font-size:13px;
+      line-height:1.5;
+      color:var(--muted);
+    }
+
+    .favorite-item{
+      padding:12px 0;
+      border-top:1px solid var(--line);
+    }
+
+    .favorite-item strong{
+      display:block;
+      color:#5d5053;
+      font-size:14px;
+    }
+
+    .favorite-item span{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    @media(max-width:900px){
+      .grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+    }
+
+    @media(max-width:620px){
+      .topbar{
+        grid-template-columns:48px 1fr 48px;
+        padding:12px 12px;
+      }
+
+      .brand-name{
+        font-size:24px;
+      }
+
+      .hero{
+        width:calc(100% - 24px);
+        margin-top:18px;
+        padding:28px 22px;
+      }
+
+      .search-wrap,
+      .section{
+        width:calc(100% - 24px);
+      }
+
+      .grid{
+        grid-template-columns:1fr;
+        gap:16px;
+      }
+
+      .shop-image{
+        height:190px;
+      }
+
+      .floating-map{
+        left:16px;
+        bottom:16px;
+      }
+
+      .floating-favorites{
+        right:16px;
+        bottom:16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="topbar">
+    <button class="icon-btn" id="menuButton" aria-label="Apri menu">
+      <span class="hamburger" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+    </button>
+
+    <div class="brand">
+      <h1 class="brand-name">Beautyslot</h1>
+      <div class="brand-tag">Book beauty. Your way.</div>
+    </div>
+
+    <a class="icon-btn profile-icon" href="login.html" aria-label="Profilo">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="8" r="3.4"></circle>
+        <path d="M5.4 19c.8-4.1 3-6.2 6.6-6.2s5.8 2.1 6.6 6.2"></path>
+      </svg>
+    </a>
+  </header>
+
+  <section class="hero">
+    <div class="hero-kicker">Grooming vicino a te</div>
+    <h1>Trova il professionista giusto per te</h1>
+    <p>Scopri barbieri, parrucchieri uomo e professionisti del benessere disponibili su Beautyslot. Salva i tuoi preferiti e scegli con calma quello che fa per te.</p>
+  </section>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="6.5"></circle>
+        <path d="M16 16l4 4"></path>
+      </svg>
+      <input id="searchInput" type="search" placeholder="Cerca barbiere, salone o trattamento...">
+    </div>
+  </div>
+
+  <main class="section">
+    <div class="section-head">
+      <h2 id="sectionTitle">Scopri su Beautyslot</h2>
+      <div class="result-count" id="resultCount"></div>
+    </div>
+
+    <section class="grid" id="shopGrid">
+
+      <article class="shop-card" data-id="barber-01" data-category="barbiere" data-name="Gentlemen Barber">
+        <div class="shop-image">
+          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+            </svg>
+          </button>
+          <div class="shop-mark">GB</div>
+        </div>
+        <div class="shop-body">
+          <span class="category">Barbiere</span>
+          <h3>Gentlemen Barber</h3>
+          <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
+          <p class="shop-desc">Taglio uomo, barba, rasatura tradizionale e cura del look.</p>
+          <button class="book">Scopri il salone</button>
+        </div>
+      </article>
+
+      <article class="shop-card" data-id="hairman-01" data-category="parrucchiere" data-name="Urban Hair Men">
+        <div class="shop-image">
+          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+            </svg>
+          </button>
+          <div class="shop-mark">UH</div>
+        </div>
+        <div class="shop-body">
+          <span class="category">Parrucchiere</span>
+          <h3>Urban Hair Men</h3>
+          <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
+          <p class="shop-desc">Taglio, styling, colore e trattamenti specifici per capelli uomo.</p>
+          <button class="book">Scopri il salone</button>
+        </div>
+      </article>
+
+      <article class="shop-card" data-id="wellness-01" data-category="benessere" data-name="Man Wellness">
+        <div class="shop-image">
+          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+            </svg>
+          </button>
+          <div class="shop-mark">MW</div>
+        </div>
+        <div class="shop-body">
+          <span class="category">Benessere</span>
+          <h3>Man Wellness</h3>
+          <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
+          <p class="shop-desc">Massaggi, trattamenti corpo, relax e percorsi benessere uomo.</p>
+          <button class="book">Scopri il centro</button>
+        </div>
+      </article>
+
+      <article class="shop-card" data-id="barber-02" data-category="barbiere" data-name="The Barber Club">
+        <div class="shop-image">
+          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+            </svg>
+          </button>
+          <div class="shop-mark">BC</div>
+        </div>
+        <div class="shop-body">
+          <span class="category">Barbiere</span>
+          <h3>The Barber Club</h3>
+          <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
+          <p class="shop-desc">Sfumature, barba, taglio classico e moderno, styling professionale.</p>
+          <button class="book">Scopri il salone</button>
+        </div>
+      </article>
+
+      <article class="shop-card" data-id="hairman-02" data-category="parrucchiere" data-name="Man Style Studio">
+        <div class="shop-image">
+          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+            </svg>
+          </button>
+          <div class="shop-mark">MS</div>
+        </div>
+        <div class="shop-body">
+          <span class="category">Parrucchiere</span>
+          <h3>Man Style Studio</h3>
+          <div class="shop-meta"><span>Vicino a te</span><span>★ 4.6</span></div>
+          <p class="shop-desc">Taglio, styling e trattamenti personalizzati per capelli e cuoio capelluto.</p>
+          <button class="book">Scopri il salone</button>
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <div class="drawer-backdrop" id="drawerBackdrop">
+    <aside class="drawer">
+      <div class="drawer-head">
+        <div class="drawer-title">Cosa cerchi?</div>
+        <button class="close-btn" id="closeMenu" aria-label="Chiudi menu">×</button>
+      </div>
+
+      <p class="menu-label">Categorie</p>
+      <div class="menu-list">
+        <button class="menu-item" data-filter="barbiere">Barbiere</button>
+        <button class="menu-item" data-filter="parrucchiere">Parrucchiere</button>
+        <button class="menu-item" data-filter="benessere">Benessere</button>
+      </div>
+    </aside>
+  </div>
+
+
+  <button class="floating-map" id="mapButton" aria-label="Apri mappa dei professionisti vicini" title="Mappa vicino a te">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.5"></circle>
+      <path d="M3.8 12h16.4"></path>
+      <path d="M12 3.5c2.4 2.4 3.7 5.2 3.7 8.5S14.4 18.1 12 20.5"></path>
+      <path d="M12 3.5C9.6 5.9 8.3 8.7 8.3 12s1.3 6.1 3.7 8.5"></path>
+    </svg>
+  </button>
+
+  <div class="map-preview" id="mapPreview">
+    <h4>Mappa vicino a te</h4>
+    <p>Qui collegheremo la mappa per trovare barbieri, parrucchieri e centri benessere vicini alla tua posizione.</p>
+  </div>
+
+  <button class="floating-favorites" id="favoritesButton" aria-label="Preferiti">
+    <svg viewBox="0 0 24 24">
+      <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+    </svg>
+    <span class="fav-count" id="favCount">0</span>
+  </button>
+
+  <div class="favorites-panel" id="favoritesPanel">
+    <h4>I tuoi preferiti</h4>
+    <div id="favoritesList"></div>
+  </div>
+
+  <script>
+
+    const mapButton = document.getElementById("mapButton");
+    const mapPreview = document.getElementById("mapPreview");
+
+    mapButton.addEventListener("click", () => {
+      mapPreview.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (event) => {
+      if(
+        mapPreview.classList.contains("open") &&
+        !mapPreview.contains(event.target) &&
+        !mapButton.contains(event.target)
+      ){
+        mapPreview.classList.remove("open");
+      }
+    });
+
+    const drawerBackdrop = document.getElementById("drawerBackdrop");
+    const menuButton = document.getElementById("menuButton");
+    const closeMenu = document.getElementById("closeMenu");
+    const cards = [...document.querySelectorAll(".shop-card")];
+    const menuItems = [...document.querySelectorAll(".menu-item")];
+    const resultCount = document.getElementById("resultCount");
+    const sectionTitle = document.getElementById("sectionTitle");
+    const searchInput = document.getElementById("searchInput");
+
+    let activeFilter = "all";
+
+    menuButton.addEventListener("click", () => drawerBackdrop.classList.add("open"));
+    closeMenu.addEventListener("click", () => drawerBackdrop.classList.remove("open"));
+
+    drawerBackdrop.addEventListener("click", (event) => {
+      if(event.target === drawerBackdrop){
+        drawerBackdrop.classList.remove("open");
+      }
+    });
+
+    function applyFilters(){
+      const q = searchInput.value.trim().toLowerCase();
+      let visible = 0;
+
+      cards.forEach(card => {
+        const category = card.dataset.category;
+        const text = card.textContent.toLowerCase();
+
+        const matchCategory = activeFilter === "all" || category === activeFilter;
+        const matchSearch = !q || text.includes(q);
+        const show = matchCategory && matchSearch;
+
+        card.style.display = show ? "" : "none";
+        if(show) visible++;
+      });
+
+      resultCount.textContent = visible + (visible === 1 ? " risultato" : " risultati");
+      sectionTitle.textContent =
+        activeFilter === "all"
+          ? "Scopri su Beautyslot"
+          : activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1);
+    }
+
+    menuItems.forEach(item => {
+      item.addEventListener("click", () => {
+        activeFilter = item.dataset.filter;
+        menuItems.forEach(i => i.classList.toggle("active", i === item));
+        drawerBackdrop.classList.remove("open");
+        applyFilters();
+      });
+    });
+
+    searchInput.addEventListener("input", applyFilters);
+
+    // Preferiti salvati nel browser
+    const STORAGE_KEY = "beautyslot_preferiti_uomo";
+    let favorites = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+
+    const favCount = document.getElementById("favCount");
+    const favoritesButton = document.getElementById("favoritesButton");
+    const favoritesPanel = document.getElementById("favoritesPanel");
+    const favoritesList = document.getElementById("favoritesList");
+
+    function saveFavorites(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(favorites));
+      renderFavorites();
+      syncStars();
+    }
+
+    function syncStars(){
+      cards.forEach(card => {
+        const button = card.querySelector(".fav-btn");
+        button.classList.toggle("active", favorites.includes(card.dataset.id));
+      });
+    }
+
+    function renderFavorites(){
+      favCount.textContent = favorites.length;
+
+      if(!favorites.length){
+        favoritesList.innerHTML =
+          '<div class="favorite-empty">Non hai ancora salvato nessun negozio tra i preferiti.</div>';
+        return;
+      }
+
+      favoritesList.innerHTML = favorites.map(id => {
+        const card = cards.find(c => c.dataset.id === id);
+        if(!card) return "";
+
+        return `
+          <div class="favorite-item">
+            <strong>${card.dataset.name}</strong>
+            <span>${card.dataset.category}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    cards.forEach(card => {
+      const button = card.querySelector(".fav-btn");
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const id = card.dataset.id;
+
+        favorites = favorites.includes(id)
+          ? favorites.filter(x => x !== id)
+          : [...favorites, id];
+
+        saveFavorites();
+      });
+    });
+
+    favoritesButton.addEventListener("click", () => {
+      favoritesPanel.classList.toggle("open");
+    });
+
+    document.addEventListener("click", (event) => {
+      if(
+        favoritesPanel.classList.contains("open") &&
+        !favoritesPanel.contains(event.target) &&
+        !favoritesButton.contains(event.target)
+      ){
+        favoritesPanel.classList.remove("open");
+      }
+    });
+
+    applyFilters();
+    saveFavorites();
+  </script>
+
+</body>
+</html>
