@@ -6,6 +6,10 @@
   <title>Beautyslot — Uomo</title>
   <meta name="description" content="Scopri barbieri, parrucchieri uomo, estetica e benessere su Beautyslot.">
 
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+
   <style>
     :root{
       --bg:#ffffff;
@@ -487,37 +491,346 @@
       stroke-linejoin:round;
     }
 
-    .map-preview{
+
+
+    .map-modal{
       position:fixed;
-      left:18px;
-      bottom:92px;
-      z-index:61;
-      width:min(360px,calc(100vw - 36px));
+      inset:0;
+      z-index:100;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       padding:18px;
+      background:rgba(25,19,21,.34);
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .24s ease, visibility .24s ease;
+    }
+
+    .map-modal.open{
+      opacity:1;
+      visibility:visible;
+    }
+
+    .map-shell{
+      width:min(1180px,100%);
+      height:min(820px,calc(100vh - 36px));
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
       border:1px solid var(--line);
-      border-radius:22px;
+      border-radius:28px;
       background:#fff;
-      box-shadow:0 24px 60px rgba(44,34,36,.16);
+      box-shadow:0 32px 90px rgba(30,24,26,.24);
+      transform:translateY(14px) scale(.985);
+      transition:transform .24s ease;
+    }
+
+    .map-modal.open .map-shell{
+      transform:translateY(0) scale(1);
+    }
+
+    .map-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      padding:18px 20px;
+      border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.96);
+    }
+
+    .map-title-wrap h4{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:25px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .map-title-wrap p{
+      margin:5px 0 0;
+      font-size:12px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .map-close{
+      flex:0 0 auto;
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:50%;
+      background:#f6f4f4;
+      color:#6d6667;
+      font-size:24px;
+      line-height:1;
+      cursor:pointer;
+    }
+
+    .map-tools{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding:12px 16px;
+      overflow-x:auto;
+      border-bottom:1px solid var(--line);
+      background:#fff;
+      scrollbar-width:none;
+    }
+
+    .map-tools::-webkit-scrollbar{
       display:none;
     }
 
-    .map-preview.open{
+    .map-chip,
+    .locate-btn{
+      flex:0 0 auto;
+      min-height:38px;
+      padding:0 15px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:#6d6667;
+      font-size:12px;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .map-chip.active{
+      border-color:rgba(120,120,120,.24);
+      background:var(--soft);
+      color:var(--rose-dark);
+    }
+
+    .locate-btn{
+      margin-left:auto;
+      color:var(--rose-dark);
+    }
+
+    .map-canvas-wrap{
+      position:relative;
+      flex:1;
+      min-height:360px;
+      background:#eef1f2;
+    }
+
+    #beautyslotMap{
+      width:100%;
+      height:100%;
+      min-height:360px;
+    }
+
+    .map-status{
+      position:absolute;
+      left:50%;
+      top:14px;
+      transform:translateX(-50%);
+      z-index:500;
+      max-width:calc(100% - 120px);
+      padding:9px 13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.95);
+      box-shadow:0 8px 24px rgba(0,0,0,.10);
+      color:#6d6667;
+      font-size:11px;
+      text-align:center;
+      pointer-events:none;
+    }
+
+    .area-result{
+      position:absolute;
+      right:16px;
+      bottom:16px;
+      z-index:500;
+      width:min(330px,calc(100% - 32px));
+      max-height:46%;
+      overflow:auto;
+      padding:16px;
+      border:1px solid rgba(77,77,77,.10);
+      border-radius:20px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 18px 42px rgba(0,0,0,.14);
+      display:none;
+    }
+
+    .area-result.open{
       display:block;
     }
 
-    .map-preview h4{
-      margin:0 0 9px;
+    .area-result h5{
+      margin:0 0 6px;
       font-family:Georgia,"Times New Roman",serif;
-      font-size:22px;
+      font-size:21px;
       font-weight:400;
-      color:#5f7180;
+      color:var(--rose-dark);
     }
 
-    .map-preview p{
-      margin:0;
+    .area-total{
+      margin:0 0 11px;
       font-size:13px;
-      line-height:1.55;
+      color:#625b5c;
+    }
+
+    .area-breakdown{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:11px;
+    }
+
+    .area-pill{
+      padding:6px 9px;
+      border-radius:999px;
+      background:var(--soft);
+      color:var(--rose-dark);
+      font-size:10px;
+      text-transform:capitalize;
+    }
+
+    .area-list{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .area-business{
+      padding-top:7px;
+      border-top:1px solid var(--line);
+      font-size:12px;
+      line-height:1.35;
+      color:#6d6667;
+    }
+
+    .area-business strong{
+      color:#554d4e;
+    }
+
+    .area-empty{
+      font-size:12px;
+      line-height:1.45;
       color:var(--muted);
+    }
+
+    .leaflet-control-draw a{
+      background-color:#fff;
+    }
+
+    .beautyslot-marker{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:3px solid #fff;
+      background:var(--rose-dark);
+      box-shadow:0 3px 10px rgba(0,0,0,.22);
+    }
+
+    .user-marker{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:4px solid #fff;
+      background:#3878c9;
+      box-shadow:0 3px 12px rgba(0,0,0,.25);
+    }
+
+
+    /* Nasconde completamente i pulsanti testuali di Leaflet Draw:
+       Finish / Delete last point / Cancel */
+    .leaflet-draw-actions{
+      display:none !important;
+    }
+
+    /* Nasconde il toolbar standard: usiamo tre pulsanti Beautyslot */
+    .leaflet-draw.leaflet-control{
+      display:none !important;
+    }
+
+    .beautyslot-draw-control{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      margin-top:10px;
+      margin-left:10px;
+    }
+
+    .beautyslot-draw-btn{
+      width:38px;
+      height:38px;
+      display:grid;
+      place-items:center;
+      padding:0;
+      border:1px solid rgba(70,70,70,.16);
+      border-radius:9px;
+      background:#fff;
+      color:#555;
+      box-shadow:0 2px 10px rgba(0,0,0,.12);
+      cursor:pointer;
+    }
+
+    .beautyslot-draw-btn:hover{
+      background:#f7f7f7;
+    }
+
+    .beautyslot-draw-btn.active{
+      color:var(--rose-dark);
+      border-color:var(--rose-dark);
+      background:var(--soft);
+      box-shadow:0 0 0 2px rgba(127,127,127,.08);
+    }
+
+    .beautyslot-draw-btn svg{
+      width:20px;
+      height:20px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.8;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      pointer-events:none;
+    }
+
+    @media(max-width:620px){
+      .map-modal{
+        padding:0;
+      }
+
+      .map-shell{
+        width:100%;
+        height:100%;
+        border-radius:0;
+        border:0;
+      }
+
+      .map-head{
+        padding:14px 15px;
+      }
+
+      .map-title-wrap h4{
+        font-size:22px;
+      }
+
+      .map-tools{
+        padding:10px 12px;
+      }
+
+      .locate-btn{
+        margin-left:0;
+      }
+
+      .map-status{
+        top:12px;
+        max-width:calc(100% - 92px);
+      }
+
+      .area-result{
+        right:12px;
+        bottom:12px;
+        width:calc(100% - 24px);
+        max-height:38%;
+      }
     }
 
     .floating-favorites{
@@ -825,9 +1138,37 @@
     </svg>
   </button>
 
-  <div class="map-preview" id="mapPreview">
-    <h4>Mappa vicino a te</h4>
-    <p>Qui collegheremo la mappa per trovare barbieri, parrucchieri e centri benessere vicini alla tua posizione.</p>
+  <div class="map-modal" id="mapModal" aria-hidden="true">
+    <div class="map-shell" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+      <div class="map-head">
+        <div class="map-title-wrap">
+          <h4 id="mapTitle">Mappa vicino a te</h4>
+          <p>Vedi i saloni e usa gli strumenti sulla mappa per disegnare un <strong>cerchio</strong> o un <strong>poligono</strong>. Ti dirò quanti e quali saloni ricadono nell'area.</p>
+        </div>
+        <button class="map-close" id="mapClose" aria-label="Chiudi mappa">×</button>
+      </div>
+
+      <div class="map-tools">
+
+        <button class="map-chip active" data-map-filter="tutti">Tutti</button>
+        <button class="map-chip" data-map-filter="barbiere">Barbieri</button>
+        <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
+        <button class="map-chip" data-map-filter="benessere">Benessere</button>
+        <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
+      </div>
+
+      <div class="map-canvas-wrap">
+        <div class="map-status" id="mapStatus">Cerco la tua posizione…</div>
+        <div id="beautyslotMap" aria-label="Mappa interattiva dei saloni"></div>
+
+        <div class="area-result" id="areaResult">
+          <h5>Saloni nell'area</h5>
+          <p class="area-total" id="areaTotal"></p>
+          <div class="area-breakdown" id="areaBreakdown"></div>
+          <div class="area-list" id="areaList"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <button class="floating-favorites" id="favoritesButton" aria-label="Preferiti">
@@ -842,23 +1183,505 @@
     <div id="favoritesList"></div>
   </div>
 
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
   <script>
 
     const mapButton = document.getElementById("mapButton");
-    const mapPreview = document.getElementById("mapPreview");
+    const mapModal = document.getElementById("mapModal");
+    const mapClose = document.getElementById("mapClose");
+    const mapStatus = document.getElementById("mapStatus");
+    const locateButton = document.getElementById("locateButton");
+    const mapChips = [...document.querySelectorAll(".map-chip")];
 
-    mapButton.addEventListener("click", () => {
-      mapPreview.classList.toggle("open");
+    const areaResult = document.getElementById("areaResult");
+    const areaTotal = document.getElementById("areaTotal");
+    const areaBreakdown = document.getElementById("areaBreakdown");
+    const areaList = document.getElementById("areaList");
+
+    let beautyMap = null;
+    let drawnItems = null;
+    let drawControl = null;
+    let userLocationMarker = null;
+    let activeAreaLayer = null;
+    let activeMapFilter = "tutti";
+    let lastMapPosition = null;
+    let businessMarkers = [];
+
+    const fallbackCenter = { lat:40.3515, lng:18.1750 };
+
+    const demoOffsets = [
+      [ 0.0060,  0.0030],
+      [-0.0040,  0.0065],
+      [ 0.0025, -0.0060],
+      [-0.0065, -0.0030],
+      [ 0.0070, -0.0045],
+      [-0.0020,  0.0090],
+      [ 0.0040,  0.0100],
+      [-0.0080,  0.0045]
+    ];
+
+    function getBusinesses(center){
+      const pageCards = [...document.querySelectorAll(".shop-card")];
+
+      return pageCards.map(function(card,index){
+        const explicitLat = parseFloat(card.dataset.lat);
+        const explicitLng = parseFloat(card.dataset.lng);
+        const offset = demoOffsets[index % demoOffsets.length];
+
+        return {
+          id: card.dataset.id || "uomo-" + index,
+          name: card.dataset.name || card.querySelector("h3")?.textContent || "Salone",
+          category: card.dataset.category || "altro",
+          lat: Number.isFinite(explicitLat) ? explicitLat : center.lat + offset[0],
+          lng: Number.isFinite(explicitLng) ? explicitLng : center.lng + offset[1],
+          demo: !(Number.isFinite(explicitLat) && Number.isFinite(explicitLng))
+        };
+      });
+    }
+
+    function makeDivIcon(className){
+      return L.divIcon({
+        className:"",
+        html:'<div class="' + className + '"></div>',
+        iconSize:[18,18],
+        iconAnchor:[9,9]
+      });
+    }
+
+    function initMap(center){
+      if(beautyMap) return;
+
+      beautyMap = L.map("beautyslotMap", {
+        zoomControl:true
+      }).setView([center.lat,center.lng], 14);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom:19,
+        attribution:'&copy; OpenStreetMap contributors'
+      }).addTo(beautyMap);
+
+      drawnItems = new L.FeatureGroup();
+      beautyMap.addLayer(drawnItems);
+
+
+      // --------------------------------------------------
+      // CONTROLLI DISEGNO BEAUTYSLOT
+      // Nessun tasto testuale "Finish / Cancel / Delete..."
+      // --------------------------------------------------
+
+      const drawColor =
+        getComputedStyle(document.documentElement)
+          .getPropertyValue("--rose-dark").trim() || "#9f6271";
+
+      let activeDrawMode = null;
+      let activeDrawHandler = null;
+
+      function stopDrawing(){
+        if(activeDrawHandler){
+          activeDrawHandler.disable();
+        }
+
+        activeDrawHandler = null;
+        activeDrawMode = null;
+
+        document
+          .querySelectorAll(".beautyslot-draw-btn")
+          .forEach(function(btn){
+            btn.classList.remove("active");
+          });
+      }
+
+      function startDrawing(mode, button){
+        // Se ripremi lo stesso pulsante, il disegno si annulla.
+        if(activeDrawMode === mode){
+          stopDrawing();
+          mapStatus.textContent = "Disegno annullato.";
+          return;
+        }
+
+        stopDrawing();
+
+        if(mode === "circle"){
+          activeDrawHandler = new L.Draw.Circle(beautyMap,{
+            shapeOptions:{
+              color:drawColor,
+              weight:2,
+              fillOpacity:.12
+            }
+          });
+        }
+
+        if(mode === "polygon"){
+          activeDrawHandler = new L.Draw.Polygon(beautyMap,{
+            allowIntersection:false,
+            showArea:true,
+            shapeOptions:{
+              color:drawColor,
+              weight:2,
+              fillOpacity:.12
+            }
+          });
+        }
+
+        activeDrawMode = mode;
+        button.classList.add("active");
+        activeDrawHandler.enable();
+
+        mapStatus.textContent =
+          mode === "circle"
+            ? "Trascina sulla mappa per creare il cerchio."
+            : "Tocca i punti del poligono e chiudilo toccando il primo punto.";
+      }
+
+      function deleteLastArea(){
+        stopDrawing();
+
+        if(activeAreaLayer && drawnItems.hasLayer(activeAreaLayer)){
+          drawnItems.removeLayer(activeAreaLayer);
+        }
+
+        activeAreaLayer = null;
+        areaResult.classList.remove("open");
+        mapStatus.textContent = "Ultima area eliminata.";
+      }
+
+      const BeautyDrawControl = L.Control.extend({
+        options:{ position:"topleft" },
+
+        onAdd:function(){
+          const container =
+            L.DomUtil.create("div","beautyslot-draw-control");
+
+          L.DomEvent.disableClickPropagation(container);
+          L.DomEvent.disableScrollPropagation(container);
+
+          const circleBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          circleBtn.type = "button";
+          circleBtn.title = "Disegna cerchio";
+          circleBtn.setAttribute("aria-label","Disegna cerchio");
+          circleBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<circle cx="12" cy="12" r="7.5"></circle>' +
+            '</svg>';
+
+          const polygonBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          polygonBtn.type = "button";
+          polygonBtn.title = "Disegna poligono";
+          polygonBtn.setAttribute("aria-label","Disegna poligono");
+          polygonBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path d="M5 6l7-3 7 5-2 10-9 2-4-7z"></path>' +
+            '</svg>';
+
+          const trashBtn =
+            L.DomUtil.create("button","beautyslot-draw-btn",container);
+          trashBtn.type = "button";
+          trashBtn.title = "Elimina ultima area";
+          trashBtn.setAttribute("aria-label","Elimina ultima area");
+          trashBtn.innerHTML =
+            '<svg viewBox="0 0 24 24" aria-hidden="true">' +
+              '<path d="M5 7h14"></path>' +
+              '<path d="M9 7V4h6v3"></path>' +
+              '<path d="M7 7l1 13h8l1-13"></path>' +
+            '</svg>';
+
+          L.DomEvent.on(circleBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            startDrawing("circle",circleBtn);
+          });
+
+          L.DomEvent.on(polygonBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            startDrawing("polygon",polygonBtn);
+          });
+
+          L.DomEvent.on(trashBtn,"click",function(event){
+            L.DomEvent.stop(event);
+            deleteLastArea();
+          });
+
+          return container;
+        }
+      });
+
+      beautyMap.addControl(new BeautyDrawControl());
+
+
+      beautyMap.on(L.Draw.Event.CREATED, function(event){
+        drawnItems.clearLayers();
+        activeAreaLayer = event.layer;
+        drawnItems.addLayer(activeAreaLayer);
+
+        stopDrawing();
+        updateAreaAnalysis();
+      });
+
+      beautyMap.on(L.Draw.Event.EDITED, function(event){
+        event.layers.eachLayer(function(layer){
+          activeAreaLayer = layer;
+        });
+        updateAreaAnalysis();
+      });
+
+      beautyMap.on(L.Draw.Event.DELETED, function(){
+        activeAreaLayer = null;
+        areaResult.classList.remove("open");
+      });
+    }
+
+    function setUserPosition(lat,lng){
+      lastMapPosition = { lat:lat, lng:lng };
+      initMap(lastMapPosition);
+
+      if(userLocationMarker){
+        userLocationMarker.setLatLng([lat,lng]);
+      } else {
+        userLocationMarker = L.marker([lat,lng], {
+          icon:makeDivIcon("user-marker"),
+          title:"La tua posizione"
+        }).addTo(beautyMap).bindPopup("<strong>La tua posizione</strong>");
+      }
+
+      beautyMap.setView([lat,lng],14);
+      renderBusinessMarkers();
+      mapStatus.textContent = "Sei qui · " + businessMarkers.length + " attività visualizzate";
+    }
+
+    function locateUser(){
+      mapStatus.textContent = "Cerco la tua posizione…";
+
+      if(!navigator.geolocation){
+        setUserPosition(fallbackCenter.lat,fallbackCenter.lng);
+        mapStatus.textContent = "Geolocalizzazione non disponibile.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        function(position){
+          setUserPosition(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+        },
+        function(){
+          setUserPosition(fallbackCenter.lat,fallbackCenter.lng);
+          mapStatus.textContent = "Posizione non disponibile. Mostro una posizione di riferimento.";
+        },
+        {
+          enableHighAccuracy:true,
+          timeout:8000,
+          maximumAge:60000
+        }
+      );
+    }
+
+    function renderBusinessMarkers(){
+      if(!beautyMap || !lastMapPosition) return;
+
+      businessMarkers.forEach(function(item){
+        beautyMap.removeLayer(item.marker);
+      });
+      businessMarkers = [];
+
+      const businesses = getBusinesses(lastMapPosition);
+
+      businesses.forEach(function(business){
+        const marker = L.marker([business.lat,business.lng], {
+          icon:makeDivIcon("beautyslot-marker"),
+          title:business.name
+        });
+
+        marker.bindPopup(
+          "<strong>" + business.name + "</strong><br>" +
+          business.category +
+          (business.demo ? "<br><small>Posizione dimostrativa</small>" : "")
+        );
+
+        businessMarkers.push({
+          business:business,
+          marker:marker
+        });
+      });
+
+      applyMapFilter();
+      updateAreaAnalysis();
+    }
+
+    function applyMapFilter(){
+      if(!beautyMap) return;
+
+      businessMarkers.forEach(function(item){
+        const show =
+          activeMapFilter === "tutti" ||
+          item.business.category === activeMapFilter;
+
+        if(show){
+          if(!beautyMap.hasLayer(item.marker)){
+            item.marker.addTo(beautyMap);
+          }
+        } else {
+          if(beautyMap.hasLayer(item.marker)){
+            beautyMap.removeLayer(item.marker);
+          }
+        }
+      });
+
+      const visible = businessMarkers.filter(function(item){
+        return activeMapFilter === "tutti" ||
+          item.business.category === activeMapFilter;
+      }).length;
+
+      mapStatus.textContent =
+        "Filtro: " + activeMapFilter + " · " + visible +
+        (visible === 1 ? " attività" : " attività");
+
+      updateAreaAnalysis();
+    }
+
+    function pointInPolygon(point, polygon){
+      const x = point.lng;
+      const y = point.lat;
+      let inside = false;
+
+      for(let i=0, j=polygon.length-1; i<polygon.length; j=i++){
+        const xi = polygon[i].lng;
+        const yi = polygon[i].lat;
+        const xj = polygon[j].lng;
+        const yj = polygon[j].lat;
+
+        const intersect =
+          ((yi > y) !== (yj > y)) &&
+          (x < (xj-xi) * (y-yi) / ((yj-yi) || Number.EPSILON) + xi);
+
+        if(intersect) inside = !inside;
+      }
+
+      return inside;
+    }
+
+    function isInsideArea(lat,lng,layer){
+      if(!layer) return false;
+
+      if(layer instanceof L.Circle){
+        const center = layer.getLatLng();
+        return center.distanceTo(L.latLng(lat,lng)) <= layer.getRadius();
+      }
+
+      if(layer instanceof L.Polygon){
+        const latlngs = layer.getLatLngs();
+        const polygon = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
+        return pointInPolygon({lat:lat,lng:lng}, polygon);
+      }
+
+      return false;
+    }
+
+    function updateAreaAnalysis(){
+      if(!activeAreaLayer){
+        areaResult.classList.remove("open");
+        return;
+      }
+
+      const inside = businessMarkers
+        .map(function(item){ return item.business; })
+        .filter(function(business){
+          return isInsideArea(business.lat,business.lng,activeAreaLayer);
+        });
+
+      areaResult.classList.add("open");
+      areaTotal.textContent =
+        inside.length === 1
+          ? "1 salone dentro l'area selezionata."
+          : inside.length + " saloni dentro l'area selezionata.";
+
+      if(!inside.length){
+        areaBreakdown.innerHTML = "";
+        areaList.innerHTML =
+          '<div class="area-empty">Nessun salone ricade nell’area che hai disegnato. Puoi modificarla o disegnarne una nuova.</div>';
+        return;
+      }
+
+      const breakdown = {};
+      inside.forEach(function(business){
+        breakdown[business.category] =
+          (breakdown[business.category] || 0) + 1;
+      });
+
+      areaBreakdown.innerHTML = Object.entries(breakdown)
+        .map(function(entry){
+          return '<span class="area-pill">' +
+            entry[0] + ": " + entry[1] +
+            "</span>";
+        })
+        .join("");
+
+      areaList.innerHTML = inside
+        .map(function(business){
+          return '<div class="area-business"><strong>' +
+            business.name +
+            '</strong><br><span>' +
+            business.category +
+            "</span></div>";
+        })
+        .join("");
+    }
+
+    function openMap(){
+      mapModal.classList.add("open");
+      mapModal.setAttribute("aria-hidden","false");
+      document.body.style.overflow = "hidden";
+
+      if(lastMapPosition){
+        initMap(lastMapPosition);
+        setTimeout(function(){
+          beautyMap.invalidateSize();
+        },120);
+      } else {
+        initMap(fallbackCenter);
+        locateUser();
+        setTimeout(function(){
+          beautyMap.invalidateSize();
+        },120);
+      }
+    }
+
+    function closeMap(){
+      mapModal.classList.remove("open");
+      mapModal.setAttribute("aria-hidden","true");
+      document.body.style.overflow = "";
+    }
+
+    mapButton.addEventListener("click", openMap);
+    mapClose.addEventListener("click", closeMap);
+    locateButton.addEventListener("click", locateUser);
+
+    mapModal.addEventListener("click", function(event){
+      if(event.target === mapModal){
+        closeMap();
+      }
     });
 
-    document.addEventListener("click", (event) => {
-      if(
-        mapPreview.classList.contains("open") &&
-        !mapPreview.contains(event.target) &&
-        !mapButton.contains(event.target)
-      ){
-        mapPreview.classList.remove("open");
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape" && mapModal.classList.contains("open")){
+        closeMap();
       }
+    });
+
+    mapChips.forEach(function(chip){
+      chip.addEventListener("click", function(){
+        activeMapFilter = chip.dataset.mapFilter;
+
+        mapChips.forEach(function(item){
+          item.classList.toggle("active",item === chip);
+        });
+
+        applyMapFilter();
+      });
     });
 
     const drawerBackdrop = document.getElementById("drawerBackdrop");
