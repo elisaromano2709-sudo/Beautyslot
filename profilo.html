@@ -50,6 +50,79 @@
     .button{width:100%;min-height:50px;margin-top:16px;border:1px solid transparent;border-radius:999px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase}
     .button.primary{background:var(--accent-dark);color:#fff}
     .button.secondary{background:#fff;border-color:var(--line);color:var(--accent-dark)}
+
+    .forgot-link{
+      display:inline-flex;
+      margin-top:13px;
+      padding:0;
+      border:0;
+      background:transparent;
+      color:var(--accent-dark);
+      cursor:pointer;
+      font-size:12px;
+      font-weight:600;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+
+    .recovery-box{
+      display:none;
+      margin-top:18px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:rgba(255,255,255,.50);
+    }
+
+    .recovery-box.open{
+      display:block;
+    }
+
+    .recovery-title{
+      margin:0 0 6px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:20px;
+      font-weight:400;
+      color:var(--accent-dark);
+    }
+
+    .recovery-text{
+      margin:0 0 14px;
+      font-size:12px;
+      line-height:1.55;
+      color:var(--muted);
+    }
+
+    .code-row{
+      display:none;
+      margin-top:14px;
+    }
+
+    .code-row.open{
+      display:block;
+    }
+
+    .code-input{
+      text-align:center;
+      letter-spacing:7px;
+      font-size:20px !important;
+      font-weight:600;
+    }
+
+    .verified-box{
+      display:none;
+      margin-top:14px;
+    }
+
+    .verified-box.open{
+      display:block;
+    }
+
+    .small-button{
+      min-height:46px;
+      margin-top:12px;
+    }
+
     .message{display:none;margin-top:12px;padding:12px 14px;border-radius:13px;font-size:12px;line-height:1.5}
     .message.ok{display:block;background:rgba(102,153,122,.10);color:#52715e}
     .message.error{display:block;background:rgba(160,89,96,.10);color:#86545a}
@@ -120,6 +193,75 @@
               <button class="button primary" type="submit">Aggiorna password</button>
               <div class="message" id="passwordMessage"></div>
             </form>
+
+            <button class="forgot-link" type="button" id="forgotPassword">
+              Password dimenticata?
+            </button>
+
+            <div class="recovery-box" id="recoveryBox">
+              <h3 class="recovery-title">Recupera la password</h3>
+
+              <p class="recovery-text" id="recoveryEmailText">
+                Ti invieremo un codice di verifica all'indirizzo email associato al tuo account.
+              </p>
+
+              <button class="button secondary small-button" type="button" id="sendRecoveryCode">
+                Invia codice via email
+              </button>
+
+              <div class="message" id="sendCodeMessage"></div>
+
+              <div class="code-row" id="codeRow">
+                <div class="field">
+                  <label for="recoveryCode">Codice ricevuto via email</label>
+                  <input
+                    class="code-input"
+                    id="recoveryCode"
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    placeholder="000000"
+                  >
+                </div>
+
+                <button class="button secondary small-button" type="button" id="verifyRecoveryCode">
+                  Verifica codice
+                </button>
+
+                <div class="message" id="verifyCodeMessage"></div>
+              </div>
+
+              <div class="verified-box" id="verifiedBox">
+                <div class="field">
+                  <label for="recoveryPassword">Nuova password</label>
+                  <input
+                    id="recoveryPassword"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    placeholder="Nuova password"
+                  >
+                </div>
+
+                <div class="field">
+                  <label for="recoveryPasswordConfirm">Conferma nuova password</label>
+                  <input
+                    id="recoveryPasswordConfirm"
+                    type="password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    placeholder="Ripeti la nuova password"
+                  >
+                </div>
+
+                <button class="button primary" type="button" id="saveRecoveryPassword">
+                  Imposta nuova password
+                </button>
+
+                <div class="message" id="recoveryPasswordMessage"></div>
+              </div>
+            </div>
           </section>
 
           <section class="section">
@@ -139,6 +281,7 @@
 
     const params = new URLSearchParams(window.location.search);
     const tema = params.get("tema") === "uomo" ? "uomo" : "donna";
+    let currentUserEmail = "";
     if(tema === "uomo") document.body.classList.add("uomo");
 
     document.getElementById("backButton").addEventListener("click", () => {
@@ -180,7 +323,14 @@
 
       document.getElementById("profileTitle").textContent = nome ? "Ciao " + nome : "Il mio profilo";
       document.getElementById("profileName").textContent = fullName || nome || "—";
-      document.getElementById("profileEmail").textContent = user.email || "—";
+      currentUserEmail = user.email || "";
+      document.getElementById("profileEmail").textContent = currentUserEmail || "—";
+
+      const recoveryEmailText = document.getElementById("recoveryEmailText");
+      if(currentUserEmail){
+        recoveryEmailText.textContent =
+          "Ti invieremo un codice di verifica a " + currentUserEmail + ".";
+      }
 
       if(nome) localStorage.setItem("beautyslot_nome", nome);
       if(fullName) localStorage.setItem("beautyslot_full_name", fullName);
@@ -223,6 +373,142 @@
       document.getElementById("confirmPassword").value = "";
       message.className = "message ok";
       message.textContent = "Password aggiornata correttamente.";
+    });
+
+
+    const forgotPassword = document.getElementById("forgotPassword");
+    const recoveryBox = document.getElementById("recoveryBox");
+    const sendRecoveryCode = document.getElementById("sendRecoveryCode");
+    const sendCodeMessage = document.getElementById("sendCodeMessage");
+    const codeRow = document.getElementById("codeRow");
+    const verifyRecoveryCode = document.getElementById("verifyRecoveryCode");
+    const verifyCodeMessage = document.getElementById("verifyCodeMessage");
+    const verifiedBox = document.getElementById("verifiedBox");
+    const saveRecoveryPassword = document.getElementById("saveRecoveryPassword");
+    const recoveryPasswordMessage = document.getElementById("recoveryPasswordMessage");
+
+    forgotPassword.addEventListener("click", () => {
+      recoveryBox.classList.toggle("open");
+
+      if(recoveryBox.classList.contains("open")){
+        recoveryBox.scrollIntoView({ behavior:"smooth", block:"nearest" });
+      }
+    });
+
+    sendRecoveryCode.addEventListener("click", async () => {
+      sendCodeMessage.className = "message";
+      sendCodeMessage.textContent = "";
+
+      if(!currentUserEmail){
+        sendCodeMessage.className = "message error";
+        sendCodeMessage.textContent = "Non è stato possibile recuperare l'indirizzo email dell'account.";
+        return;
+      }
+
+      sendRecoveryCode.disabled = true;
+      sendRecoveryCode.textContent = "Invio in corso…";
+
+      const { error } = await client.auth.signInWithOtp({
+        email: currentUserEmail,
+        options: {
+          shouldCreateUser: false
+        }
+      });
+
+      sendRecoveryCode.disabled = false;
+      sendRecoveryCode.textContent = "Invia di nuovo il codice";
+
+      if(error){
+        sendCodeMessage.className = "message error";
+        sendCodeMessage.textContent = "Non è stato possibile inviare il codice. " + error.message;
+        return;
+      }
+
+      sendCodeMessage.className = "message ok";
+      sendCodeMessage.textContent = "Codice inviato. Controlla la tua email.";
+      codeRow.classList.add("open");
+      document.getElementById("recoveryCode").focus();
+    });
+
+    verifyRecoveryCode.addEventListener("click", async () => {
+      const code = document.getElementById("recoveryCode").value.trim();
+
+      verifyCodeMessage.className = "message";
+      verifyCodeMessage.textContent = "";
+
+      if(!/^\d{6}$/.test(code)){
+        verifyCodeMessage.className = "message error";
+        verifyCodeMessage.textContent = "Inserisci il codice di 6 cifre ricevuto via email.";
+        return;
+      }
+
+      verifyRecoveryCode.disabled = true;
+      verifyRecoveryCode.textContent = "Verifica in corso…";
+
+      const { error } = await client.auth.verifyOtp({
+        email: currentUserEmail,
+        token: code,
+        type: "email"
+      });
+
+      verifyRecoveryCode.disabled = false;
+      verifyRecoveryCode.textContent = "Verifica codice";
+
+      if(error){
+        verifyCodeMessage.className = "message error";
+        verifyCodeMessage.textContent = "Codice non valido o scaduto. Puoi richiederne uno nuovo.";
+        return;
+      }
+
+      verifyCodeMessage.className = "message ok";
+      verifyCodeMessage.textContent = "Codice verificato correttamente.";
+      verifiedBox.classList.add("open");
+      document.getElementById("recoveryPassword").focus();
+    });
+
+    saveRecoveryPassword.addEventListener("click", async () => {
+      const password = document.getElementById("recoveryPassword").value;
+      const confirm = document.getElementById("recoveryPasswordConfirm").value;
+
+      recoveryPasswordMessage.className = "message";
+      recoveryPasswordMessage.textContent = "";
+
+      if(password.length < 6){
+        recoveryPasswordMessage.className = "message error";
+        recoveryPasswordMessage.textContent = "La nuova password deve contenere almeno 6 caratteri.";
+        return;
+      }
+
+      if(password !== confirm){
+        recoveryPasswordMessage.className = "message error";
+        recoveryPasswordMessage.textContent = "Le due password non coincidono.";
+        return;
+      }
+
+      saveRecoveryPassword.disabled = true;
+      saveRecoveryPassword.textContent = "Aggiornamento…";
+
+      const { error } = await client.auth.updateUser({
+        password: password
+      });
+
+      saveRecoveryPassword.disabled = false;
+      saveRecoveryPassword.textContent = "Imposta nuova password";
+
+      if(error){
+        recoveryPasswordMessage.className = "message error";
+        recoveryPasswordMessage.textContent =
+          "Non è stato possibile aggiornare la password. " + error.message;
+        return;
+      }
+
+      document.getElementById("recoveryPassword").value = "";
+      document.getElementById("recoveryPasswordConfirm").value = "";
+      document.getElementById("recoveryCode").value = "";
+
+      recoveryPasswordMessage.className = "message ok";
+      recoveryPasswordMessage.textContent =
+        "Password cambiata correttamente. Da ora puoi usare la nuova password.";
     });
 
     document.getElementById("changeAccount").addEventListener("click", async () => {
