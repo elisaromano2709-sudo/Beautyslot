@@ -53,16 +53,21 @@
 
     .forgot-link{
       display:inline-flex;
-      margin-top:13px;
+      margin:0;
       padding:0;
       border:0;
       background:transparent;
       color:var(--accent-dark);
       cursor:pointer;
-      font-size:12px;
-      font-weight:600;
-      text-decoration:underline;
-      text-underline-offset:3px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:21px;
+      font-weight:400;
+      line-height:1.3;
+      text-decoration:none;
+    }
+
+    .forgot-link:hover{
+      opacity:.78;
     }
 
     .recovery-box{
@@ -176,21 +181,6 @@
           </div>
 
           <section class="section">
-            <h2 class="section-title">Cambia password</h2>
-            <p class="section-text">Per sicurezza la password attuale non può essere visualizzata. Puoi però sostituirla con una nuova.</p>
-            <form id="passwordForm">
-              <div class="field">
-                <label for="newPassword">Nuova password</label>
-                <input id="newPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Nuova password" required>
-              </div>
-              <div class="field">
-                <label for="confirmPassword">Conferma nuova password</label>
-                <input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Ripeti la nuova password" required>
-              </div>
-              <button class="button primary" type="submit">Aggiorna password</button>
-              <div class="message" id="passwordMessage"></div>
-            </form>
-
             <button class="forgot-link" type="button" id="forgotPassword">
               Password dimenticata?
             </button>
@@ -281,6 +271,8 @@
     const params = new URLSearchParams(window.location.search);
     const tema = params.get("tema") === "uomo" ? "uomo" : "donna";
     let currentUserEmail = "";
+    let recoveryEmail = "";
+    let recoveryRequestInProgress = false;
     if(tema === "uomo") document.body.classList.add("uomo");
 
     document.getElementById("backButton").addEventListener("click", () => {
@@ -346,6 +338,7 @@
       document.getElementById("profileTitle").textContent = nome ? "Ciao " + nome : "Il mio profilo";
       document.getElementById("profileName").textContent = fullName || nome || "—";
       currentUserEmail = user.email || "";
+      recoveryEmail = currentUserEmail;
       document.getElementById("profileEmail").textContent = currentUserEmail || "—";
 
       const recoveryEmailText = document.getElementById("recoveryEmailText");
@@ -362,42 +355,6 @@
 
       document.getElementById("profileContent").hidden = false;
     }
-
-    document.getElementById("passwordForm").addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const newPassword = document.getElementById("newPassword").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const message = document.getElementById("passwordMessage");
-
-      message.className = "message";
-      message.textContent = "";
-
-      if(newPassword.length < 6){
-        message.className = "message error";
-        message.textContent = "La nuova password deve contenere almeno 6 caratteri.";
-        return;
-      }
-
-      if(newPassword !== confirmPassword){
-        message.className = "message error";
-        message.textContent = "Le due password non coincidono.";
-        return;
-      }
-
-      const { error } = await client.auth.updateUser({ password:newPassword });
-
-      if(error){
-        message.className = "message error";
-        message.textContent = "Non è stato possibile aggiornare la password. " + error.message;
-        return;
-      }
-
-      document.getElementById("newPassword").value = "";
-      document.getElementById("confirmPassword").value = "";
-      message.className = "message ok";
-      message.textContent = "Password aggiornata correttamente.";
-    });
 
 
     const forgotPassword = document.getElementById("forgotPassword");
@@ -428,10 +385,14 @@
     });
 
     sendRecoveryCode.addEventListener("click", async () => {
+      if(recoveryRequestInProgress) return;
+
       sendCodeMessage.className = "message";
       sendCodeMessage.textContent = "";
 
-      if(!currentUserEmail){
+      recoveryEmail = (currentUserEmail || recoveryEmail || "").trim().toLowerCase();
+
+      if(!recoveryEmail){
         sendCodeMessage.className = "message error";
         sendCodeMessage.textContent = "Non è stato possibile recuperare l'indirizzo email dell'account.";
         return;
@@ -447,71 +408,140 @@
       recoveryPasswordMessage.className = "message";
       recoveryPasswordMessage.textContent = "";
 
+      recoveryRequestInProgress = true;
       sendRecoveryCode.disabled = true;
       sendRecoveryCode.textContent = "Invio in corso…";
 
-      const recoveryRedirect = new URL(
-        "profilo.html?tema=" + encodeURIComponent(tema),
-        window.location.href
-      ).href;
+      try{
+        /*
+          Il recovery password deve creare una NUOVA sessione di recupero.
+          Prima eliminiamo la vecchia sessione locale del browser, conservando
+          l'email in recoveryEmail.
+        */
+        await client.auth.signOut({ scope:"local" });
 
-      const { error } = await client.auth.resetPasswordForEmail(
-        currentUserEmail,
-        {
-          redirectTo: recoveryRedirect
-        }
-      );
+        localStorage.removeItem("beautyslot_nome");
+        localStorage.removeItem("beautyslot_cognome");
+        localStorage.removeItem("beautyslot_full_name");
+        localStorage.removeItem("beautyslot_user_id");
+        localStorage.removeItem("beautyslot_email");
 
-      sendRecoveryCode.disabled = false;
-      sendRecoveryCode.textContent = "Invia di nuovo il codice";
+        const recoveryRedirect = new URL(
+          "profilo.html?tema=" + encodeURIComponent(tema),
+          window.location.href
+        ).href;
 
-      if(error){
+        const { error } = await client.auth.resetPasswordForEmail(
+          recoveryEmail,
+          {
+            redirectTo: recoveryRedirect
+          }
+        );
+
+        if(error) throw error;
+
+        /*
+          Manteniamo l'email solo nella sessione della scheda corrente:
+          serve per verificare il codice ricevuto senza riutilizzare dati
+          di un vecchio account.
+        */
+        sessionStorage.setItem("beautyslot_recovery_email", recoveryEmail);
+
+        sendCodeMessage.className = "message ok";
+        sendCodeMessage.textContent =
+          "Codice di verifica inviato a " + recoveryEmail + ". Usa l'ultimo codice ricevuto.";
+
+        codeRow.classList.add("open");
+        recoveryCodeInput.focus();
+
+      }catch(error){
+        console.error("Beautyslot recovery request:", error);
+
         sendCodeMessage.className = "message error";
-        sendCodeMessage.textContent = "Non è stato possibile inviare il codice. " + error.message;
-        return;
+        sendCodeMessage.textContent =
+          "Non è stato possibile inviare il codice. " +
+          (error?.message || "Riprova.");
+      }finally{
+        recoveryRequestInProgress = false;
+        sendRecoveryCode.disabled = false;
+        sendRecoveryCode.textContent = "Invia di nuovo il codice";
       }
-
-      sendCodeMessage.className = "message ok";
-      sendCodeMessage.textContent = "Codice di verifica inviato. Controlla la tua email Beautyslot.";
-      codeRow.classList.add("open");
-      recoveryCodeInput.focus();
     });
+
 
     verifyRecoveryCode.addEventListener("click", async () => {
       const code = recoveryCodeInput.value.trim();
+      const emailForRecovery =
+        (recoveryEmail ||
+         sessionStorage.getItem("beautyslot_recovery_email") ||
+         currentUserEmail ||
+         "").trim().toLowerCase();
 
       verifyCodeMessage.className = "message";
       verifyCodeMessage.textContent = "";
 
+      if(!emailForRecovery){
+        verifyCodeMessage.className = "message error";
+        verifyCodeMessage.textContent =
+          "Email di recupero non disponibile. Richiedi nuovamente il codice.";
+        return;
+      }
+
       if(!/^\d{6}$/.test(code)){
         verifyCodeMessage.className = "message error";
-        verifyCodeMessage.textContent = "Inserisci il codice di 6 cifre ricevuto via email.";
+        verifyCodeMessage.textContent =
+          "Inserisci esattamente le 6 cifre ricevute nell'ultima email Beautyslot.";
         return;
       }
 
       verifyRecoveryCode.disabled = true;
       verifyRecoveryCode.textContent = "Verifica in corso…";
 
-      const { error } = await client.auth.verifyOtp({
-        email: currentUserEmail,
-        token: code,
-        type: "recovery"
-      });
+      try{
+        const { data, error } = await client.auth.verifyOtp({
+          email: emailForRecovery,
+          token: code,
+          type: "recovery"
+        });
 
-      verifyRecoveryCode.disabled = false;
-      verifyRecoveryCode.textContent = "Verifica codice";
+        if(error) throw error;
 
-      if(error){
+        /*
+          verifyOtp(recovery) deve restituire una sessione valida.
+          Senza questa sessione updateUser non potrebbe cambiare la password.
+        */
+        if(!data?.session || !data?.user){
+          throw new Error("Supabase non ha creato la sessione di recupero.");
+        }
+
+        recoveryEmail = data.user.email || emailForRecovery;
+        currentUserEmail = recoveryEmail;
+
+        verifyCodeMessage.className = "message ok";
+        verifyCodeMessage.textContent =
+          "Codice verificato. Ora puoi scegliere una nuova password.";
+
+        verifiedBox.classList.add("open");
+        document.getElementById("recoveryPassword").focus();
+
+      }catch(error){
+        console.error("Beautyslot verify recovery OTP:", error);
+
+        const detail =
+          error?.code ||
+          error?.message ||
+          "Codice non valido o scaduto.";
+
         verifyCodeMessage.className = "message error";
-        verifyCodeMessage.textContent = "Codice non valido o scaduto. Puoi richiederne uno nuovo.";
-        return;
+        verifyCodeMessage.textContent =
+          "Il codice non è stato accettato: " + detail +
+          " Usa l'ultimo codice ricevuto oppure richiedine uno nuovo.";
+      }finally{
+        verifyRecoveryCode.disabled = false;
+        verifyRecoveryCode.textContent = "Verifica codice";
       }
-
-      verifyCodeMessage.className = "message ok";
-      verifyCodeMessage.textContent = "Codice verificato correttamente.";
-      verifiedBox.classList.add("open");
-      document.getElementById("recoveryPassword").focus();
     });
+
 
     saveRecoveryPassword.addEventListener("click", async () => {
       const password = document.getElementById("recoveryPassword").value;
@@ -553,9 +583,36 @@
       document.getElementById("recoveryPasswordConfirm").value = "";
       recoveryCodeInput.value = "";
 
+      sessionStorage.removeItem("beautyslot_recovery_email");
+
+      const { data: refreshedUserData } = await client.auth.getUser();
+      const refreshedUser = refreshedUserData?.user;
+
+      if(refreshedUser){
+        const refreshedMetadata = refreshedUser.user_metadata || {};
+        const refreshedName =
+          refreshedMetadata.nome ||
+          (refreshedMetadata.full_name
+            ? refreshedMetadata.full_name.trim().split(/\s+/)[0]
+            : "");
+
+        localStorage.setItem("beautyslot_user_id", refreshedUser.id || "");
+        localStorage.setItem("beautyslot_email", refreshedUser.email || recoveryEmail || "");
+
+        if(refreshedName){
+          localStorage.setItem("beautyslot_nome", refreshedName);
+        }
+        if(refreshedMetadata.cognome){
+          localStorage.setItem("beautyslot_cognome", refreshedMetadata.cognome);
+        }
+        if(refreshedMetadata.full_name){
+          localStorage.setItem("beautyslot_full_name", refreshedMetadata.full_name);
+        }
+      }
+
       recoveryPasswordMessage.className = "message ok";
       recoveryPasswordMessage.textContent =
-        "Password cambiata correttamente. Da ora puoi usare la nuova password.";
+        "Password aggiornata correttamente. Ora puoi usare la nuova password.";
     });
 
     document.getElementById("changeAccount").addEventListener("click", async () => {
