@@ -53,7 +53,31 @@
     .action-btn.primary{background:var(--dark);border-color:var(--dark);color:#fff}
     .action-btn.danger{color:#9a535b;border-color:rgba(154,83,91,.25);background:#fff}
     .action-btn.danger:hover{background:rgba(154,83,91,.07);border-color:rgba(154,83,91,.45)}
-    @media(max-width:520px){.row{grid-template-columns:1fr;gap:4px}.card{padding:22px}.booking-actions{flex-direction:column}.action-btn{width:100%}}
+
+    .cancel-modal{
+      display:none;position:fixed;inset:0;z-index:1000;padding:20px;
+      align-items:center;justify-content:center;background:rgba(53,43,46,.42);
+      backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)
+    }
+    .cancel-modal.open{display:flex}
+    .cancel-dialog{
+      width:min(440px,100%);padding:26px;border:1px solid var(--line);border-radius:24px;
+      background:#fff;box-shadow:0 24px 70px rgba(45,35,38,.20);text-align:center
+    }
+    .cancel-dialog h2{
+      margin:0 0 10px;font-family:Georgia,"Times New Roman",serif;
+      font-size:28px;font-weight:400;color:var(--dark)
+    }
+    .cancel-dialog p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+    .cancel-salon{font-weight:700;color:var(--text)}
+    .cancel-dialog-actions{display:flex;gap:10px;margin-top:22px}
+    .cancel-dialog-actions .action-btn{flex:1}
+
+    @media(max-width:520px){
+      .row{grid-template-columns:1fr;gap:4px}.card{padding:22px}.booking-actions{flex-direction:column}.action-btn{width:100%}
+      .cancel-dialog{padding:22px 18px;border-radius:21px}
+      .cancel-dialog-actions{flex-direction:column}
+    }
   </style>
 </head>
 <body>
@@ -79,13 +103,24 @@
         <div class="row"><div class="label">Orario</div><div class="value" id="time">—</div></div>
         <div class="booking-actions">
           <button class="action-btn primary" id="mapButton" type="button">Apri mappa</button>
-          <button class="action-btn danger" id="cancelButton" type="button">Disdici appuntamento</button>
+          <button class="action-btn danger" id="cancelButton" type="button">Gestisci appuntamento</button>
         </div>
       </div>
 
       <div class="empty" id="empty">Non ci sono ancora prenotazioni disponibili in questa sessione.</div>
     </section>
   </main>
+
+  <div class="cancel-modal" id="cancelModal" aria-hidden="true">
+    <div class="cancel-dialog" role="dialog" aria-modal="true" aria-labelledby="cancelTitle" aria-describedby="cancelText">
+      <h2 id="cancelTitle">Disdire l’appuntamento?</h2>
+      <p id="cancelText">Stai per disdire l’appuntamento<span id="cancelSalonText"></span>. Vuoi confermare?</p>
+      <div class="cancel-dialog-actions">
+        <button class="action-btn" id="keepBookingButton" type="button">No, mantieni appuntamento</button>
+        <button class="action-btn danger" id="confirmCancelButton" type="button">Conferma disdetta</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
@@ -153,6 +188,25 @@
     const emptyBox = document.getElementById("empty");
     const mapButton = document.getElementById("mapButton");
     const cancelButton = document.getElementById("cancelButton");
+    const cancelModal = document.getElementById("cancelModal");
+    const cancelSalonText = document.getElementById("cancelSalonText");
+    const keepBookingButton = document.getElementById("keepBookingButton");
+    const confirmCancelButton = document.getElementById("confirmCancelButton");
+
+    let activeBookingRaw = null;
+
+    function openCancelModal(booking){
+      cancelSalonText.textContent = booking?.salon ? " presso " + booking.salon : "";
+      cancelModal.classList.add("open");
+      cancelModal.setAttribute("aria-hidden", "false");
+      confirmCancelButton.focus();
+    }
+
+    function closeCancelModal(){
+      cancelModal.classList.remove("open");
+      cancelModal.setAttribute("aria-hidden", "true");
+      cancelButton.focus();
+    }
 
     function buildMapUrl(booking){
       const lat = Number(booking.lat ?? booking.latitude);
@@ -183,31 +237,47 @@
           window.open(buildMapUrl(booking), "_blank", "noopener,noreferrer");
         });
 
+        activeBookingRaw = raw;
+
         cancelButton.addEventListener("click", function(){
-          const salonName = booking.salon ? " presso " + booking.salon : "";
-          const confirmed = window.confirm(
-            "Vuoi davvero disdire l'appuntamento" + salonName + "?"
-          );
-
-          if(!confirmed) return;
-
-          sessionStorage.removeItem(bookingStorageKey);
-
-          // Rimuove anche la chiave generale soltanto se contiene proprio
-          // la stessa prenotazione che si sta disdicendo.
-          const globalRaw = sessionStorage.getItem("beautyslot_last_booking");
-          if(globalRaw && globalRaw === raw){
-            sessionStorage.removeItem("beautyslot_last_booking");
-          }
-
-          bookingBox.classList.remove("show");
-          emptyBox.textContent = "Appuntamento disdetto. Non ci sono prenotazioni disponibili in questa sessione.";
-          emptyBox.style.display = "block";
+          openCancelModal(booking);
         });
       }catch(error){
         console.warn(error);
       }
     }
+
+    keepBookingButton.addEventListener("click", function(){
+      closeCancelModal();
+    });
+
+    confirmCancelButton.addEventListener("click", function(){
+      sessionStorage.removeItem(bookingStorageKey);
+
+      // Rimuove anche la chiave generale soltanto se contiene proprio
+      // la stessa prenotazione che si sta disdicendo.
+      const globalRaw = sessionStorage.getItem("beautyslot_last_booking");
+      if(globalRaw && activeBookingRaw && globalRaw === activeBookingRaw){
+        sessionStorage.removeItem("beautyslot_last_booking");
+      }
+
+      closeCancelModal();
+      bookingBox.classList.remove("show");
+      emptyBox.textContent = "Appuntamento disdetto. Non ci sono prenotazioni disponibili in questa sessione.";
+      emptyBox.style.display = "block";
+    });
+
+    cancelModal.addEventListener("click", function(event){
+      if(event.target === cancelModal){
+        closeCancelModal();
+      }
+    });
+
+    document.addEventListener("keydown", function(event){
+      if(event.key === "Escape" && cancelModal.classList.contains("open")){
+        closeCancelModal();
+      }
+    });
   </script>
 </body>
 </html>
