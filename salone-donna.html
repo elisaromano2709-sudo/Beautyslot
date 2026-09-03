@@ -342,7 +342,7 @@
 
 <body>
   <header class="topbar">
-    <button class="back" type="button" onclick="history.back()" aria-label="Torna indietro">←</button>
+    <button class="back" type="button" onclick="window.location.href='./donna.html'" aria-label="Torna a Donna">←</button>
 
     <div class="brand">
       <h2 class="brand-name">Beautyslot</h2>
@@ -384,7 +384,7 @@
           <div class="label">Prenotazione</div>
 
           <div class="calendar-active" id="calendarActive">
-            <a class="calendar-button" id="calendarAction" href="#">
+            <a class="calendar-button" id="calendarAction" href="./calendario-donna.html?id=hair-01">
               Apri calendario Beautyslot
             </a>
             <div class="calendar-help">
@@ -418,7 +418,6 @@
         phone:"+39 0832 123456",
         instagram:"@atelierhair",
         instagramUrl:"https://www.instagram.com/",
-        plan:"free",
         plan:"paid",
         image:'',
         initials:"AH",
@@ -624,7 +623,7 @@
       // il cliente può aprire il calendario Beautyslot del salone.
       calendarActive.style.display = "block";
       calendarInactive.style.display = "none";
-      calendarAction.href = "calendario-donna.html?id=" + encodeURIComponent(id);
+      calendarAction.href = "./calendario-donna.html?id=" + encodeURIComponent(id);
     } else {
       // BEAUTYSLOT FREE:
       // restano visibili telefono, orari e Instagram,
