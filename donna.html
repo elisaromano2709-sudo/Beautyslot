@@ -6,6 +6,10 @@
   <title>Beautyslot — Donna</title>
   <meta name="description" content="Scopri parrucchieri, estetiste, nail artist e professionisti beauty su Beautyslot.">
 
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css">
+
   <style>
     :root{
       --bg:#ffffff;
@@ -488,6 +492,7 @@
     }
 
 
+
     .map-modal{
       position:fixed;
       inset:0;
@@ -508,8 +513,8 @@
     }
 
     .map-shell{
-      width:min(1120px,100%);
-      height:min(760px,calc(100vh - 36px));
+      width:min(1180px,100%);
+      height:min(820px,calc(100vh - 36px));
       display:flex;
       flex-direction:column;
       overflow:hidden;
@@ -546,6 +551,7 @@
     .map-title-wrap p{
       margin:5px 0 0;
       font-size:12px;
+      line-height:1.45;
       color:var(--muted);
     }
 
@@ -594,46 +600,140 @@
     }
 
     .map-chip.active{
-      border-color:color-mix(in srgb, var(--rose-dark) 42%, transparent);
-      background:color-mix(in srgb, var(--rose) 10%, white);
+      border-color:rgba(120,120,120,.24);
+      background:var(--soft);
       color:var(--rose-dark);
     }
 
     .locate-btn{
       margin-left:auto;
       color:var(--rose-dark);
-      border-color:color-mix(in srgb, var(--rose-dark) 30%, transparent);
     }
 
-    .map-frame-wrap{
+    .map-canvas-wrap{
       position:relative;
       flex:1;
-      min-height:320px;
+      min-height:360px;
       background:#eef1f2;
     }
 
-    .map-frame{
+    #beautyslotMap{
       width:100%;
       height:100%;
-      border:0;
-      display:block;
+      min-height:360px;
     }
 
     .map-status{
       position:absolute;
       left:50%;
-      top:16px;
+      top:14px;
       transform:translateX(-50%);
-      z-index:2;
-      max-width:calc(100% - 32px);
+      z-index:500;
+      max-width:calc(100% - 120px);
       padding:9px 13px;
       border-radius:999px;
-      background:rgba(255,255,255,.94);
+      background:rgba(255,255,255,.95);
       box-shadow:0 8px 24px rgba(0,0,0,.10);
       color:#6d6667;
       font-size:11px;
       text-align:center;
       pointer-events:none;
+    }
+
+    .area-result{
+      position:absolute;
+      right:16px;
+      bottom:16px;
+      z-index:500;
+      width:min(330px,calc(100% - 32px));
+      max-height:46%;
+      overflow:auto;
+      padding:16px;
+      border:1px solid rgba(77,77,77,.10);
+      border-radius:20px;
+      background:rgba(255,255,255,.96);
+      box-shadow:0 18px 42px rgba(0,0,0,.14);
+      display:none;
+    }
+
+    .area-result.open{
+      display:block;
+    }
+
+    .area-result h5{
+      margin:0 0 6px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:21px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .area-total{
+      margin:0 0 11px;
+      font-size:13px;
+      color:#625b5c;
+    }
+
+    .area-breakdown{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      margin-bottom:11px;
+    }
+
+    .area-pill{
+      padding:6px 9px;
+      border-radius:999px;
+      background:var(--soft);
+      color:var(--rose-dark);
+      font-size:10px;
+      text-transform:capitalize;
+    }
+
+    .area-list{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .area-business{
+      padding-top:7px;
+      border-top:1px solid var(--line);
+      font-size:12px;
+      line-height:1.35;
+      color:#6d6667;
+    }
+
+    .area-business strong{
+      color:#554d4e;
+    }
+
+    .area-empty{
+      font-size:12px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .leaflet-control-draw a{
+      background-color:#fff;
+    }
+
+    .beautyslot-marker{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:3px solid #fff;
+      background:var(--rose-dark);
+      box-shadow:0 3px 10px rgba(0,0,0,.22);
+    }
+
+    .user-marker{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:4px solid #fff;
+      background:#3878c9;
+      box-shadow:0 3px 12px rgba(0,0,0,.25);
     }
 
     @media(max-width:620px){
@@ -662,6 +762,18 @@
 
       .locate-btn{
         margin-left:0;
+      }
+
+      .map-status{
+        top:12px;
+        max-width:calc(100% - 92px);
+      }
+
+      .area-result{
+        right:12px;
+        bottom:12px;
+        width:calc(100% - 24px);
+        max-height:38%;
       }
     }
 
@@ -995,30 +1107,31 @@
       <div class="map-head">
         <div class="map-title-wrap">
           <h4 id="mapTitle">Mappa vicino a te</h4>
-          <p>Visualizza la tua zona e scegli la categoria che vuoi cercare.</p>
+          <p>Vedi i saloni e usa gli strumenti sulla mappa per disegnare un <strong>cerchio</strong> o un <strong>poligono</strong>. Ti dirò quanti e quali saloni ricadono nell'area.</p>
         </div>
         <button class="map-close" id="mapClose" aria-label="Chiudi mappa">×</button>
       </div>
 
       <div class="map-tools">
 
-      <button class="map-chip active" data-map-filter="tutti">Tutti</button>
-      <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
-      <button class="map-chip" data-map-filter="estetista">Estetiste</button>
-      <button class="map-chip" data-map-filter="unghie">Unghie</button>
-      <button class="map-chip" data-map-filter="benessere">Benessere</button>
+        <button class="map-chip active" data-map-filter="tutti">Tutti</button>
+        <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
+        <button class="map-chip" data-map-filter="estetista">Estetiste</button>
+        <button class="map-chip" data-map-filter="unghie">Unghie</button>
+        <button class="map-chip" data-map-filter="benessere">Benessere</button>
         <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
       </div>
 
-      <div class="map-frame-wrap">
+      <div class="map-canvas-wrap">
         <div class="map-status" id="mapStatus">Cerco la tua posizione…</div>
-        <iframe
-          class="map-frame"
-          id="mapFrame"
-          title="Mappa dei professionisti vicini"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-        ></iframe>
+        <div id="beautyslotMap" aria-label="Mappa interattiva dei saloni"></div>
+
+        <div class="area-result" id="areaResult">
+          <h5>Saloni nell'area</h5>
+          <p class="area-total" id="areaTotal"></p>
+          <div class="area-breakdown" id="areaBreakdown"></div>
+          <div class="area-list" id="areaList"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1035,59 +1148,181 @@
     <div id="favoritesList"></div>
   </div>
 
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
   <script>
 
     const mapButton = document.getElementById("mapButton");
     const mapModal = document.getElementById("mapModal");
     const mapClose = document.getElementById("mapClose");
-    const mapFrame = document.getElementById("mapFrame");
     const mapStatus = document.getElementById("mapStatus");
     const locateButton = document.getElementById("locateButton");
     const mapChips = [...document.querySelectorAll(".map-chip")];
 
-    let lastMapPosition = null;
+    const areaResult = document.getElementById("areaResult");
+    const areaTotal = document.getElementById("areaTotal");
+    const areaBreakdown = document.getElementById("areaBreakdown");
+    const areaList = document.getElementById("areaList");
+
+    let beautyMap = null;
+    let drawnItems = null;
+    let drawControl = null;
+    let userLocationMarker = null;
+    let activeAreaLayer = null;
     let activeMapFilter = "tutti";
+    let lastMapPosition = null;
+    let businessMarkers = [];
 
-    function osmEmbedUrl(lat, lon){
-      const deltaLat = 0.035;
-      const deltaLon = 0.055;
+    const fallbackCenter = { lat:40.3515, lng:18.1750 };
 
-      const left = lon - deltaLon;
-      const right = lon + deltaLon;
-      const bottom = lat - deltaLat;
-      const top = lat + deltaLat;
+    const demoOffsets = [
+      [ 0.0060,  0.0030],
+      [-0.0040,  0.0065],
+      [ 0.0025, -0.0060],
+      [-0.0065, -0.0030],
+      [ 0.0070, -0.0045],
+      [-0.0020,  0.0090],
+      [ 0.0040,  0.0100],
+      [-0.0080,  0.0045]
+    ];
 
-      return "https://www.openstreetmap.org/export/embed.html"
-        + "?bbox=" + encodeURIComponent(left + "," + bottom + "," + right + "," + top)
-        + "&layer=mapnik"
-        + "&marker=" + encodeURIComponent(lat + "," + lon);
+    function getBusinesses(center){
+      const pageCards = [...document.querySelectorAll(".shop-card")];
+
+      return pageCards.map(function(card,index){
+        const explicitLat = parseFloat(card.dataset.lat);
+        const explicitLng = parseFloat(card.dataset.lng);
+        const offset = demoOffsets[index % demoOffsets.length];
+
+        return {
+          id: card.dataset.id || "donna-" + index,
+          name: card.dataset.name || card.querySelector("h3")?.textContent || "Salone",
+          category: card.dataset.category || "altro",
+          lat: Number.isFinite(explicitLat) ? explicitLat : center.lat + offset[0],
+          lng: Number.isFinite(explicitLng) ? explicitLng : center.lng + offset[1],
+          demo: !(Number.isFinite(explicitLat) && Number.isFinite(explicitLng))
+        };
+      });
     }
 
-    function showPosition(lat, lon){
-      lastMapPosition = { lat, lon };
-      mapFrame.src = osmEmbedUrl(lat, lon);
-      mapStatus.textContent = "Sei qui · filtro: " + activeMapFilter;
+    function makeDivIcon(className){
+      return L.divIcon({
+        className:"",
+        html:'<div class="' + className + '"></div>',
+        iconSize:[18,18],
+        iconAnchor:[9,9]
+      });
+    }
+
+    function initMap(center){
+      if(beautyMap) return;
+
+      beautyMap = L.map("beautyslotMap", {
+        zoomControl:true
+      }).setView([center.lat,center.lng], 14);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom:19,
+        attribution:'&copy; OpenStreetMap contributors'
+      }).addTo(beautyMap);
+
+      drawnItems = new L.FeatureGroup();
+      beautyMap.addLayer(drawnItems);
+
+      drawControl = new L.Control.Draw({
+        position:"topleft",
+        draw:{
+          polygon:{
+            allowIntersection:false,
+            showArea:true,
+            shapeOptions:{
+              color:getComputedStyle(document.documentElement)
+                .getPropertyValue("--rose-dark").trim() || "#9f6271",
+              weight:2,
+              fillOpacity:.12
+            }
+          },
+          circle:{
+            shapeOptions:{
+              color:getComputedStyle(document.documentElement)
+                .getPropertyValue("--rose-dark").trim() || "#9f6271",
+              weight:2,
+              fillOpacity:.12
+            }
+          },
+          rectangle:false,
+          polyline:false,
+          marker:false,
+          circlemarker:false
+        },
+        edit:{
+          featureGroup:drawnItems,
+          edit:true,
+          remove:true
+        }
+      });
+
+      beautyMap.addControl(drawControl);
+
+      beautyMap.on(L.Draw.Event.CREATED, function(event){
+        drawnItems.clearLayers();
+        activeAreaLayer = event.layer;
+        drawnItems.addLayer(activeAreaLayer);
+        updateAreaAnalysis();
+      });
+
+      beautyMap.on(L.Draw.Event.EDITED, function(event){
+        event.layers.eachLayer(function(layer){
+          activeAreaLayer = layer;
+        });
+        updateAreaAnalysis();
+      });
+
+      beautyMap.on(L.Draw.Event.DELETED, function(){
+        activeAreaLayer = null;
+        areaResult.classList.remove("open");
+      });
+    }
+
+    function setUserPosition(lat,lng){
+      lastMapPosition = { lat:lat, lng:lng };
+      initMap(lastMapPosition);
+
+      if(userLocationMarker){
+        userLocationMarker.setLatLng([lat,lng]);
+      } else {
+        userLocationMarker = L.marker([lat,lng], {
+          icon:makeDivIcon("user-marker"),
+          title:"La tua posizione"
+        }).addTo(beautyMap).bindPopup("<strong>La tua posizione</strong>");
+      }
+
+      beautyMap.setView([lat,lng],14);
+      renderBusinessMarkers();
+      mapStatus.textContent = "Sei qui · " + businessMarkers.length + " attività visualizzate";
     }
 
     function locateUser(){
       mapStatus.textContent = "Cerco la tua posizione…";
 
       if(!navigator.geolocation){
-        showPosition(40.3515, 18.1750);
+        setUserPosition(fallbackCenter.lat,fallbackCenter.lng);
         mapStatus.textContent = "Geolocalizzazione non disponibile.";
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
         function(position){
-          showPosition(
+          setUserPosition(
             position.coords.latitude,
             position.coords.longitude
           );
         },
         function(){
-          showPosition(40.3515, 18.1750);
-          mapStatus.textContent = "Posizione non disponibile. Puoi comunque esplorare la mappa.";
+          setUserPosition(fallbackCenter.lat,fallbackCenter.lng);
+          mapStatus.textContent = "Posizione non disponibile. Mostro una posizione di riferimento.";
         },
         {
           enableHighAccuracy:true,
@@ -1097,15 +1332,173 @@
       );
     }
 
+    function renderBusinessMarkers(){
+      if(!beautyMap || !lastMapPosition) return;
+
+      businessMarkers.forEach(function(item){
+        beautyMap.removeLayer(item.marker);
+      });
+      businessMarkers = [];
+
+      const businesses = getBusinesses(lastMapPosition);
+
+      businesses.forEach(function(business){
+        const marker = L.marker([business.lat,business.lng], {
+          icon:makeDivIcon("beautyslot-marker"),
+          title:business.name
+        });
+
+        marker.bindPopup(
+          "<strong>" + business.name + "</strong><br>" +
+          business.category +
+          (business.demo ? "<br><small>Posizione dimostrativa</small>" : "")
+        );
+
+        businessMarkers.push({
+          business:business,
+          marker:marker
+        });
+      });
+
+      applyMapFilter();
+      updateAreaAnalysis();
+    }
+
+    function applyMapFilter(){
+      if(!beautyMap) return;
+
+      businessMarkers.forEach(function(item){
+        const show =
+          activeMapFilter === "tutti" ||
+          item.business.category === activeMapFilter;
+
+        if(show){
+          if(!beautyMap.hasLayer(item.marker)){
+            item.marker.addTo(beautyMap);
+          }
+        } else {
+          if(beautyMap.hasLayer(item.marker)){
+            beautyMap.removeLayer(item.marker);
+          }
+        }
+      });
+
+      const visible = businessMarkers.filter(function(item){
+        return activeMapFilter === "tutti" ||
+          item.business.category === activeMapFilter;
+      }).length;
+
+      mapStatus.textContent =
+        "Filtro: " + activeMapFilter + " · " + visible +
+        (visible === 1 ? " attività" : " attività");
+
+      updateAreaAnalysis();
+    }
+
+    function pointInPolygon(point, polygon){
+      const x = point.lng;
+      const y = point.lat;
+      let inside = false;
+
+      for(let i=0, j=polygon.length-1; i<polygon.length; j=i++){
+        const xi = polygon[i].lng;
+        const yi = polygon[i].lat;
+        const xj = polygon[j].lng;
+        const yj = polygon[j].lat;
+
+        const intersect =
+          ((yi > y) !== (yj > y)) &&
+          (x < (xj-xi) * (y-yi) / ((yj-yi) || Number.EPSILON) + xi);
+
+        if(intersect) inside = !inside;
+      }
+
+      return inside;
+    }
+
+    function isInsideArea(lat,lng,layer){
+      if(!layer) return false;
+
+      if(layer instanceof L.Circle){
+        const center = layer.getLatLng();
+        return center.distanceTo(L.latLng(lat,lng)) <= layer.getRadius();
+      }
+
+      if(layer instanceof L.Polygon){
+        const latlngs = layer.getLatLngs();
+        const polygon = Array.isArray(latlngs[0]) ? latlngs[0] : latlngs;
+        return pointInPolygon({lat:lat,lng:lng}, polygon);
+      }
+
+      return false;
+    }
+
+    function updateAreaAnalysis(){
+      if(!activeAreaLayer){
+        areaResult.classList.remove("open");
+        return;
+      }
+
+      const inside = businessMarkers
+        .map(function(item){ return item.business; })
+        .filter(function(business){
+          return isInsideArea(business.lat,business.lng,activeAreaLayer);
+        });
+
+      areaResult.classList.add("open");
+      areaTotal.textContent =
+        inside.length === 1
+          ? "1 salone dentro l'area selezionata."
+          : inside.length + " saloni dentro l'area selezionata.";
+
+      if(!inside.length){
+        areaBreakdown.innerHTML = "";
+        areaList.innerHTML =
+          '<div class="area-empty">Nessun salone ricade nell’area che hai disegnato. Puoi modificarla o disegnarne una nuova.</div>';
+        return;
+      }
+
+      const breakdown = {};
+      inside.forEach(function(business){
+        breakdown[business.category] =
+          (breakdown[business.category] || 0) + 1;
+      });
+
+      areaBreakdown.innerHTML = Object.entries(breakdown)
+        .map(function(entry){
+          return '<span class="area-pill">' +
+            entry[0] + ": " + entry[1] +
+            "</span>";
+        })
+        .join("");
+
+      areaList.innerHTML = inside
+        .map(function(business){
+          return '<div class="area-business"><strong>' +
+            business.name +
+            '</strong><br><span>' +
+            business.category +
+            "</span></div>";
+        })
+        .join("");
+    }
+
     function openMap(){
       mapModal.classList.add("open");
       mapModal.setAttribute("aria-hidden","false");
       document.body.style.overflow = "hidden";
 
       if(lastMapPosition){
-        showPosition(lastMapPosition.lat, lastMapPosition.lon);
+        initMap(lastMapPosition);
+        setTimeout(function(){
+          beautyMap.invalidateSize();
+        },120);
       } else {
+        initMap(fallbackCenter);
         locateUser();
+        setTimeout(function(){
+          beautyMap.invalidateSize();
+        },120);
       }
     }
 
@@ -1134,13 +1527,12 @@
     mapChips.forEach(function(chip){
       chip.addEventListener("click", function(){
         activeMapFilter = chip.dataset.mapFilter;
+
         mapChips.forEach(function(item){
-          item.classList.toggle("active", item === chip);
+          item.classList.toggle("active",item === chip);
         });
 
-        if(lastMapPosition){
-          mapStatus.textContent = "Sei qui · filtro: " + activeMapFilter;
-        }
+        applyMapFilter();
       });
     });
 
