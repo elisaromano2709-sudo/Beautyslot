@@ -943,8 +943,12 @@
     }
 
     .favorite-item{
+      display:block;
       padding:12px 0;
       border-top:1px solid var(--line);
+      color:inherit;
+      text-decoration:none;
+      cursor:pointer;
     }
 
     .favorite-item strong{
@@ -2037,10 +2041,10 @@
         if(!card) return "";
 
         return `
-          <div class="favorite-item">
+          <a class="favorite-item" href="salone-uomo.html?id=${encodeURIComponent(id)}">
             <strong>${card.dataset.name}</strong>
             <span>${card.dataset.category}</span>
-          </div>
+          </a>
         `;
       }).join("");
     }
