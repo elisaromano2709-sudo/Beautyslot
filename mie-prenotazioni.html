@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautyslot — Le mie prenotazioni</title>
+  <style>
+    :root{
+      --bg:#f7ecec;--bg2:#f1e1e3;--accent:#bb8188;--dark:#9d6870;
+      --text:#5f5558;--muted:#8d8386;--line:rgba(157,104,112,.18);--white:#fff;
+    }
+    body.uomo{
+      --bg:#eef5fa;--bg2:#e7f0f7;--accent:#86abc7;--dark:#5f87a5;
+      --text:#4b5e69;--muted:#7f8d98;--line:rgba(95,135,165,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;font-family:"Helvetica Neue",Arial,sans-serif}
+    body{
+      min-height:100vh;color:var(--text);
+      background:linear-gradient(180deg,var(--bg),var(--bg2));
+    }
+    .topbar{
+      display:grid;grid-template-columns:52px 1fr 52px;align-items:center;
+      padding:13px 16px;border-bottom:1px solid var(--line);
+      background:rgba(255,255,255,.72)
+    }
+    .back{
+      width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;
+      background:transparent;color:var(--text);font-size:24px;text-decoration:none
+    }
+    .brand{text-align:center}
+    .brand-name{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:27px;font-weight:400;color:var(--dark)}
+    .brand-tag{margin-top:5px;font-size:8px;letter-spacing:2.4px;text-transform:uppercase;color:var(--muted)}
+    .page{width:min(760px,calc(100% - 28px));margin:28px auto}
+    .card{padding:30px;border:1px solid var(--line);border-radius:28px;background:rgba(255,255,255,.78)}
+    .kicker{font-size:10px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--accent)}
+    h1{margin:8px 0 8px;font-family:Georgia,"Times New Roman",serif;font-size:38px;font-weight:400;color:var(--dark)}
+    .lead{margin:0 0 24px;font-size:13px;line-height:1.6;color:var(--muted)}
+    .booking{display:none;padding:20px;border:1px solid var(--line);border-radius:18px;background:#fff}
+    .booking.show{display:block}
+    .row{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+    .row:last-child{border-bottom:0}
+    .label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
+    .value{font-size:14px}
+    .empty{padding:24px;border:1px dashed var(--line);border-radius:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media(max-width:520px){.row{grid-template-columns:1fr;gap:4px}.card{padding:22px}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="back" id="backLink" href="./donna.html" aria-label="Torna indietro">←</a>
+    <div class="brand">
+      <h2 class="brand-name">Beautyslot</h2>
+      <div class="brand-tag">Book beauty. Your way.</div>
+    </div>
+    <div></div>
+  </header>
+
+  <main class="page">
+    <section class="card">
+      <div class="kicker">Il mio account</div>
+      <h1>Le mie prenotazioni</h1>
+      <p class="lead">Qui troverai gli appuntamenti associati al tuo account Beautyslot.</p>
+
+      <div class="booking" id="booking">
+        <div class="row"><div class="label">Salone</div><div class="value" id="salon">—</div></div>
+        <div class="row"><div class="label">Trattamento</div><div class="value" id="service">—</div></div>
+        <div class="row"><div class="label">Data</div><div class="value" id="date">—</div></div>
+        <div class="row"><div class="label">Orario</div><div class="value" id="time">—</div></div>
+      </div>
+
+      <div class="empty" id="empty">Non ci sono ancora prenotazioni disponibili in questa sessione.</div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const tema = params.get("tema") === "uomo" ? "uomo" : "donna";
+
+    if(tema === "uomo"){
+      document.body.classList.add("uomo");
+      document.getElementById("backLink").href = "./uomo.html";
+    }
+
+    const raw = sessionStorage.getItem("beautyslot_last_booking");
+    if(raw){
+      try{
+        const booking = JSON.parse(raw);
+        document.getElementById("salon").textContent = booking.salon || "—";
+        document.getElementById("service").textContent = booking.service || "—";
+        document.getElementById("date").textContent = booking.date || "—";
+        document.getElementById("time").textContent = booking.time || "—";
+        document.getElementById("booking").classList.add("show");
+        document.getElementById("empty").style.display = "none";
+      }catch(error){
+        console.warn(error);
+      }
+    }
+  </script>
+</body>
+</html>
