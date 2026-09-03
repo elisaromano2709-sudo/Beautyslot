@@ -1271,10 +1271,13 @@
       helloUser.textContent = cleanName ? "Ciao " + cleanName : "";
     }
 
-    // Mostra subito il nome salvato durante registrazione/login.
-    showBeautyslotGreeting(localStorage.getItem("beautyslot_nome"));
+    /*
+      Non mostriamo più il nome dal localStorage prima di sapere quale
+      account Supabase è realmente autenticato. Evita che il nome del
+      vecchio account compaia sul nuovo account.
+    */
+    showBeautyslotGreeting("");
 
-    // Se esiste una sessione Supabase, sincronizza il nome con i metadata reali.
     (async function syncBeautyslotUserName(){
       try{
         const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
@@ -1284,17 +1287,33 @@
           SUPABASE_PUBLISHABLE_KEY
         );
 
-        const { data } = await authClient.auth.getUser();
+        const { data, error } = await authClient.auth.getUser();
         const user = data?.user;
 
-        if(!user) return;
+        if(error || !user){
+          localStorage.removeItem("beautyslot_nome");
+          localStorage.removeItem("beautyslot_cognome");
+          localStorage.removeItem("beautyslot_full_name");
+          localStorage.removeItem("beautyslot_user_id");
+          localStorage.removeItem("beautyslot_email");
+          return;
+        }
+
+        const storedUserId = localStorage.getItem("beautyslot_user_id");
+        if(storedUserId && storedUserId !== user.id){
+          localStorage.removeItem("beautyslot_nome");
+          localStorage.removeItem("beautyslot_cognome");
+          localStorage.removeItem("beautyslot_full_name");
+          localStorage.removeItem("beautyslot_user_id");
+          localStorage.removeItem("beautyslot_email");
+        }
 
         const metadata = user.user_metadata || {};
         let firstName =
           metadata.nome ||
           (metadata.full_name ? metadata.full_name.trim().split(/\s+/)[0] : "");
 
-        // Compatibilità con account vecchi, creati prima dei campi Nome/Cognome.
+        // Compatibilità con account vecchi privi dei metadata nome/cognome.
         if(!firstName && user.email){
           const emailPrefix = user.email.split("@")[0];
           const firstPart = emailPrefix.split(/[._-]/)[0].replace(/[^a-zA-ZÀ-ÿ]/g, "");
@@ -1303,9 +1322,18 @@
           }
         }
 
+        localStorage.setItem("beautyslot_user_id", user.id || "");
+        localStorage.setItem("beautyslot_email", user.email || "");
+
         if(firstName){
           localStorage.setItem("beautyslot_nome", firstName);
           showBeautyslotGreeting(firstName);
+        }
+        if(metadata.cognome){
+          localStorage.setItem("beautyslot_cognome", metadata.cognome);
+        }
+        if(metadata.full_name){
+          localStorage.setItem("beautyslot_full_name", metadata.full_name);
         }
       }catch(error){
         console.warn("Beautyslot: impossibile recuperare il nome utente.", error);
