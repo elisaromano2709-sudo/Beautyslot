@@ -432,11 +432,15 @@
         {id:"rasatura-completa", group:"BARBA", name:"Rasatura completa", duration:35, price:"€ 22"},
         {id:"barba-lunga", group:"BARBA", name:"Barba lunga · modellatura", duration:35, price:"€ 23"},
 
-        {id:"detox-cute", group:"TRATTAMENTI", name:"Detox cute", duration:30, price:"€ 25"},
-        {id:"anticaduta", group:"TRATTAMENTI", name:"Trattamento anticaduta", duration:35, price:"€ 30"},
-        {id:"impacco-nutriente", group:"TRATTAMENTI", name:"Impacco nutriente capelli", duration:30, price:"€ 25"},
-        {id:"black-mask", group:"TRATTAMENTI", name:"Black mask viso", duration:30, price:"€ 25"},
-        {id:"pulizia-viso-uomo", group:"TRATTAMENTI", name:"Pulizia viso uomo", duration:45, price:"€ 40"}
+        {id:"colore-uomo", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Colore uomo", duration:60, price:"€ 35"},
+        {id:"copertura-bianchi", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Copertura capelli bianchi", duration:45, price:"€ 28"},
+        {id:"tonalizzante-uomo", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Tonalizzante uomo", duration:40, price:"€ 30"},
+
+        {id:"detox-cute", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Detox cute", duration:30, price:"€ 25"},
+        {id:"anticaduta", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Trattamento anticaduta", duration:35, price:"€ 30"},
+        {id:"impacco-nutriente", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Impacco nutriente capelli", duration:30, price:"€ 25"},
+        {id:"black-mask", group:"COLORE E TRATTAMENTI", kind:"trattamento-viso", name:"Black mask viso", duration:30, price:"€ 25"},
+        {id:"pulizia-viso-uomo", group:"COLORE E TRATTAMENTI", kind:"trattamento-viso", name:"Pulizia viso uomo", duration:45, price:"€ 40"}
       ],
       "Parrucchiere": [
         {id:"taglio-uomo", name:"Taglio uomo", duration:40, price:"€ 22"},
@@ -515,8 +519,20 @@
       slotWarning.classList.remove("show");
     }
 
+    const COLOR_SERVICES = ["colore-uomo","copertura-bianchi","tonalizzante-uomo"];
     const SCALP_TREATMENTS = ["detox-cute","anticaduta","impacco-nutriente"];
     const FACE_TREATMENTS = ["black-mask","pulizia-viso-uomo"];
+
+    /*
+      Compatibilità Colore + Trattamenti decise dal professionista.
+      In seguito questo dato potrà arrivare da Supabase/profilo professionista.
+      Di default autorizziamo solo l'impacco nutriente insieme al colore,
+      mentre gli altri trattamenti tecnici restano separati.
+    */
+    const PROFESSIONAL_COLOR_COMPATIBILITY = {
+      "barber-01": ["impacco-nutriente"],
+      "barber-02": ["impacco-nutriente"]
+    };
 
     function isServiceSelected(service){
       return selectedServices.some(selected => selected.id === service.id);
@@ -564,45 +580,110 @@
 
       const hair = getSelectedByGroup("CAPELLI");
       const beard = getSelectedByGroup("BARBA");
+      const selectedColor =
+        selectedServices.find(selected => COLOR_SERVICES.includes(selected.id));
+      const selectedScalpTreatment =
+        selectedServices.find(selected => SCALP_TREATMENTS.includes(selected.id));
+      const selectedFaceTreatment =
+        selectedServices.find(selected => FACE_TREATMENTS.includes(selected.id));
 
       if(service.group === "CAPELLI" && hair.length){
-        return "Hai già selezionato “" + hair[0].name + "”. I servizi della sezione Capelli sono alternativi e non possono essere sommati nello stesso appuntamento.";
+        return (
+          "Hai già selezionato “" + hair[0].name + "”. " +
+          "I servizi della sezione Capelli sono alternativi e non possono essere sommati nello stesso appuntamento."
+        );
       }
 
       if(service.group === "BARBA" && beard.length){
-        return "Hai già selezionato “" + beard[0].name + "”. I servizi della sezione Barba sono alternativi e non possono essere sommati nello stesso appuntamento.";
+        return (
+          "Hai già selezionato “" + beard[0].name + "”. " +
+          "I servizi della sezione Barba sono alternativi e non possono essere sommati nello stesso appuntamento."
+        );
       }
 
-      const childHair = selectedServices.find(selected => selected.id === "taglio-bambino");
+      const childHair =
+        selectedServices.find(selected => selected.id === "taglio-bambino");
+
       if(
-        (service.id === "taglio-bambino" && selectedServices.some(selected => selected.group !== "CAPELLI")) ||
+        (service.id === "taglio-bambino" &&
+          selectedServices.some(selected => selected.group !== "CAPELLI")) ||
         (childHair && service.id !== "taglio-bambino")
       ){
-        return "Il Taglio bambino viene gestito come servizio autonomo e non può essere abbinato agli altri servizi di barba o trattamento nello stesso appuntamento.";
+        return (
+          "Il Taglio bambino viene gestito come servizio autonomo e non può essere abbinato agli altri servizi di barba, colore o trattamento nello stesso appuntamento."
+        );
+      }
+
+      // Un solo servizio colore alla volta.
+      if(COLOR_SERVICES.includes(service.id) && selectedColor){
+        return (
+          "Hai già selezionato “" + selectedColor.name + "”. " +
+          "I servizi colore sono alternativi: scegli un solo colore per lo stesso appuntamento."
+        );
+      }
+
+      // Un solo trattamento cute alla volta.
+      if(
+        SCALP_TREATMENTS.includes(service.id) &&
+        selectedScalpTreatment
+      ){
+        return (
+          "Hai già selezionato “" + selectedScalpTreatment.name + "”. " +
+          "I trattamenti per la cute sono protocolli alternativi e vengono eseguiti uno alla volta."
+        );
+      }
+
+      // Un solo trattamento viso alla volta.
+      if(
+        FACE_TREATMENTS.includes(service.id) &&
+        selectedFaceTreatment
+      ){
+        return (
+          "Hai già selezionato “" + selectedFaceTreatment.name + "”. " +
+          "Black mask e pulizia viso non vengono sovrapposte nello stesso appuntamento, per evitare trattamenti ridondanti e possibili irritazioni."
+        );
+      }
+
+      // Colore + trattamento cute: solo quelli autorizzati dal professionista.
+      const professionalAllowedTreatments =
+        PROFESSIONAL_COLOR_COMPATIBILITY[salonId] || [];
+
+      if(
+        COLOR_SERVICES.includes(service.id) &&
+        selectedScalpTreatment &&
+        !professionalAllowedTreatments.includes(selectedScalpTreatment.id)
+      ){
+        return (
+          selectedScalpTreatment.name +
+          " non può essere abbinato al colore. " +
+          "Questa combinazione è stata esclusa dal professionista per tutelare la salute dei capelli e garantire il corretto risultato dei trattamenti scelti."
+        );
       }
 
       if(
         SCALP_TREATMENTS.includes(service.id) &&
-        selectedServices.some(selected => SCALP_TREATMENTS.includes(selected.id))
+        selectedColor &&
+        !professionalAllowedTreatments.includes(service.id)
       ){
-        return "Hai già selezionato un trattamento per la cute. Detox, anticaduta e impacco nutriente sono protocolli alternativi: il professionista ne esegue uno alla volta per mantenere corretta la sequenza tecnica.";
+        return (
+          service.name +
+          " non può essere abbinato al colore. " +
+          "Questa combinazione è stata esclusa dal professionista per tutelare la salute dei capelli e garantire il corretto risultato dei trattamenti scelti."
+        );
       }
 
-      if(
-        FACE_TREATMENTS.includes(service.id) &&
-        selectedServices.some(selected => FACE_TREATMENTS.includes(selected.id))
-      ){
-        return "Hai già selezionato un trattamento viso. Black mask e pulizia viso non vengono sovrapposte nello stesso appuntamento, per evitare trattamenti ridondanti e possibili irritazioni.";
-      }
-
-      const fullShaveSelected = selectedServices.some(selected => selected.id === "rasatura-completa");
-      const faceSelected = selectedServices.some(selected => FACE_TREATMENTS.includes(selected.id));
+      // Rasatura completa + trattamento viso profondo: separati.
+      const fullShaveSelected =
+        selectedServices.some(selected => selected.id === "rasatura-completa");
 
       if(
-        (service.id === "rasatura-completa" && faceSelected) ||
+        (service.id === "rasatura-completa" && selectedFaceTreatment) ||
         (FACE_TREATMENTS.includes(service.id) && fullShaveSelected)
       ){
-        return "Rasatura completa e trattamento viso non sono previsti insieme nello stesso appuntamento. La rasatura può rendere la pelle più sensibile; il professionista preferisce quindi eseguire il trattamento viso separatamente per ridurre il rischio di irritazione.";
+        return (
+          "Rasatura completa e trattamento viso non sono previsti insieme nello stesso appuntamento. " +
+          "La rasatura può rendere la pelle più sensibile; il professionista preferisce quindi eseguire il trattamento viso separatamente per ridurre il rischio di irritazione."
+        );
       }
 
       return "";
@@ -651,7 +732,8 @@
         }
 
         // CAPELLI + BARBA sono sempre cumulabili.
-        // I trattamenti compatibili possono essere aggiunti.
+        // CAPELLI + COLORE e BARBA + COLORE sono consentiti.
+        // I trattamenti vengono aggiunti solo quando compatibili.
         selectedServices.push(service);
       }
 
@@ -693,7 +775,7 @@
 
       if(groupedServices){
         servicesBox.classList.remove("flat");
-        const groupOrder = ["CAPELLI","BARBA","TRATTAMENTI"];
+        const groupOrder = ["CAPELLI","BARBA","COLORE E TRATTAMENTI"];
 
         groupOrder.forEach(groupName => {
           const groupServices = SERVICES.filter(service => service.group === groupName);
