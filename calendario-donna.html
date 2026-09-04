@@ -408,6 +408,7 @@
       "wellness-01": {name:"Skin & Wellness", category:"Benessere"},
       "hair-02": {name:"Blush Hair Lab", category:"Parrucchiere"},
       "beauty-02": {name:"Pure Beauty", category:"Estetista"},
+      "beauty-test-01": {name:"Aura Beauty Studio", category:"EstetistaCompleta"},
       "barber-01": {name:"Gentlemen Barber", category:"Barbiere"},
       "hairman-01": {name:"Urban Hair Men", category:"Parrucchiere"},
       "wellnessman-01": {name:"Man Wellness", category:"Benessere"},
@@ -441,6 +442,18 @@
         {id:"sopracciglia", name:"Sopracciglia", duration:20, price:"€ 15"},
         {id:"trattamento-viso", name:"Trattamento viso", duration:60, price:"€ 50"},
         {id:"trattamento-corpo", name:"Trattamento corpo", duration:60, price:"€ 55"}
+      ],
+      "EstetistaCompleta": [
+        {id:"manicure", name:"Manicure", duration:40, price:"€ 25"},
+        {id:"semipermanente", name:"Semipermanente mani", duration:60, price:"€ 35"},
+        {id:"gel", name:"Ricostruzione gel", duration:100, price:"€ 55"},
+        {id:"pedicure", name:"Pedicure", duration:60, price:"€ 35"},
+        {id:"ceretta-gambe", name:"Ceretta gambe", duration:40, price:"€ 30"},
+        {id:"ceretta-inguine", name:"Ceretta inguine", duration:25, price:"€ 20"},
+        {id:"sopracciglia", name:"Definizione sopracciglia", duration:20, price:"€ 15"},
+        {id:"pulizia-viso", name:"Pulizia viso", duration:60, price:"€ 45"},
+        {id:"trattamento-viso", name:"Trattamento viso", duration:60, price:"€ 50"},
+        {id:"trattamento-corpo", name:"Trattamento corpo", duration:70, price:"€ 60"}
       ],
       "Unghie": [
         {id:"manicure", name:"Manicure", duration:40, price:"€ 25"},
@@ -477,6 +490,10 @@
     document.getElementById("sumSalon").textContent = salon.name;
 
     document.getElementById("backButton").addEventListener("click", () => {
+      if(salonId === "beauty-test-01"){
+        window.location.href = "./donna.html";
+        return;
+      }
       window.location.href = "./salone-donna.html?id=" + encodeURIComponent(salonId);
     });
 
