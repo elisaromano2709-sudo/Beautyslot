@@ -68,7 +68,75 @@
       line-height:1.5;
       color:var(--muted);
     }
-    .services{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:28px}
+    .services{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-bottom:28px
+    }
+    .services.flat{
+      grid-template-columns:repeat(2,minmax(0,1fr))
+    }
+    .service-group{
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.82);
+      transition:.18s ease
+    }
+    .service-group.open{
+      background:#fff;
+      box-shadow:0 10px 28px rgba(92,65,72,.06)
+    }
+    .service-group-toggle{
+      width:100%;
+      min-height:62px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding:0 18px;
+      border:0;
+      background:transparent;
+      color:var(--accent-dark);
+      cursor:pointer;
+      text-align:left
+    }
+    .service-group-title{
+      font-size:12px;
+      font-weight:750;
+      letter-spacing:1.7px;
+      text-transform:uppercase
+    }
+    .service-group-info{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size:10px
+    }
+    .service-group-chevron{
+      width:9px;
+      height:9px;
+      border-right:1.7px solid currentColor;
+      border-bottom:1.7px solid currentColor;
+      transform:rotate(45deg) translateY(-2px);
+      transition:transform .2s ease
+    }
+    .service-group.open .service-group-chevron{
+      transform:rotate(225deg) translate(-2px,-2px)
+    }
+    .service-group-panel{
+      display:none;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      padding:10px;
+      border-top:1px solid var(--line);
+      background:rgba(255,244,246,.44)
+    }
+    .service-group.open .service-group-panel{
+      display:grid
+    }
     .service{
       position:relative;min-height:92px;padding:16px;border:1px solid var(--line);
       border-radius:17px;background:#fff;text-align:left;cursor:pointer;color:var(--text);
@@ -77,6 +145,17 @@
     .service.selected{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent);background:var(--soft)}
     .service-name{display:block;font-weight:650;font-size:14px}
     .service-meta{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;color:var(--muted)}
+    .service-check{
+      position:absolute;top:10px;right:10px;width:20px;height:20px;
+      display:grid;place-items:center;border-radius:50%;
+      background:var(--accent-dark);color:#fff;font-size:12px;font-weight:700
+    }
+    .compatibility-alert{
+      display:none;margin:-16px 0 28px;padding:12px 14px;
+      border:1px solid rgba(157,104,112,.28);border-radius:14px;
+      background:#fff;color:var(--accent-dark);font-size:11px;line-height:1.5
+    }
+    .compatibility-alert.show{display:block}
     .month-head{
       display:grid;
       grid-template-columns:44px 1fr 44px;
@@ -203,7 +282,7 @@
       .layout{grid-template-columns:1fr}
       .main{border-right:0;border-bottom:1px solid var(--line);padding:20px}
       .side{padding:20px}
-      .services{grid-template-columns:1fr 1fr}
+      .services.flat,.service-group-panel{grid-template-columns:1fr 1fr}
       .month-grid{gap:5px}
       .calendar-weekdays{gap:5px}
       .day{min-height:54px;border-radius:11px;padding:5px 2px}
@@ -213,7 +292,7 @@
     @media(max-width:460px){
       .page{width:calc(100% - 16px);margin-top:12px}
       .hero{padding:22px 18px}
-      .services{grid-template-columns:1fr}
+      .services.flat,.service-group-panel{grid-template-columns:1fr}
       .month-grid{gap:4px}
       .calendar-weekdays{gap:4px;font-size:8px}
       .day{min-height:45px;border-radius:10px}
@@ -242,8 +321,9 @@
     <section class="layout">
       <div class="main">
         <h2 class="section-title">1. Scegli il trattamento</h2>
-        <p class="treatment-help">Seleziona il trattamento che vuoi prenotare.</p>
+        <p class="treatment-help">Apri una categoria e scegli il servizio specifico. Puoi combinare più servizi quando sono compatibili.</p>
         <div class="services" id="services"></div>
+        <div class="compatibility-alert" id="compatibilityAlert" role="alert" aria-live="polite"></div>
 
         <h2 class="section-title">2. Scegli il giorno</h2>
 
@@ -340,12 +420,20 @@
 
     const SERVICES_BY_CATEGORY = {
       "Parrucchiere": [
-        {id:"taglio", name:"Taglio", duration:45, price:"€ 25"},
-        {id:"piega", name:"Piega", duration:40, price:"€ 20"},
-        {id:"taglio-piega", name:"Taglio + piega", duration:70, price:"€ 38"},
-        {id:"colore", name:"Colore", duration:90, price:"€ 55"},
-        {id:"balayage", name:"Balayage / Schiariture", duration:150, price:"€ 90"},
-        {id:"trattamento-capelli", name:"Trattamento capelli", duration:45, price:"€ 35"}
+        {id:"taglio-corto", group:"TAGLIO", name:"Taglio corto", duration:35, price:"€ 25"},
+        {id:"taglio-medio", group:"TAGLIO", name:"Taglio medio", duration:45, price:"€ 30"},
+        {id:"taglio-lungo", group:"TAGLIO", name:"Taglio lungo", duration:55, price:"€ 35"},
+        {id:"taglio-piega", group:"TAGLIO", name:"Taglio + piega", duration:70, price:"€ 40"},
+
+        {id:"ritocco-radice", group:"COLORE", name:"Ritocco radice", duration:75, price:"€ 45"},
+        {id:"colore-completo-corto", group:"COLORE", name:"Colore completo · corto", duration:90, price:"€ 55"},
+        {id:"colore-completo-lungo", group:"COLORE", name:"Colore completo · medio/lungo", duration:110, price:"€ 65"},
+        {id:"balayage", group:"COLORE", name:"Balayage / Schiariture", duration:150, price:"€ 90"},
+
+        {id:"keratina", group:"TRATTAMENTI", name:"Keratina", duration:150, price:"€ 100"},
+        {id:"ricostruzione", group:"TRATTAMENTI", name:"Ricostruzione capelli", duration:60, price:"€ 45"},
+        {id:"idratazione-profonda", group:"TRATTAMENTI", name:"Idratazione profonda", duration:45, price:"€ 35"},
+        {id:"detox-cute", group:"TRATTAMENTI", name:"Detox cute", duration:40, price:"€ 30"}
       ],
       "Estetista": [
         {id:"pulizia-viso", name:"Pulizia viso", duration:60, price:"€ 45"},
@@ -372,6 +460,18 @@
       SERVICES_BY_CATEGORY[salon.category] ||
       SERVICES_BY_CATEGORY["Parrucchiere"];
 
+    /*
+      Compatibilità decise dal professionista.
+      In futuro questo dato arriverà dal profilo professionista / Supabase.
+      Ogni salone indica quali TRATTAMENTI possono essere abbinati anche a un COLORE.
+      Per sicurezza nessun abbinamento Colore + Trattamento è attivo finché
+      il professionista non lo autorizza esplicitamente.
+    */
+    const PROFESSIONAL_COMPATIBILITY = {
+      "hair-01": { colorWithTreatments: [] },
+      "hair-02": { colorWithTreatments: [] }
+    };
+
 
     document.getElementById("salonName").textContent = salon.name;
     document.getElementById("sumSalon").textContent = salon.name;
@@ -386,8 +486,9 @@
     const monthLabel = document.getElementById("monthLabel");
     const bookButton = document.getElementById("bookButton");
     const slotWarning = document.getElementById("slotWarning");
+    const compatibilityAlert = document.getElementById("compatibilityAlert");
 
-    let selectedService = null;
+    let selectedServices = [];
     let selectedDate = null;
     let selectedTime = null;
 
@@ -428,43 +529,235 @@
       slotWarning.classList.remove("show");
     }
 
+    function getSelectedServiceByGroup(groupName){
+      return selectedServices.find(service => service.group === groupName) || null;
+    }
+
+    function isServiceSelected(service){
+      return selectedServices.some(selected => selected.id === service.id);
+    }
+
+    function getTotalDuration(){
+      return selectedServices.reduce((total, service) => total + Number(service.duration || 0), 0);
+    }
+
+    function priceToNumber(price){
+      const value = String(price || "").replace(/[^\d,.-]/g,"").replace(",",".");
+      const parsed = Number(value);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function formatEuro(value){
+      const rounded = Math.round((value + Number.EPSILON) * 100) / 100;
+      return "€ " + String(rounded).replace(".",",");
+    }
+
+    function getTotalPrice(){
+      return selectedServices.reduce((total, service) => total + priceToNumber(service.price), 0);
+    }
+
+    function getSelectedNames(){
+      return selectedServices.map(service => service.name);
+    }
+
+    function treatmentCanCombineWithColor(treatment){
+      const professionalRules =
+        PROFESSIONAL_COMPATIBILITY[salonId] ||
+        { colorWithTreatments: [] };
+
+      return professionalRules.colorWithTreatments.includes(treatment.id);
+    }
+
+    function showCompatibilityAlert(message){
+      compatibilityAlert.textContent = message;
+      compatibilityAlert.classList.add("show");
+    }
+
+    function clearCompatibilityAlert(){
+      compatibilityAlert.textContent = "";
+      compatibilityAlert.classList.remove("show");
+    }
+
+    function updateServiceSummary(){
+      const summary = document.getElementById("sumService");
+
+      if(!selectedServices.length){
+        summary.textContent = "Seleziona un trattamento";
+        return;
+      }
+
+      const names = getSelectedNames().join(" + ");
+      summary.innerHTML =
+        names +
+        '<br><strong>Totale: ' +
+        getTotalDuration() +
+        ' min · ' +
+        formatEuro(getTotalPrice()) +
+        '</strong>';
+    }
+
+    function selectService(service){
+      clearCompatibilityAlert();
+
+      if(isServiceSelected(service)){
+        selectedServices = selectedServices.filter(
+          selected => selected.id !== service.id
+        );
+        selectedTime = null;
+        updateServiceSummary();
+        document.getElementById("sumTime").textContent = "Seleziona un orario";
+        clearSlotWarning();
+        bookButton.textContent = "Conferma prenotazione";
+        renderServices();
+        renderTimes();
+        updateBookButton();
+        return;
+      }
+
+      if(salon.category === "Parrucchiere"){
+        const selectedColor = getSelectedServiceByGroup("COLORE");
+        const selectedTreatment = getSelectedServiceByGroup("TRATTAMENTI");
+
+        if(service.group === "COLORE" && selectedTreatment){
+          if(!treatmentCanCombineWithColor(selectedTreatment)){
+            showCompatibilityAlert(
+              selectedTreatment.name +
+              " non può essere abbinato al colore. " +
+              "Questa combinazione è stata esclusa dal professionista per tutelare la salute dei capelli e garantire il corretto risultato dei trattamenti scelti."
+            );
+            return;
+          }
+        }
+
+        if(service.group === "TRATTAMENTI" && selectedColor){
+          if(!treatmentCanCombineWithColor(service)){
+            showCompatibilityAlert(
+              service.name +
+              " non può essere abbinato al colore. " +
+              "Questa combinazione è stata esclusa dal professionista per tutelare la salute dei capelli e garantire il corretto risultato dei trattamenti scelti."
+            );
+            return;
+          }
+        }
+
+        selectedServices = selectedServices.filter(
+          selected => selected.group !== service.group
+        );
+        selectedServices.push(service);
+      }else{
+        selectedServices = [service];
+      }
+
+      selectedTime = null;
+
+      updateServiceSummary();
+      document.getElementById("sumTime").textContent = "Seleziona un orario";
+      clearSlotWarning();
+      bookButton.textContent = "Conferma prenotazione";
+
+      renderServices();
+      renderTimes();
+      updateBookButton();
+    }
+
+    function createServiceButton(service){
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "service";
+
+      if(isServiceSelected(service)){
+        btn.classList.add("selected");
+      }
+
+      btn.innerHTML =
+        '<span class="service-name">' + service.name + '</span>' +
+        '<span class="service-meta">' +
+          '<span>' + service.duration + ' min</span>' +
+          '<span>' + service.price + '</span>' +
+        '</span>' +
+        (isServiceSelected(service)
+          ? '<span class="service-check" aria-hidden="true">✓</span>'
+          : '');
+
+      btn.addEventListener("click", () => {
+        selectService(service);
+      });
+
+      return btn;
+    }
+
     function renderServices(){
       servicesBox.innerHTML = "";
 
-      SERVICES.forEach(service => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "service";
-        if(selectedService && selectedService.id === service.id){
-          btn.classList.add("selected");
-        }
+      if(salon.category === "Parrucchiere"){
+        servicesBox.classList.remove("flat");
 
-        btn.innerHTML =
-          '<span class="service-name">' + service.name + '</span>' +
-          '<span class="service-meta">' +
-            '<span>' + service.duration + ' min</span>' +
-            '<span>' + service.price + '</span>' +
-          '</span>';
+        const groupOrder = ["TAGLIO","COLORE","TRATTAMENTI"];
 
-        btn.addEventListener("click", () => {
-          selectedService = service;
+        groupOrder.forEach(groupName => {
+          const groupServices = SERVICES.filter(service =>
+            service.group === groupName
+          );
 
-          // Il cambio trattamento cambia la durata richiesta:
-          // l'orario eventualmente scelto va quindi ricalcolato.
-          selectedTime = null;
+          if(!groupServices.length) return;
 
-          document.getElementById("sumService").textContent =
-            service.name + " · " + service.duration + " min · " + service.price;
-          document.getElementById("sumTime").textContent = "Seleziona un orario";
-          clearSlotWarning();
-          bookButton.textContent = "Conferma prenotazione";
+          const group = document.createElement("div");
+          group.className = "service-group";
 
-          renderServices();
-          renderTimes();
-          updateBookButton();
+          const selectedInGroup =
+            selectedServices.some(service => service.group === groupName);
+
+          if(selectedInGroup){
+            group.classList.add("open");
+          }
+
+          const toggle = document.createElement("button");
+          toggle.type = "button";
+          toggle.className = "service-group-toggle";
+          toggle.setAttribute("aria-expanded", selectedInGroup ? "true" : "false");
+
+          const selectedInThisGroup = getSelectedServiceByGroup(groupName);
+          const groupInfo = selectedInThisGroup
+            ? selectedInThisGroup.name
+            : groupServices.length + " opzioni";
+
+          toggle.innerHTML =
+            '<span class="service-group-title">' + groupName + '</span>' +
+            '<span class="service-group-info">' +
+              '<span>' + groupInfo + '</span>' +
+              '<span class="service-group-chevron" aria-hidden="true"></span>' +
+            '</span>';
+
+          const panel = document.createElement("div");
+          panel.className = "service-group-panel";
+
+          groupServices.forEach(service => {
+            panel.appendChild(createServiceButton(service));
+          });
+
+          toggle.addEventListener("click", () => {
+            const willOpen = !group.classList.contains("open");
+
+            if(willOpen){
+              group.classList.add("open");
+              toggle.setAttribute("aria-expanded","true");
+            }else{
+              group.classList.remove("open");
+              toggle.setAttribute("aria-expanded","false");
+            }
+          });
+
+          group.appendChild(toggle);
+          group.appendChild(panel);
+          servicesBox.appendChild(group);
         });
 
-        servicesBox.appendChild(btn);
+        return;
+      }
+
+      servicesBox.classList.add("flat");
+      SERVICES.forEach(service => {
+        servicesBox.appendChild(createServiceButton(service));
       });
     }
 
@@ -775,15 +1068,16 @@
       - available: prenotabile
     */
     function getSlotStatus(time){
-      if(!selectedDate || !selectedService){
+      if(!selectedDate || !selectedServices.length){
         return {
           status:"invalid",
-          reason:"Seleziona prima un trattamento."
+          reason:"Seleziona prima almeno un trattamento."
         };
       }
 
+      const totalDuration = getTotalDuration();
       const start = timeToMinutes(time);
-      const end = start + selectedService.duration;
+      const end = start + totalDuration;
 
       if(isPastTimeToday(start)){
         return {
@@ -811,9 +1105,8 @@
           status:"invalid",
           reason:
             "Impossibile selezionare le " + time +
-            ": non c'è abbastanza tempo per " +
-            selectedService.name + " (" + selectedService.duration +
-            " min) prima della chiusura."
+            ": non c'è abbastanza tempo per completare i servizi scelti (" +
+            totalDuration + " min) prima della chiusura."
         };
       }
 
@@ -822,8 +1115,8 @@
           status:"invalid",
           reason:
             "Impossibile selezionare le " + time +
-            ": non ci sono " + selectedService.duration +
-            " minuti consecutivi liberi. Il trattamento si sovrapporrebbe a un altro appuntamento."
+            ": non ci sono " + totalDuration +
+            " minuti consecutivi liberi per tutti i servizi scelti."
         };
       }
 
@@ -841,8 +1134,8 @@
         return;
       }
 
-      if(!selectedService){
-        timesBox.innerHTML = '<div class="empty" style="grid-column:1/-1">Seleziona prima un trattamento per calcolare gli orari disponibili.</div>';
+      if(!selectedServices.length){
+        timesBox.innerHTML = '<div class="empty" style="grid-column:1/-1">Seleziona prima almeno un trattamento per calcolare gli orari disponibili.</div>';
         return;
       }
 
@@ -871,7 +1164,7 @@
           btn.addEventListener("click", () => {
             selectedTime = time;
             const selectedStart = timeToMinutes(time);
-            const selectedEnd = selectedStart + selectedService.duration;
+            const selectedEnd = selectedStart + getTotalDuration();
             document.getElementById("sumTime").textContent =
               time + " – " + minutesToTime(selectedEnd);
             clearSlotWarning();
@@ -897,7 +1190,7 @@
     }
 
     function updateBookButton(){
-      bookButton.disabled = !(selectedService && selectedDate && selectedTime);
+      bookButton.disabled = !(selectedServices.length && selectedDate && selectedTime);
     }
 
     document.getElementById("prevMonth").addEventListener("click", () => {
@@ -925,7 +1218,7 @@
     });
 
     bookButton.addEventListener("click", async () => {
-      if(!(selectedService && selectedDate && selectedTime)) return;
+      if(!(selectedServices.length && selectedDate && selectedTime)) return;
 
       /*
         L'utente può esplorare liberamente salone, servizi, calendario
@@ -948,9 +1241,16 @@
               gender: "donna",
               salonId: salonId,
               salon: salon.name,
-              serviceId: selectedService.id,
-              serviceName: selectedService.name,
-              duration: selectedService.duration,
+              serviceId: selectedServices[0]?.id || "",
+              serviceName: getSelectedNames().join(" + "),
+              duration: getTotalDuration(),
+              services: selectedServices.map(service => ({
+                id: service.id,
+                group: service.group || "",
+                name: service.name,
+                duration: service.duration,
+                price: service.price
+              })),
               dateKey: dateKey(selectedDate),
               date: formatLongDate(selectedDate),
               time: selectedTime
@@ -971,16 +1271,23 @@
         sessionStorage.setItem(
           "beautyslot_pending_booking",
           JSON.stringify({
-            gender: "donna",
-            salonId: salonId,
-            salon: salon.name,
-            serviceId: selectedService.id,
-            serviceName: selectedService.name,
-            duration: selectedService.duration,
-            dateKey: dateKey(selectedDate),
-            date: formatLongDate(selectedDate),
-            time: selectedTime
-          })
+              gender: "donna",
+              salonId: salonId,
+              salon: salon.name,
+              serviceId: selectedServices[0]?.id || "",
+              serviceName: getSelectedNames().join(" + "),
+              duration: getTotalDuration(),
+              services: selectedServices.map(service => ({
+                id: service.id,
+                group: service.group || "",
+                name: service.name,
+                duration: service.duration,
+                price: service.price
+              })),
+              dateKey: dateKey(selectedDate),
+              date: formatLongDate(selectedDate),
+              time: selectedTime
+            })
         );
 
         window.location.href =
@@ -1009,15 +1316,16 @@
       const bookedTime = selectedTime;
       const bookedStart = timeToMinutes(bookedTime);
       const bookedEnd =
-        bookedStart + selectedService.duration;
+        bookedStart + getTotalDuration();
 
       // Registra l'intero intervallo della prenotazione.
       sessionBookings.push({
         date:dateKey(selectedDate),
         start:bookedStart,
         end:bookedEnd,
-        serviceId:selectedService.id,
-        serviceName:selectedService.name
+        serviceIds:selectedServices.map(service => service.id),
+        serviceName:getSelectedNames().join(" + "),
+        duration:getTotalDuration()
       });
 
       // Salva il riepilogo per la pagina di conferma.
@@ -1028,10 +1336,17 @@
           salonId:salonId,
           salon:salon.name,
           service:
-            selectedService.name +
+            getSelectedNames().join(" + ") +
             " · " +
-            selectedService.duration +
+            getTotalDuration() +
             " min",
+          services:selectedServices.map(service => ({
+            id:service.id,
+            group:service.group || "",
+            name:service.name,
+            duration:service.duration,
+            price:service.price
+          })),
           date:formatLongDate(selectedDate),
           time:
             bookedTime +
