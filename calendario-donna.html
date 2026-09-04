@@ -444,16 +444,29 @@
         {id:"trattamento-corpo", name:"Trattamento corpo", duration:60, price:"€ 55"}
       ],
       "EstetistaCompleta": [
-        {id:"manicure", name:"Manicure", duration:40, price:"€ 25"},
-        {id:"semipermanente", name:"Semipermanente mani", duration:60, price:"€ 35"},
-        {id:"gel", name:"Ricostruzione gel", duration:100, price:"€ 55"},
-        {id:"pedicure", name:"Pedicure", duration:60, price:"€ 35"},
-        {id:"ceretta-gambe", name:"Ceretta gambe", duration:40, price:"€ 30"},
-        {id:"ceretta-inguine", name:"Ceretta inguine", duration:25, price:"€ 20"},
-        {id:"sopracciglia", name:"Definizione sopracciglia", duration:20, price:"€ 15"},
-        {id:"pulizia-viso", name:"Pulizia viso", duration:60, price:"€ 45"},
-        {id:"trattamento-viso", name:"Trattamento viso", duration:60, price:"€ 50"},
-        {id:"trattamento-corpo", name:"Trattamento corpo", duration:70, price:"€ 60"}
+        {id:"manicure-classica", group:"MANI", name:"Manicure classica", duration:35, price:"€ 25"},
+        {id:"semipermanente-mani", group:"MANI", name:"Semipermanente mani", duration:60, price:"€ 35"},
+        {id:"ricostruzione-gel-mani", group:"MANI", name:"Ricostruzione gel mani", duration:120, price:"€ 65"},
+        {id:"refill-gel-mani", group:"MANI", name:"Refill gel mani", duration:90, price:"€ 50"},
+
+        {id:"pedicure-estetico", group:"PIEDI", name:"Pedicure estetico", duration:45, price:"€ 30"},
+        {id:"semipermanente-piedi", group:"PIEDI", name:"Semipermanente piedi", duration:50, price:"€ 35"},
+        {id:"ricostruzione-gel-piedi", group:"PIEDI", name:"Ricostruzione gel piedi", duration:90, price:"€ 55"},
+        {id:"refill-gel-piedi", group:"PIEDI", name:"Refill gel piedi", duration:70, price:"€ 45"},
+
+        {id:"sopracciglia", group:"CORPO", name:"Definizione sopracciglia", duration:20, price:"€ 15"},
+        {id:"ceretta-baffetto", group:"CORPO", name:"Ceretta baffetto", duration:15, price:"€ 10"},
+        {id:"ceretta-ascelle", group:"CORPO", name:"Ceretta ascelle", duration:20, price:"€ 15"},
+        {id:"ceretta-braccia", group:"CORPO", name:"Ceretta braccia", duration:30, price:"€ 22"},
+        {id:"ceretta-gambe", group:"CORPO", name:"Ceretta gambe", duration:40, price:"€ 30"},
+        {id:"ceretta-inguine", group:"CORPO", name:"Ceretta inguine", duration:25, price:"€ 20"},
+
+        {id:"massaggio-relax", group:"TRATTAMENTI", name:"Massaggio relax", duration:50, price:"€ 45"},
+        {id:"massaggio-drenante", group:"TRATTAMENTI", name:"Massaggio drenante", duration:50, price:"€ 50"},
+        {id:"body-care", group:"TRATTAMENTI", name:"Body care", duration:70, price:"€ 60"},
+        {id:"scrub-corpo", group:"TRATTAMENTI", name:"Scrub corpo", duration:45, price:"€ 40"},
+        {id:"pulizia-viso", group:"TRATTAMENTI", name:"Pulizia viso", duration:60, price:"€ 45"},
+        {id:"solarium", group:"TRATTAMENTI", name:"Solarium", duration:15, price:"€ 12"}
       ],
       "Unghie": [
         {id:"manicure", name:"Manicure", duration:40, price:"€ 25"},
@@ -488,6 +501,14 @@
 
     document.getElementById("salonName").textContent = salon.name;
     document.getElementById("sumSalon").textContent = salon.name;
+
+    if(salon.category === "EstetistaCompleta"){
+      const helper = document.querySelector(".treatment-help");
+      if(helper){
+        helper.textContent =
+          "Apri una sezione e scegli uno o più servizi. Puoi combinare liberamente le prestazioni desiderate.";
+      }
+    }
 
     document.getElementById("backButton").addEventListener("click", () => {
       if(salonId === "beauty-test-01"){
@@ -661,6 +682,10 @@
           selected => selected.group !== service.group
         );
         selectedServices.push(service);
+      }else if(salon.category === "EstetistaCompleta"){
+        // Nel centro estetico demo ogni servizio può essere aggiunto agli altri,
+        // anche quando appartiene alla stessa macro-categoria.
+        selectedServices.push(service);
       }else{
         selectedServices = [service];
       }
@@ -706,10 +731,16 @@
     function renderServices(){
       servicesBox.innerHTML = "";
 
-      if(salon.category === "Parrucchiere"){
+      if(
+        salon.category === "Parrucchiere" ||
+        salon.category === "EstetistaCompleta"
+      ){
         servicesBox.classList.remove("flat");
 
-        const groupOrder = ["TAGLIO","COLORE","TRATTAMENTI"];
+        const groupOrder =
+          salon.category === "Parrucchiere"
+            ? ["TAGLIO","COLORE","TRATTAMENTI"]
+            : ["MANI","PIEDI","CORPO","TRATTAMENTI"];
 
         groupOrder.forEach(groupName => {
           const groupServices = SERVICES.filter(service =>
@@ -733,10 +764,18 @@
           toggle.className = "service-group-toggle";
           toggle.setAttribute("aria-expanded", selectedInGroup ? "true" : "false");
 
-          const selectedInThisGroup = getSelectedServiceByGroup(groupName);
-          const groupInfo = selectedInThisGroup
-            ? selectedInThisGroup.name
-            : groupServices.length + " opzioni";
+          const selectedInThisGroup =
+            selectedServices.filter(service => service.group === groupName);
+
+          let groupInfo = groupServices.length + " opzioni";
+
+          if(selectedInThisGroup.length === 1){
+            groupInfo = selectedInThisGroup[0].name;
+          }
+
+          if(selectedInThisGroup.length > 1){
+            groupInfo = selectedInThisGroup.length + " selezionati";
+          }
 
           toggle.innerHTML =
             '<span class="service-group-title">' + groupName + '</span>' +
