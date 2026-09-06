@@ -675,6 +675,51 @@
       min-height:360px;
     }
 
+    .map-salon-popup{
+      min-width:150px;
+      display:grid;
+      gap:5px;
+      padding:2px 0;
+      color:var(--text);
+    }
+
+    .map-salon-popup strong{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:16px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .map-salon-popup span{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .map-salon-popup small{
+      font-size:9px;
+      color:var(--muted);
+    }
+
+    .map-discover-salon{
+      min-height:34px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      margin-top:5px;
+      padding:0 12px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:var(--rose-dark);
+      text-decoration:none;
+      font-size:9px;
+      font-weight:800;
+      letter-spacing:.7px;
+    }
+
     .map-status{
       position:absolute;
       left:50%;
@@ -1579,20 +1624,58 @@
     function getBusinesses(center){
       const pageCards = [...document.querySelectorAll(".shop-card")];
 
-      return pageCards.map(function(card,index){
-        const explicitLat = parseFloat(card.dataset.lat);
-        const explicitLng = parseFloat(card.dataset.lng);
-        const offset = demoOffsets[index % demoOffsets.length];
+      return pageCards
+        .map(function(card,index){
+          const explicitLat = parseFloat(card.dataset.lat);
+          const explicitLng = parseFloat(card.dataset.lng);
+          const hasRealPosition =
+            Number.isFinite(explicitLat) &&
+            Number.isFinite(explicitLng);
 
-        return {
-          id: card.dataset.id || "donna-" + index,
-          name: card.dataset.name || card.querySelector("h3")?.textContent || "Salone",
-          category: card.dataset.category || "altro",
-          lat: Number.isFinite(explicitLat) ? explicitLat : center.lat + offset[0],
-          lng: Number.isFinite(explicitLng) ? explicitLng : center.lng + offset[1],
-          demo: !(Number.isFinite(explicitLat) && Number.isFinite(explicitLng))
-        };
-      });
+          const isRegisteredSalon =
+            card.dataset.free === "true" ||
+            card.dataset.registered === "true" ||
+            String(card.dataset.id || "").startsWith("free-");
+
+          /*
+            IMPORTANTE:
+            i saloni registrati non ricevono mai una posizione dimostrativa.
+            Se non hanno coordinate reali, non vengono messi sulla mappa.
+          */
+          if(isRegisteredSalon && !hasRealPosition){
+            return null;
+          }
+
+          const offset =
+            demoOffsets[index % demoOffsets.length];
+
+          const id =
+            card.dataset.id || "donna-" + index;
+
+          return {
+            id:id,
+            name:
+              card.dataset.name ||
+              card.querySelector("h3")?.textContent ||
+              "Salone",
+            category:
+              card.dataset.category || "altro",
+            lat:
+              hasRealPosition
+                ? explicitLat
+                : center.lat + offset[0],
+            lng:
+              hasRealPosition
+                ? explicitLng
+                : center.lng + offset[1],
+            registered:isRegisteredSalon,
+            demo:!hasRealPosition,
+            detailUrl:
+              "salone-donna.html?id=" +
+              encodeURIComponent(id)
+          };
+        })
+        .filter(Boolean);
     }
 
     function makeDivIcon(className){
@@ -1849,11 +1932,21 @@
           title:business.name
         });
 
-        marker.bindPopup(
-          "<strong>" + business.name + "</strong><br>" +
-          business.category +
-          (business.demo ? "<br><small>Posizione dimostrativa</small>" : "")
-        );
+        const popupContent =
+          '<div class="map-salon-popup">' +
+            '<strong>' + business.name + '</strong>' +
+            '<span>' + business.category + '</span>' +
+            (
+              business.demo
+                ? '<small>Posizione dimostrativa</small>'
+                : '<small>Posizione del salone</small>'
+            ) +
+            '<a class="map-discover-salon" href="' +
+              business.detailUrl +
+            '">SCOPRI SALONE</a>' +
+          '</div>';
+
+        marker.bindPopup(popupContent);
 
         businessMarkers.push({
           business:business,
@@ -2290,6 +2383,7 @@
           card.dataset.category = dataCategory;
           card.dataset.name = item.nome_attivita || "Attività Beautyslot";
           card.dataset.free = "true";
+          card.dataset.registered = "true";
           card.dataset.phone = phone;
 
           if(Number.isFinite(Number(item.latitude))){
