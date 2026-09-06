@@ -9,105 +9,24 @@
 
   <style>
     :root{
-      --bg:#f8f2f2;
-      --bg-soft:#fbf7f7;
-      --card:#ffffff;
-      --rose:#c98291;
-      --rose-dark:#9f6671;
-      --rose-soft:#f7e9ec;
-      --text:#554e50;
-      --muted:#8d8285;
-      --line:rgba(120,91,98,.14);
-      --green:#5f8a6f;
-      --green-soft:#edf6f0;
-      --gold:#c89b42;
-      --shadow:0 20px 55px rgba(75,55,60,.08);
-    }
-
-    body.theme-blue{
-      --bg:#eef5fa;
-      --bg-soft:#f5f9fc;
-      --card:#ffffff;
-      --rose:#84aecf;
-      --rose-dark:#5f86a5;
-      --rose-soft:#e7f0f8;
-      --text:#536575;
-      --muted:#7f8c98;
-      --line:rgba(103,138,170,.17);
-      --shadow:0 20px 55px rgba(74,105,130,.08);
-    }
-
-    body.theme-blue{
-      background:
-        radial-gradient(circle at 20% 0%,rgba(132,174,207,.15),transparent 28%),
-        linear-gradient(180deg,#fff 0%,#eef5fa 100%);
-    }
-
-    body.theme-blue .welcome-card{
-      background:
-        radial-gradient(circle at 92% 16%,rgba(132,174,207,.20),transparent 28%),
-        linear-gradient(135deg,#fff 0%,#f7fbfe 100%);
-    }
-
-    body.theme-blue .welcome h1,
-    body.theme-blue .locked h3,
-    body.theme-blue .business-name,
-    body.theme-blue .stat-value{
-      color:#58728b;
-    }
-
-    body.theme-blue .button.primary{
-      background:#6f93b3;
-    }
-
-    body.theme-blue .switch input:checked + .switch-track{
-      background:#6f93b3;
-    }
-
-    body.theme-blue .locked{
-      background:
-        radial-gradient(circle at 92% 15%,rgba(132,174,207,.16),transparent 26%),
-        #fff;
-    }
-
-    body.theme-blue .empty-box{
-      border:1px dashed rgba(132,174,207,.30);
-      background:#f8fbfe;
-    }
-
-    body.theme-mixed{
       --bg:#ffffff;
       --bg-soft:#ffffff;
       --card:#ffffff;
+
+      /* Dashboard unica per tutti i professionisti */
       --rose:#9d8da4;
       --rose-dark:#7a6e82;
       --rose-soft:#f4f0f5;
+
       --text:#5b5558;
       --muted:#8e8488;
       --line:rgba(137,128,132,.15);
+
+      --green:#5f8a6f;
+      --green-soft:#edf6f0;
+      --gold:#c89b42;
+
       --shadow:0 20px 55px rgba(95,85,90,.08);
-    }
-
-    body.theme-mixed{
-      background:
-        radial-gradient(circle at 16% 0%,rgba(201,130,145,.12),transparent 24%),
-        radial-gradient(circle at 86% 22%,rgba(132,174,207,.14),transparent 28%),
-        linear-gradient(180deg,#fff 0%,#ffffff 100%);
-    }
-
-    body.theme-mixed .welcome-card{
-      background:
-        radial-gradient(circle at 14% 18%,rgba(201,130,145,.12),transparent 26%),
-        radial-gradient(circle at 92% 16%,rgba(132,174,207,.16),transparent 28%),
-        linear-gradient(135deg,#fff 0%,#ffffff 100%);
-    }
-
-    body.theme-mixed .button.primary{
-      background:linear-gradient(90deg,#c98291 0%,#84aecf 100%);
-    }
-
-    body.theme-mixed .switch input:checked + .switch-track{
-      background:linear-gradient(90deg,#c98291 0%,#84aecf 100%);
     }
 
     *{box-sizing:border-box}
@@ -118,8 +37,11 @@
       font-family:"Helvetica Neue",Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(circle at 20% 0%,rgba(201,130,145,.12),transparent 28%),
-        linear-gradient(180deg,#fff 0%,var(--bg) 100%);
+        radial-gradient(circle at 14% 8%,rgba(201,127,145,.13),transparent 25%),
+        radial-gradient(circle at 84% 18%,rgba(133,175,209,.15),transparent 27%),
+        radial-gradient(circle at 28% 62%,rgba(133,175,209,.08),transparent 24%),
+        radial-gradient(circle at 78% 76%,rgba(201,127,145,.08),transparent 23%),
+        #ffffff;
     }
 
     button,a,input{
@@ -179,8 +101,13 @@
     .top-plan{
       padding:8px 11px;
       border-radius:999px;
-      background:var(--rose-soft);
-      color:var(--rose-dark);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(201,127,145,.15),
+          rgba(133,175,209,.17)
+        );
+      color:#786d7b;
       font-size:10px;
       font-weight:700;
       letter-spacing:1px;
@@ -229,16 +156,10 @@
       box-shadow:var(--shadow);
     }
 
-    .welcome-card{
-      min-height:245px;
-      padding:31px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      background:
-        radial-gradient(circle at 92% 16%,rgba(201,130,145,.17),transparent 28%),
-        linear-gradient(135deg,#fff 0%,#fff9fa 100%);
-    }
+    
+        radial-gradient(circle at 16% 18%,rgba(201,127,145,.12),transparent 27%),
+        radial-gradient(circle at 91% 16%,rgba(133,175,209,.16),transparent 29%),
+        linear-gradient(135deg,#fff 0%,#ffffff 100%);
 
     .eyebrow{
       margin-bottom:10px;
@@ -293,7 +214,7 @@
     }
 
     .button.primary{
-      background:var(--rose-dark);
+      background:linear-gradient(90deg,#b97888 0%,#789fbe 100%);
       color:#fff;
     }
 
@@ -370,8 +291,13 @@
       place-items:center;
       border:1px solid var(--line);
       border-radius:20px;
-      background:var(--rose-soft);
-      color:var(--rose-dark);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(201,127,145,.15),
+          rgba(133,175,209,.17)
+        );
+      color:#786d7b;
       font-family:Georgia,"Times New Roman",serif;
       font-size:22px;
     }
@@ -454,7 +380,7 @@
     }
 
     .switch input:checked + .switch-track{
-      background:var(--rose-dark);
+      background:linear-gradient(90deg,#c97f91 0%,#85afd1 100%);
     }
 
     .switch input:checked + .switch-track::after{
@@ -627,22 +553,22 @@
 
     .empty-box{
       padding:18px;
-      border:1px dashed rgba(159,102,113,.28);
+      border:1px dashed rgba(126,116,135,.25);
       border-radius:17px;
-      background:#fffafb;
+      background:
+        radial-gradient(circle at 12% 50%,rgba(201,127,145,.06),transparent 30%),
+        radial-gradient(circle at 88% 50%,rgba(133,175,209,.07),transparent 30%),
+        #ffffff;
       color:var(--muted);
       font-size:11px;
       line-height:1.55;
       text-align:center;
     }
 
-    .locked{
-      position:relative;
-      overflow:hidden;
-      background:
-        radial-gradient(circle at 92% 15%,rgba(201,130,145,.16),transparent 26%),
-        #fff;
-    }
+    
+        radial-gradient(circle at 90% 15%,rgba(201,127,145,.10),transparent 25%),
+        radial-gradient(circle at 18% 85%,rgba(133,175,209,.10),transparent 25%),
+        #ffffff;
 
     .lock-icon{
       width:50px;
@@ -1189,36 +1115,6 @@
       return "—";
     }
 
-    function dashboardTheme(profile){
-      const categories=normalizeCategories(profile?.categorie);
-      const pubblico=String(profile?.pubblico||"unisex").toLowerCase();
-
-      if(categories.includes("Benessere")) return "mixed";
-
-      if(categories.includes("Parrucchiere")){
-        if(pubblico==="donna") return "pink";
-        if(pubblico==="uomo") return "blue";
-        if(pubblico==="unisex") return "mixed";
-      }
-
-      if(categories.includes("Barbiere")) return "blue";
-
-      if(
-        categories.includes("Estetista") ||
-        categories.includes("Nail Artist") ||
-        categories.includes("Lash Maker") ||
-        categories.includes("Make-up")
-      ) return "pink";
-
-      return "pink";
-    }
-
-    function applyDashboardTheme(profile){
-      const theme=dashboardTheme(profile);
-      document.body.classList.remove("theme-pink","theme-blue","theme-mixed");
-      document.body.classList.add("theme-" + theme);
-    }
-
     function fullAddress(profile){
       return [
         profile.indirizzo,
@@ -1387,7 +1283,6 @@
     function renderBusiness(user,profile){
       business=profile;
 
-      applyDashboardTheme(profile);
 
       const metadata=user?.user_metadata || {};
       const firstName=
@@ -1590,11 +1485,11 @@
       if(PREVIEW_MODE){
         currentUser={
           id:"preview-professional",
-          email:"titolare@maisonelise.it",
+          email:"titolare@atelierblend.it",
           user_metadata:{
-            nome:"Elisa",
-            cognome:"Rossi",
-            full_name:"Elisa Rossi",
+            nome:"Alex",
+            cognome:"Marin",
+            full_name:"Alex Marin",
             tipo_utente:"professionista",
             piano_attivo:"free"
           }
@@ -1603,23 +1498,23 @@
         renderBusiness(currentUser,{
           user_id:"preview-professional",
           piano:"free",
-          nome_attivita:"Maison Élise",
-          descrizione:"Parrucchiere specializzato in taglio, colore e trattamenti capelli.",
-          email:"info@maisonelise.it",
-          telefono:"+39 0832 000000",
-          instagram:"@maisonelise",
+          nome_attivita:"Atelier Blend",
+          descrizione:"Parrucchiere unisex specializzato in taglio, colore e trattamenti capelli.",
+          email:"info@atelierblend.it",
+          telefono:"+39 0832 112233",
+          instagram:"@atelierblend",
           tiktok:"",
           facebook:"",
-          indirizzo:"Via Roma 24",
+          indirizzo:"Via Mazzini 18",
           cap:"73100",
-          comune:"Lecce",
+          comune:"Tuglie",
           provincia:"LE",
           paese:"Italia",
           latitude:40.3515,
           longitude:18.1750,
-          pubblico:"donna",
+          pubblico:"unisex",
           categorie:["Parrucchiere"],
-          specializzazioni:["Balayage","Colore","Taglio"],
+          specializzazioni:["Taglio","Colore","Styling"],
           orari:{
             lunedi:{open:true,continuato:false,mattina:["09:00","13:00"],pomeriggio:["15:00","19:00"]},
             martedi:{open:true,continuato:false,mattina:["09:00","13:00"],pomeriggio:["15:00","19:00"]},
