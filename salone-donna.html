@@ -177,8 +177,15 @@
       display:block;
     }
 
-    .work-gallery-title{
+    .work-gallery-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
       margin-bottom:14px;
+    }
+
+    .work-gallery-title{
       font-size:10px;
       font-weight:600;
       letter-spacing:1.8px;
@@ -186,33 +193,93 @@
       color:#a08f92;
     }
 
-    .work-gallery{
+    .work-gallery-nav{
+      display:none;
+      align-items:center;
+      gap:8px;
+      flex-shrink:0;
+    }
+
+    .work-gallery-nav.show{
+      display:flex;
+    }
+
+    .work-gallery-shell{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .gallery-nav-btn{
+      width:40px;
+      height:40px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.92);
+      color:#826d74;
+      font-size:24px;
+      line-height:1;
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:10px;
+      place-items:center;
+      cursor:pointer;
+      flex-shrink:0;
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+
+    .gallery-nav-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 8px 20px rgba(122,86,95,.08);
+    }
+
+    .gallery-nav-btn:disabled{
+      opacity:.45;
+      cursor:default;
+      transform:none;
+      box-shadow:none;
+    }
+
+    .work-gallery{
+      display:flex;
+      gap:12px;
+      overflow-x:auto;
+      scroll-behavior:smooth;
+      scroll-snap-type:x proximity;
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+      flex:1;
+    }
+
+    .work-gallery::-webkit-scrollbar{
+      display:none;
     }
 
     .work-gallery.count-1{
-      grid-template-columns:1fr;
-    }
-
-    .work-gallery.count-2{
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      overflow:visible;
     }
 
     .work-gallery-item{
       overflow:hidden;
+      flex:0 0 31%;
+      min-width:260px;
+      max-width:340px;
       aspect-ratio:1/1;
       border-radius:16px;
       background:#fff;
       cursor:pointer;
+      scroll-snap-align:start;
     }
 
     .work-gallery.count-1 .work-gallery-item{
+      flex-basis:100%;
+      min-width:100%;
+      max-width:100%;
       aspect-ratio:16/7;
     }
 
     .work-gallery.count-2 .work-gallery-item{
+      flex-basis:calc(50% - 6px);
+      min-width:calc(50% - 6px);
+      max-width:none;
       aspect-ratio:4/3;
     }
 
@@ -277,17 +344,40 @@
         border-radius:19px;
       }
 
-      .work-gallery{
-        grid-template-columns:repeat(2,minmax(0,1fr));
+      .work-gallery-head{
+        margin-bottom:12px;
+      }
+
+      .work-gallery-shell{
         gap:8px;
       }
 
-      .work-gallery.count-1{
-        grid-template-columns:1fr;
+      .gallery-nav-btn{
+        width:34px;
+        height:34px;
+        font-size:20px;
+      }
+
+      .work-gallery{
+        gap:8px;
+      }
+
+      .work-gallery-item{
+        flex-basis:82%;
+        min-width:82%;
+        max-width:82%;
+        aspect-ratio:4/5;
       }
 
       .work-gallery.count-1 .work-gallery-item{
+        flex-basis:100%;
+        min-width:100%;
         aspect-ratio:4/3;
+      }
+
+      .work-gallery.count-2 .work-gallery-item{
+        flex-basis:82%;
+        min-width:82%;
       }
     }
 
@@ -497,8 +587,16 @@
         <div class="rating" id="rating"></div>
 
         <section class="work-gallery-section" id="workGallerySection" aria-label="Foto dei lavori">
-          <div class="work-gallery-title">I nostri lavori</div>
-          <div class="work-gallery" id="workGallery"></div>
+          <div class="work-gallery-head">
+            <div class="work-gallery-title">I nostri lavori</div>
+            <div class="work-gallery-nav" id="workGalleryNav">
+              <button class="gallery-nav-btn" id="workGalleryPrev" type="button" aria-label="Scorri foto precedenti">‹</button>
+              <button class="gallery-nav-btn" id="workGalleryNext" type="button" aria-label="Scorri foto successive">›</button>
+            </div>
+          </div>
+          <div class="work-gallery-shell">
+            <div class="work-gallery" id="workGallery"></div>
+          </div>
         </section>
 
         <div class="info-grid">
@@ -945,6 +1043,15 @@
       const workGallery =
         document.getElementById("workGallery");
 
+      const galleryNav =
+        document.getElementById("workGalleryNav");
+
+      const prevGalleryBtn =
+        document.getElementById("workGalleryPrev");
+
+      const nextGalleryBtn =
+        document.getElementById("workGalleryNext");
+
       const galleryPhotos =
         Array.isArray(salon.gallery)
           ? salon.gallery.filter(Boolean).slice(0,6)
@@ -952,6 +1059,7 @@
 
       workGallery.innerHTML = "";
       workGallery.className = "work-gallery";
+      workGallery.scrollLeft = 0;
 
       if(galleryPhotos.length){
         gallerySection.classList.add("show");
@@ -961,6 +1069,14 @@
         }else if(galleryPhotos.length===2){
           workGallery.classList.add("count-2");
         }
+
+        galleryNav.classList.toggle(
+          "show",
+          galleryPhotos.length > 1
+        );
+
+        prevGalleryBtn.disabled = false;
+        nextGalleryBtn.disabled = false;
 
         galleryPhotos.forEach((url,index)=>{
           const item=document.createElement("div");
@@ -992,6 +1108,7 @@
         });
       }else{
         gallerySection.classList.remove("show");
+        galleryNav.classList.remove("show");
       }
 
       const phoneElement =
@@ -1189,6 +1306,37 @@
         closeWorkLightbox();
       }
     });
+
+    function scrollWorkGallery(direction){
+      const gallery =
+        document.getElementById("workGallery");
+
+      if(!gallery){
+        return;
+      }
+
+      const amount = Math.max(
+        gallery.clientWidth * 0.82,
+        280
+      ) * direction;
+
+      gallery.scrollBy({
+        left:amount,
+        behavior:"smooth"
+      });
+    }
+
+    document
+      .getElementById("workGalleryPrev")
+      .addEventListener("click",()=>{
+        scrollWorkGallery(-1);
+      });
+
+    document
+      .getElementById("workGalleryNext")
+      .addEventListener("click",()=>{
+        scrollWorkGallery(1);
+      });
 
     async function initSalon(){
       if(id.startsWith("free-")){
