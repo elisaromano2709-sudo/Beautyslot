@@ -176,21 +176,6 @@
           </div>
 
           <section class="section">
-            <h2 class="section-title">Cambia password</h2>
-            <p class="section-text">Per sicurezza la password attuale non può essere visualizzata. Puoi però sostituirla con una nuova.</p>
-            <form id="passwordForm">
-              <div class="field">
-                <label for="newPassword">Nuova password</label>
-                <input id="newPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Nuova password" required>
-              </div>
-              <div class="field">
-                <label for="confirmPassword">Conferma nuova password</label>
-                <input id="confirmPassword" type="password" autocomplete="new-password" minlength="6" placeholder="Ripeti la nuova password" required>
-              </div>
-              <button class="button primary" type="submit">Aggiorna password</button>
-              <div class="message" id="passwordMessage"></div>
-            </form>
-
             <button class="forgot-link" type="button" id="forgotPassword">
               Password dimenticata?
             </button>
@@ -365,43 +350,6 @@
 
       document.getElementById("profileContent").hidden = false;
     }
-
-    document.getElementById("passwordForm").addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const newPassword = document.getElementById("newPassword").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const message = document.getElementById("passwordMessage");
-
-      message.className = "message";
-      message.textContent = "";
-
-      if(newPassword.length < 6){
-        message.className = "message error";
-        message.textContent = "La nuova password deve contenere almeno 6 caratteri.";
-        return;
-      }
-
-      if(newPassword !== confirmPassword){
-        message.className = "message error";
-        message.textContent = "Le due password non coincidono.";
-        return;
-      }
-
-      const { error } = await client.auth.updateUser({ password:newPassword });
-
-      if(error){
-        message.className = "message error";
-        message.textContent = "Non è stato possibile aggiornare la password. " + error.message;
-        return;
-      }
-
-      document.getElementById("newPassword").value = "";
-      document.getElementById("confirmPassword").value = "";
-      message.className = "message ok";
-      message.textContent = "Password aggiornata correttamente.";
-    });
-
 
     const forgotPassword = document.getElementById("forgotPassword");
     const recoveryBox = document.getElementById("recoveryBox");
