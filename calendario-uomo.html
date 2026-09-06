@@ -264,6 +264,35 @@
     .summary-row:last-child{border-bottom:0}
     .summary-label{display:block;margin-bottom:5px;font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted)}
     .summary-value{font-size:14px;line-height:1.45;color:var(--text)}
+    .booking-name-field{
+      margin-top:22px;
+    }
+    .booking-name-label{
+      display:block;
+      margin-bottom:8px;
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:1.4px;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+    .booking-name-input{
+      width:100%;
+      min-height:50px;
+      padding:0 16px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      font-size:14px;
+      transition:border-color .18s ease,box-shadow .18s ease;
+    }
+    .booking-name-input::placeholder{color:var(--muted)}
+    .booking-name-input:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 12%,transparent);
+    }
     .book{
       width:100%;min-height:52px;margin-top:22px;border:0;border-radius:999px;
       background:var(--accent-dark);color:#fff;font-size:11px;font-weight:700;
@@ -373,8 +402,21 @@
           </div>
         </div>
 
+        <div class="booking-name-field">
+          <label class="booking-name-label" for="bookingName">Nome per la prenotazione</label>
+          <input
+            class="booking-name-input"
+            type="text"
+            id="bookingName"
+            name="bookingName"
+            maxlength="80"
+            autocomplete="name"
+            placeholder="Inserisci il nome"
+          >
+        </div>
+
         <button class="book" type="button" id="bookButton" disabled>Conferma prenotazione</button>
-        <div class="notice">La prenotazione verrà confermata solo dopo aver scelto trattamento, giorno e orario.</div>
+        <div class="notice">La prenotazione verrà confermata solo dopo aver scelto trattamento, giorno, orario e nome.</div>
 
         <div class="confirmation" id="confirmation">
           <strong>Prenotazione confermata</strong>
@@ -475,6 +517,7 @@
     const timesBox = document.getElementById("times");
     const monthLabel = document.getElementById("monthLabel");
     const bookButton = document.getElementById("bookButton");
+    const bookingNameInput = document.getElementById("bookingName");
     const slotWarning = document.getElementById("slotWarning");
     const compatibilityAlert = document.getElementById("compatibilityAlert");
 
@@ -1215,8 +1258,16 @@
     }
 
     function updateBookButton(){
-      bookButton.disabled = !(selectedServices.length && selectedDate && selectedTime);
+      const bookingName = bookingNameInput.value.trim();
+      bookButton.disabled = !(
+        selectedServices.length &&
+        selectedDate &&
+        selectedTime &&
+        bookingName
+      );
     }
+
+    bookingNameInput.addEventListener("input", updateBookButton);
 
     document.getElementById("prevMonth").addEventListener("click", () => {
       const now = new Date();
@@ -1243,7 +1294,14 @@
     });
 
     bookButton.addEventListener("click", async () => {
-      if(!(selectedServices.length && selectedDate && selectedTime)) return;
+      const bookingName = bookingNameInput.value.trim();
+
+      if(!(
+        selectedServices.length &&
+        selectedDate &&
+        selectedTime &&
+        bookingName
+      )) return;
 
       /*
         L'utente può esplorare liberamente salone, servizi, calendario
@@ -1266,6 +1324,7 @@
               gender: "uomo",
               salonId: salonId,
               salon: salon.name,
+              bookingName: bookingName,
               serviceId: selectedServices[0]?.id || "",
               serviceName: getSelectedNames().join(" + "),
               duration: getTotalDuration(),
@@ -1299,6 +1358,7 @@
               gender: "uomo",
               salonId: salonId,
               salon: salon.name,
+              bookingName: bookingName,
               serviceId: selectedServices[0]?.id || "",
               serviceName: getSelectedNames().join(" + "),
               duration: getTotalDuration(),
@@ -1345,6 +1405,7 @@
 
       // Registra l'intero intervallo della prenotazione.
       sessionBookings.push({
+        bookingName:bookingName,
         date:dateKey(selectedDate),
         start:bookedStart,
         end:bookedEnd,
@@ -1360,6 +1421,7 @@
           tema:"uomo",
           salonId:salonId,
           salon:salon.name,
+          bookingName:bookingName,
           service:
             getSelectedNames().join(" + ") +
             " · " +
