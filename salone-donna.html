@@ -610,69 +610,431 @@
       }, true);
     }
 
+    const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id") || "hair-01";
-    const salon = SALONS[id] || SALONS["hair-01"];
 
-    document.title = "Beautyslot — " + salon.name;
-    document.getElementById("salonName").textContent = salon.name;
-    document.getElementById("category").textContent = salon.category;
-    document.getElementById("rating").textContent = salon.rating;
-
-    const phoneClean = salon.phone.replace(/\s+/g,"");
-    document.getElementById("phone").innerHTML =
-      '<a href="tel:' + phoneClean + '">' + salon.phone + '</a>';
-
-    document.getElementById("instagram").innerHTML =
-      '<a href="' + salon.instagramUrl + '" target="_blank" rel="noopener">' +
-      salon.instagram + '</a>';
-
-    document.getElementById("callAction").href = "tel:" + phoneClean;
-    document.getElementById("instagramAction").href = salon.instagramUrl;
-
-
-    const calendarActive = document.getElementById("calendarActive");
-    const calendarInactive = document.getElementById("calendarInactive");
-    const calendarAction = document.getElementById("calendarAction");
-
-    if(salon.plan === "paid"){
-      // ABBONAMENTO A PAGAMENTO:
-      // il cliente può aprire il calendario Beautyslot del salone.
-      calendarActive.style.display = "block";
-      calendarInactive.style.display = "none";
-      calendarAction.href = "./calendario-donna.html?id=" + encodeURIComponent(id);
-    } else {
-      // BEAUTYSLOT FREE:
-      // restano visibili telefono, orari e Instagram,
-      // ma non esiste alcun pulsante per aprire il calendario.
-      calendarActive.style.display = "none";
-      calendarInactive.style.display = "block";
+    function makeInitials(name){
+      return String(name || "BS")
+        .trim()
+        .split(/\s+/)
+        .slice(0,2)
+        .map(part => part.charAt(0).toUpperCase())
+        .join("") || "BS";
     }
 
-    const imageBox = document.getElementById("salonImage");
+    function makeInstagramUrl(value){
+      const raw = String(value || "").trim();
 
-    if(salon.image){
-      const img = document.createElement("img");
-      img.src = salon.image;
-      img.alt = "Foto di " + salon.name;
-      imageBox.appendChild(img);
-    } else {
-      const fallback = document.createElement("div");
-      fallback.className = "fallback";
-      fallback.textContent = salon.initials;
-      imageBox.appendChild(fallback);
+      if(!raw){
+        return "";
+      }
+
+      if(/^https?:\/\//i.test(raw)){
+        return raw;
+      }
+
+      return "https://www.instagram.com/" +
+        encodeURIComponent(raw.replace(/^@/,"")) +
+        "/";
     }
 
-    const hoursList = document.getElementById("hoursList");
+    function formatHours(orari){
+      const labels = [
+        ["lunedi","Lunedì"],
+        ["martedi","Martedì"],
+        ["mercoledi","Mercoledì"],
+        ["giovedi","Giovedì"],
+        ["venerdi","Venerdì"],
+        ["sabato","Sabato"],
+        ["domenica","Domenica"]
+      ];
 
-    Object.entries(salon.hours).forEach(function(entry){
-      const row = document.createElement("div");
-      row.className = "hour-row";
-      row.innerHTML =
-        '<span class="day">' + entry[0] + '</span>' +
-        '<span class="time">' + entry[1] + '</span>';
-      hoursList.appendChild(row);
-    });
+      const result = {};
+
+      labels.forEach(function(entry){
+        const key = entry[0];
+        const label = entry[1];
+        const day = orari && orari[key];
+
+        if(!day || !day.open){
+          result[label] = "Chiuso";
+          return;
+        }
+
+        const ranges = [];
+
+        if(
+          Array.isArray(day.mattina) &&
+          day.mattina[0] &&
+          day.mattina[1]
+        ){
+          ranges.push(
+            day.mattina[0] + " – " + day.mattina[1]
+          );
+        }
+
+        if(
+          Array.isArray(day.pomeriggio) &&
+          day.pomeriggio[0] &&
+          day.pomeriggio[1]
+        ){
+          ranges.push(
+            day.pomeriggio[0] + " – " + day.pomeriggio[1]
+          );
+        }
+
+        result[label] =
+          ranges.length
+            ? ranges.join(" / ")
+            : "Aperto";
+      });
+
+      return result;
+    }
+
+    async function loadRegisteredSalon(salonId){
+      const userId = salonId.replace(/^free-/,"");
+
+      const fields = [
+        "user_id",
+        "nome_attivita",
+        "telefono",
+        "instagram",
+        "categorie",
+        "orari",
+        "logo_url",
+        "gallery_urls",
+        "calendario_attivo",
+        "piano",
+        "pubblicato"
+      ].join(",");
+
+      const endpoint =
+        SUPABASE_URL +
+        "/rest/v1/beautyslot_professionisti" +
+        "?user_id=eq." + encodeURIComponent(userId) +
+        "&pubblicato=eq.true" +
+        "&select=" + encodeURIComponent(fields) +
+        "&limit=1";
+
+      const response = await fetch(endpoint, {
+        headers:{
+          "apikey":SUPABASE_PUBLISHABLE_KEY
+        }
+      });
+
+      if(!response.ok){
+        throw new Error(
+          "Impossibile caricare la vetrina del salone."
+        );
+      }
+
+      const rows = await response.json();
+      const item = Array.isArray(rows) ? rows[0] : null;
+
+      if(!item){
+        return null;
+      }
+
+      const categories =
+        Array.isArray(item.categorie)
+          ? item.categorie
+          : [];
+
+      const cover =
+        item.logo_url ||
+        (
+          Array.isArray(item.gallery_urls)
+            ? item.gallery_urls[0]
+            : ""
+        ) ||
+        "";
+
+      return {
+        name:item.nome_attivita || "Attività Beautyslot",
+        category:categories.join(" · ") || "Professionista",
+        rating:"",
+        phone:item.telefono || "",
+        instagram:item.instagram || "",
+        instagramUrl:makeInstagramUrl(item.instagram),
+        plan:String(item.piano || "free").toLowerCase(),
+        calendarActive:item.calendario_attivo === true,
+        image:cover,
+        initials:makeInitials(item.nome_attivita),
+        hours:formatHours(item.orari)
+      };
+    }
+
+    function renderSalon(salon, salonId){
+      document.title = "Beautyslot — " + salon.name;
+
+      document.getElementById("salonName").textContent =
+        salon.name;
+
+      document.getElementById("category").textContent =
+        salon.category;
+
+      document.getElementById("rating").textContent =
+        salon.rating || "";
+
+      const phoneElement =
+        document.getElementById("phone");
+
+      const callAction =
+        document.getElementById("callAction");
+
+      const phone =
+        String(salon.phone || "").trim();
+
+      if(phone){
+        const phoneClean =
+          phone.replace(/\s+/g,"");
+
+        const phoneLink =
+          document.createElement("a");
+
+        phoneLink.href =
+          "tel:" + phoneClean;
+
+        phoneLink.textContent =
+          phone;
+
+        phoneElement.innerHTML = "";
+        phoneElement.appendChild(phoneLink);
+
+        callAction.href =
+          "tel:" + phoneClean;
+
+        callAction.style.display = "";
+      }else{
+        phoneElement.textContent =
+          "Non disponibile";
+
+        callAction.style.display =
+          "none";
+      }
+
+      const instagramElement =
+        document.getElementById("instagram");
+
+      const instagramAction =
+        document.getElementById("instagramAction");
+
+      const instagram =
+        String(salon.instagram || "").trim();
+
+      const instagramUrl =
+        salon.instagramUrl ||
+        makeInstagramUrl(instagram);
+
+      if(instagram && instagramUrl){
+        const instagramLink =
+          document.createElement("a");
+
+        instagramLink.href =
+          instagramUrl;
+
+        instagramLink.target =
+          "_blank";
+
+        instagramLink.rel =
+          "noopener";
+
+        instagramLink.textContent =
+          instagram;
+
+        instagramElement.innerHTML = "";
+        instagramElement.appendChild(instagramLink);
+
+        instagramAction.href =
+          instagramUrl;
+
+        instagramAction.style.display = "";
+      }else{
+        instagramElement.textContent =
+          "Non disponibile";
+
+        instagramAction.style.display =
+          "none";
+      }
+
+      const calendarActive =
+        document.getElementById("calendarActive");
+
+      const calendarInactive =
+        document.getElementById("calendarInactive");
+
+      const calendarAction =
+        document.getElementById("calendarAction");
+
+      if(
+        salon.plan !== "free" &&
+        salon.calendarActive === true
+      ){
+        calendarActive.style.display =
+          "block";
+
+        calendarInactive.style.display =
+          "none";
+
+        calendarAction.href =
+          "./calendario-donna.html?id=" +
+          encodeURIComponent(salonId);
+      }else{
+        calendarActive.style.display =
+          "none";
+
+        calendarInactive.style.display =
+          "block";
+      }
+
+      const imageBox =
+        document.getElementById("salonImage");
+
+      imageBox.innerHTML = "";
+
+      if(salon.image){
+        const img =
+          document.createElement("img");
+
+        img.src =
+          salon.image;
+
+        img.alt =
+          "Foto di " + salon.name;
+
+        imageBox.appendChild(img);
+      }else{
+        const fallback =
+          document.createElement("div");
+
+        fallback.className =
+          "fallback";
+
+        fallback.textContent =
+          salon.initials;
+
+        imageBox.appendChild(fallback);
+      }
+
+      const hoursList =
+        document.getElementById("hoursList");
+
+      hoursList.innerHTML = "";
+
+      Object.entries(salon.hours || {})
+        .forEach(function(entry){
+          const row =
+            document.createElement("div");
+
+          row.className =
+            "hour-row";
+
+          row.innerHTML =
+            '<span class="day">' +
+            entry[0] +
+            '</span>' +
+            '<span class="time">' +
+            entry[1] +
+            '</span>';
+
+          hoursList.appendChild(row);
+        });
+    }
+
+    async function initSalon(){
+      if(id.startsWith("free-")){
+        try{
+          const registeredSalon =
+            await loadRegisteredSalon(id);
+
+          if(registeredSalon){
+            renderSalon(
+              registeredSalon,
+              id
+            );
+            return;
+          }
+
+          document.getElementById("salonName").textContent =
+            "Salone non disponibile";
+
+          document.getElementById("category").textContent =
+            "BEAUTYSLOT";
+
+          document.getElementById("rating").textContent =
+            "";
+
+          document.getElementById("phone").textContent =
+            "Profilo non trovato";
+
+          document.getElementById("instagram").textContent =
+            "Non disponibile";
+
+          document.getElementById("calendarActive").style.display =
+            "none";
+
+          document.getElementById("calendarInactive").style.display =
+            "block";
+
+          document.getElementById("callAction").style.display =
+            "none";
+
+          document.getElementById("instagramAction").style.display =
+            "none";
+
+          return;
+        }catch(error){
+          console.error(
+            "Errore caricamento vetrina:",
+            error
+          );
+
+          document.getElementById("salonName").textContent =
+            "Salone non disponibile";
+
+          document.getElementById("category").textContent =
+            "BEAUTYSLOT";
+
+          document.getElementById("rating").textContent =
+            "";
+
+          document.getElementById("phone").textContent =
+            "Riprova tra poco";
+
+          document.getElementById("instagram").textContent =
+            "Non disponibile";
+
+          document.getElementById("calendarActive").style.display =
+            "none";
+
+          document.getElementById("calendarInactive").style.display =
+            "block";
+
+          document.getElementById("callAction").style.display =
+            "none";
+
+          document.getElementById("instagramAction").style.display =
+            "none";
+
+          return;
+        }
+      }
+
+      const salon =
+        SALONS[id] ||
+        SALONS["hair-01"];
+
+      renderSalon(
+        salon,
+        id
+      );
+    }
+
+    initSalon();
   </script>
 </body>
 </html>
