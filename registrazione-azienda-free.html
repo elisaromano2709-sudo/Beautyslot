@@ -141,7 +141,12 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
 }
 .geo{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:11px}
 .secondary{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--rose-dark);font-size:10px;font-weight:700;cursor:pointer}
-.geo span{font-size:10px;color:var(--muted)}
+.geo span{
+  flex:1 1 100%;
+  font-size:10px;
+  line-height:1.55;
+  color:var(--muted);
+}
 .days{display:grid;gap:10px}
 
 .day{
@@ -842,7 +847,11 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
         <div><label for="cap">CAP</label><input id="cap" type="text" maxlength="5"></div>
         <div><label for="paese">Paese</label><input id="paese" type="text" value="Italia"></div>
       </div>
-      <div class="geo"><button type="button" class="secondary" id="geoButton">Usa posizione attuale</button><span id="geoStatus">Se sei in sede puoi salvare la posizione precisa.</span></div>
+      <div class="geo">
+        <button type="button" class="secondary" id="verifyAddressButton">Verifica indirizzo</button>
+        <button type="button" class="secondary" id="geoButton">Usa GPS se sei nel salone</button>
+        <span id="geoStatus">Inserisci via e numero civico, comune, CAP e provincia: verificheremo l'indirizzo prima del salvataggio.</span>
+      </div>
     </section>
 
     <section class="section">
@@ -960,6 +969,9 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const PREVIEW_MODE = false;
+const EDIT_MODE =
+  new URLSearchParams(window.location.search).get("modalita") === "modifica";
+
 const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
 const BUCKET = "beautyslot-professionisti";
@@ -969,9 +981,13 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
 });
 
 let user = null, latitude = null, longitude = null;
+let locationSource = "";
+let verifiedAddressSignature = "";
 let selectedGalleryFiles = [];
 let galleryObjectUrls = [];
 let logoObjectUrl = "";
+let existingLogoUrl = "";
+let existingGalleryUrls = [];
 const form = document.getElementById("businessForm");
 const message = document.getElementById("formMessage");
 const publishButton = document.getElementById("publishButton");
@@ -1253,11 +1269,12 @@ async function upload(f,folder){
   return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 }
 async function mediaUrls(){
-  let logo=null, gallery=[];
+  let logo=existingLogoUrl || null;
+  let gallery=[...existingGalleryUrls];
   const lf=document.getElementById("logoFile").files[0] || null;
   const gf=[...selectedGalleryFiles];
 
-  if(gf.length>5){
+  if(gallery.length + gf.length > 5){
     throw new Error("Puoi caricare al massimo 5 fotografie.");
   }
 
@@ -1279,6 +1296,121 @@ function prefill(){
   document.getElementById("instagram").value=m.instagram||"";
   document.getElementById("tiktok").value=m.tiktok||"";
   document.getElementById("emailPubblica").value=user?.email||"";
+}
+
+function setPickerValue(row,className,value){
+  if(!value)return;
+  const input=row.querySelector("." + className);
+  if(!input)return;
+  input.value=value;
+  const display=input.closest(".time-picker")?.querySelector(".time-display");
+  if(display)display.textContent=value;
+}
+
+function applyExistingProfile(profile){
+  if(!profile)return;
+
+  document.getElementById("nomeAttivita").value=profile.nome_attivita||"";
+  document.getElementById("descrizione").value=profile.descrizione||"";
+  document.getElementById("emailPubblica").value=profile.email||user?.email||"";
+  document.getElementById("telefono").value=profile.telefono||"";
+  document.getElementById("instagram").value=profile.instagram||"";
+  document.getElementById("tiktok").value=profile.tiktok||"";
+  document.getElementById("facebook").value=profile.facebook||"";
+  document.getElementById("indirizzo").value=profile.indirizzo||"";
+  document.getElementById("cap").value=profile.cap||"";
+  document.getElementById("comune").value=profile.comune||"";
+  document.getElementById("provincia").value=profile.provincia||"";
+  document.getElementById("paese").value=profile.paese||"Italia";
+  document.getElementById("specializzazioni").value=
+    Array.isArray(profile.specializzazioni)
+      ? profile.specializzazioni.join(", ")
+      : "";
+
+  latitude =
+    profile.latitude === null || profile.latitude === ""
+      ? null
+      : Number(profile.latitude);
+
+  longitude =
+    profile.longitude === null || profile.longitude === ""
+      ? null
+      : Number(profile.longitude);
+
+  if(Number.isFinite(latitude) && Number.isFinite(longitude)){
+    locationSource="saved";
+    verifiedAddressSignature=addressSignature();
+    geoStatus.textContent=
+      "Posizione salvata per questo indirizzo.";
+  }
+
+  const selectedCategories=
+    Array.isArray(profile.categorie) ? profile.categorie : [];
+
+  categoryInputs.forEach(input=>{
+    input.checked=selectedCategories.includes(input.value);
+  });
+
+  updateClientela();
+
+  const pubblico=String(profile.pubblico||"unisex");
+  const pubblicoRadio=
+    document.querySelector(
+      `input[name="pubblico"][value="${pubblico}"]`
+    );
+  if(pubblicoRadio)pubblicoRadio.checked=true;
+
+  const orari=profile.orari || {};
+  Object.entries(orari).forEach(([dayKey,data])=>{
+    const row=document.querySelector(`.day[data-day="${dayKey}"]`);
+    if(!row || !data)return;
+
+    const openInput=row.querySelector(".open");
+    const continuous=row.querySelector(".continuous-check");
+    const isOpen=!!data.open;
+    const isContinuous=!!data.continuato;
+
+    openInput.checked=isOpen;
+    row.classList.toggle("closed",!isOpen);
+    row.querySelector(".day-status").textContent=
+      isOpen ? "Aperto" : "Chiuso";
+
+    continuous.checked=isContinuous;
+    row.classList.toggle("continuous",isContinuous);
+
+    if(isOpen && isContinuous && Array.isArray(data.mattina)){
+      setPickerValue(row,"c1",data.mattina[0]);
+      setPickerValue(row,"c2",data.mattina[1]);
+    }else if(isOpen){
+      if(Array.isArray(data.mattina)){
+        setPickerValue(row,"a1",data.mattina[0]);
+        setPickerValue(row,"a2",data.mattina[1]);
+      }
+      if(Array.isArray(data.pomeriggio)){
+        setPickerValue(row,"b1",data.pomeriggio[0]);
+        setPickerValue(row,"b2",data.pomeriggio[1]);
+      }
+    }
+  });
+
+  existingLogoUrl=profile.logo_url||"";
+  existingGalleryUrls=
+    Array.isArray(profile.gallery_urls)
+      ? profile.gallery_urls.filter(Boolean).slice(0,5)
+      : [];
+
+  if(existingLogoUrl){
+    logoPreview.src=existingLogoUrl;
+    logoPreview.style.display="block";
+    coverPlaceholder.style.display="none";
+    removeLogoButton.hidden=false;
+  }
+
+  renderGalleryPreview();
+
+  publishButton.textContent="Salva modifiche";
+  document.querySelector(".hero h1").textContent=
+    "Gestisci la tua attività";
 }
 
 const clientelaBox = document.getElementById("clientelaBox");
@@ -1339,15 +1471,260 @@ categoryInputs.forEach(input => {
 
 updateClientela();
 
-document.getElementById("geoButton").onclick=()=>{
-  const s=document.getElementById("geoStatus");
-  if(!navigator.geolocation){s.textContent="Geolocalizzazione non disponibile.";return}
-  s.textContent="Rilevamento…";
-  navigator.geolocation.getCurrentPosition(p=>{
-    latitude=p.coords.latitude;longitude=p.coords.longitude;
-    s.textContent=`Posizione acquisita: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
-  },()=>s.textContent="Posizione non acquisita. Puoi continuare con l'indirizzo.");
-};
+const addressFields = [
+  document.getElementById("indirizzo"),
+  document.getElementById("comune"),
+  document.getElementById("provincia"),
+  document.getElementById("cap"),
+  document.getElementById("paese")
+];
+
+const verifyAddressButton =
+  document.getElementById("verifyAddressButton");
+
+const geoButton =
+  document.getElementById("geoButton");
+
+const geoStatus =
+  document.getElementById("geoStatus");
+
+function addressSignature(){
+  return addressFields
+    .map(field => field.value.trim().toLowerCase())
+    .join("|");
+}
+
+function fullAddressQuery(){
+  return [
+    document.getElementById("indirizzo").value.trim(),
+    document.getElementById("cap").value.trim(),
+    document.getElementById("comune").value.trim(),
+    document.getElementById("provincia").value.trim(),
+    document.getElementById("paese").value.trim() || "Italia"
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function resetVerifiedPosition(){
+  latitude = null;
+  longitude = null;
+  locationSource = "";
+  verifiedAddressSignature = "";
+
+  geoStatus.textContent =
+    "Indirizzo modificato: premi “Verifica indirizzo” oppure salva per verificarlo automaticamente.";
+}
+
+addressFields.forEach(field => {
+  field.addEventListener("input", () => {
+    if(
+      latitude !== null ||
+      longitude !== null ||
+      verifiedAddressSignature
+    ){
+      resetVerifiedPosition();
+    }
+  });
+});
+
+async function geocodeBusinessAddress(showSuccess=true){
+  const street =
+    document.getElementById("indirizzo").value.trim();
+
+  const city =
+    document.getElementById("comune").value.trim();
+
+  if(!street || !city){
+    throw new Error(
+      "Inserisci almeno via e numero civico e comune prima di verificare la posizione."
+    );
+  }
+
+  const query = fullAddressQuery();
+
+  verifyAddressButton.disabled = true;
+  geoStatus.textContent = "Verifica dell'indirizzo in corso…";
+
+  try{
+    if(PREVIEW_MODE){
+      latitude = 40.07331;
+      longitude = 18.09941;
+      locationSource = "address";
+      verifiedAddressSignature = addressSignature();
+
+      geoStatus.textContent =
+        "Indirizzo verificato · " + query;
+
+      return {
+        lat:latitude,
+        lon:longitude,
+        display_name:query
+      };
+    }
+
+    const endpoint =
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=jsonv2" +
+      "&limit=5" +
+      "&countrycodes=it" +
+      "&addressdetails=1" +
+      "&q=" +
+      encodeURIComponent(query);
+
+    const response = await fetch(endpoint, {
+      headers:{
+        "Accept":"application/json"
+      }
+    });
+
+    if(!response.ok){
+      throw new Error(
+        "Il servizio di verifica dell'indirizzo non è disponibile in questo momento."
+      );
+    }
+
+    const results = await response.json();
+
+    if(!Array.isArray(results) || !results.length){
+      throw new Error(
+        "Indirizzo non trovato. Controlla via, numero civico, comune, CAP e provincia."
+      );
+    }
+
+    const normalizedCity = city.toLowerCase();
+
+    const bestMatch =
+      results.find(result => {
+        const address = result.address || {};
+
+        const resultCity =
+          address.city ||
+          address.town ||
+          address.village ||
+          address.municipality ||
+          address.hamlet ||
+          "";
+
+        return String(resultCity)
+          .toLowerCase()
+          .includes(normalizedCity);
+      }) ||
+      results[0];
+
+    const lat = Number(bestMatch.lat);
+    const lon = Number(bestMatch.lon);
+
+    if(!Number.isFinite(lat) || !Number.isFinite(lon)){
+      throw new Error(
+        "Coordinate dell'indirizzo non valide."
+      );
+    }
+
+    latitude = lat;
+    longitude = lon;
+    locationSource = "address";
+    verifiedAddressSignature = addressSignature();
+
+    if(showSuccess){
+      geoStatus.textContent =
+        "Indirizzo verificato · " +
+        (bestMatch.display_name || query);
+    }
+
+    return bestMatch;
+  }finally{
+    verifyAddressButton.disabled = false;
+  }
+}
+
+verifyAddressButton.addEventListener("click", async () => {
+  try{
+    await geocodeBusinessAddress(true);
+    msg("");
+  }catch(error){
+    latitude = null;
+    longitude = null;
+    locationSource = "";
+    verifiedAddressSignature = "";
+    geoStatus.textContent = error.message;
+    msg(error.message,"error");
+  }
+});
+
+geoButton.addEventListener("click", () => {
+  if(!navigator.geolocation){
+    geoStatus.textContent =
+      "Geolocalizzazione GPS non disponibile su questo dispositivo.";
+    return;
+  }
+
+  geoButton.disabled = true;
+  geoStatus.textContent =
+    "Rilevamento GPS in corso… Usa questa opzione solo se sei fisicamente nel salone.";
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+      locationSource = "gps";
+      verifiedAddressSignature = addressSignature();
+
+      geoStatus.textContent =
+        "Posizione GPS acquisita · " +
+        latitude.toFixed(6) +
+        ", " +
+        longitude.toFixed(6) +
+        ". Verrà usata questa posizione.";
+
+      geoButton.disabled = false;
+      msg("");
+    },
+    () => {
+      geoStatus.textContent =
+        "Posizione GPS non acquisita. Usa “Verifica indirizzo”.";
+      geoButton.disabled = false;
+    },
+    {
+      enableHighAccuracy:true,
+      timeout:12000,
+      maximumAge:0
+    }
+  );
+});
+
+async function ensureBusinessPosition(){
+  const currentSignature = addressSignature();
+
+  /*
+    Per impostazione predefinita usiamo l'indirizzo scritto.
+    Il GPS viene mantenuto solo se l'utente lo ha scelto esplicitamente
+    e l'indirizzo non è stato modificato dopo.
+  */
+  if(
+    locationSource === "gps" &&
+    verifiedAddressSignature === currentSignature &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ){
+    return;
+  }
+
+  if(
+    locationSource === "address" &&
+    verifiedAddressSignature === currentSignature &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ){
+    return;
+  }
+
+  await geocodeBusinessAddress(false);
+
+  geoStatus.textContent =
+    "Indirizzo verificato e posizione salvata correttamente.";
+}
+
 
 const logoInput=document.getElementById("logoFile");
 const logoPreview=document.getElementById("logoPreview");
@@ -1366,11 +1743,11 @@ function fileKey(file){
 }
 
 function updateGalleryHelp(){
-  const count=selectedGalleryFiles.length;
+  const count=existingGalleryUrls.length + selectedGalleryFiles.length;
 
   galleryHelp.textContent =
     count
-      ? `${count} di 5 immagini selezionate · max 5 MB ciascuna.`
+      ? `${count} di 5 immagini presenti · max 5 MB ciascuna.`
       : "Fino a 5 immagini · max 5 MB ciascuna.";
 }
 
@@ -1383,13 +1760,11 @@ function renderGalleryPreview(){
   clearGalleryObjectUrls();
   galleryPreview.innerHTML="";
 
-  selectedGalleryFiles.forEach((file,index)=>{
+  existingGalleryUrls.forEach((url,index)=>{
     const item=document.createElement("div");
     item.className="gallery-item";
 
     const img=document.createElement("img");
-    const url=URL.createObjectURL(file);
-    galleryObjectUrls.push(url);
     img.src=url;
     img.alt=`Foto attività ${index+1}`;
 
@@ -1398,6 +1773,36 @@ function renderGalleryPreview(){
     remove.className="media-remove";
     remove.setAttribute("aria-label",`Elimina foto ${index+1}`);
     remove.setAttribute("title",`Elimina foto ${index+1}`);
+    remove.textContent="×";
+
+    remove.addEventListener("click",(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      existingGalleryUrls.splice(index,1);
+      renderGalleryPreview();
+      msg("");
+    });
+
+    item.appendChild(img);
+    item.appendChild(remove);
+    galleryPreview.appendChild(item);
+  });
+
+  selectedGalleryFiles.forEach((file,index)=>{
+    const item=document.createElement("div");
+    item.className="gallery-item";
+
+    const img=document.createElement("img");
+    const url=URL.createObjectURL(file);
+    galleryObjectUrls.push(url);
+    img.src=url;
+    img.alt=`Nuova foto attività ${index+1}`;
+
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="media-remove";
+    remove.setAttribute("aria-label",`Elimina nuova foto ${index+1}`);
+    remove.setAttribute("title",`Elimina nuova foto ${index+1}`);
     remove.textContent="×";
 
     remove.addEventListener("click",(event)=>{
@@ -1446,6 +1851,7 @@ logoInput.addEventListener("change",event=>{
 
 removeLogoButton.addEventListener("click",()=>{
   logoInput.value="";
+  existingLogoUrl="";
 
   if(logoObjectUrl){
     URL.revokeObjectURL(logoObjectUrl);
@@ -1473,9 +1879,12 @@ galleryInput.addEventListener("change",event=>{
       file=>!existingKeys.has(fileKey(file))
     );
 
-    if(selectedGalleryFiles.length + uniqueIncoming.length > 5){
+    const alreadyPresent =
+      existingGalleryUrls.length + selectedGalleryFiles.length;
+
+    if(alreadyPresent + uniqueIncoming.length > 5){
       throw new Error(
-        `Puoi caricare al massimo 5 fotografie. Ne hai già selezionate ${selectedGalleryFiles.length}.`
+        `Puoi caricare al massimo 5 fotografie. Ne hai già ${alreadyPresent}.`
       );
     }
 
@@ -1520,6 +1929,8 @@ form.onsubmit=async e=>{
   }
   publishButton.disabled=true;publishButton.textContent="Salvataggio…";
   try{
+    await ensureBusinessPosition();
+
     const media=await mediaUrls();
     const payload={
       user_id:user?.id||"preview-user",piano:"free",
@@ -1551,13 +1962,30 @@ form.onsubmit=async e=>{
       const {error:uerr}=await sb.auth.updateUser({data:{onboarding_azienda_completato:true,piano_attivo:"free",nome_attivita:payload.nome_attivita}});
       if(uerr)throw uerr;
     }
+    if(!PREVIEW_MODE){
+      window.location.href="dashboard-professionista-free.html";
+      return;
+    }
+
     form.style.display="none";
     const successPanel=document.getElementById("successPanel");
     successPanel.classList.add("show");
     successPanel.scrollIntoView({behavior:"smooth",block:"center"});
   }catch(err){
     console.error(err);
-    msg("Errore durante il salvataggio: "+(err.message||"Riprova. Se è il primo avvio, esegui beautyslot-free-schema.sql su Supabase."),"error");
+
+    const errorText =
+      err?.message || "Errore durante il salvataggio.";
+
+    const isLocationError =
+      /indirizzo|coordinate|posizione|verifica/i.test(errorText);
+
+    msg(
+      isLocationError
+        ? errorText
+        : "Errore durante il salvataggio: " + errorText,
+      "error"
+    );
   }finally{
     publishButton.disabled=false;publishButton.textContent="Salva e pubblica la mia attività";
   }
@@ -1570,12 +1998,35 @@ async function init(){
     prefill();return;
   }
   const {data:{user:u},error}=await sb.auth.getUser();
-  if(error||!u){msg("Sessione non disponibile. Apri questa pagina dal link di conferma ricevuto via email.","error");publishButton.disabled=true;return}
+  if(error||!u){msg("Sessione non disponibile. Accedi nuovamente al tuo account professionista.","error");publishButton.disabled=true;return}
   user=u;
   const m=u.user_metadata||{};
   if(m.tipo_utente!=="professionista"){location.href="index.html";return}
-  if(String(m.piano_scelto||"").toLowerCase()!=="free"){location.href="login.html";return}
+
+  const plan=String(
+    m.piano_attivo || m.piano_scelto || "free"
+  ).toLowerCase();
+
+  if(plan!=="free"){location.href="login.html";return}
+
   prefill();
+
+  if(EDIT_MODE){
+    const {data:profile,error:profileError}=await sb
+      .from("beautyslot_professionisti")
+      .select("*")
+      .eq("user_id",u.id)
+      .maybeSingle();
+
+    if(profileError){
+      msg("Non è stato possibile caricare i dati della tua attività. " + profileError.message,"error");
+      return;
+    }
+
+    if(profile){
+      applyExistingProfile(profile);
+    }
+  }
 }
 init();
 </script>
