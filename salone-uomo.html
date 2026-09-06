@@ -464,10 +464,6 @@
       color:#526570;
     }
 
-    .specialties-copy strong{
-      color:var(--rose-dark);
-      font-weight:600;
-    }
 
     .calendar-box{
       margin-top:20px;
@@ -639,7 +635,7 @@
 
         <section class="specialties-box">
           <div class="label">Specializzazioni</div>
-          <div class="specialties-copy" id="specialtiesText"><strong>Specializzati in</strong> —</div>
+          <div class="specialties-copy" id="specialtiesText">Specializzati in —</div>
         </section>
 
 
@@ -1241,22 +1237,10 @@
           ? salon.specialties.map(value=>String(value).trim()).filter(Boolean)
           : [];
 
-      specialtiesText.innerHTML = "";
-
-      const specialtiesPrefix =
-        document.createElement("strong");
-
-      specialtiesPrefix.textContent =
-        "Specializzati in";
-
-      specialtiesText.appendChild(specialtiesPrefix);
-      specialtiesText.appendChild(
-        document.createTextNode(
-          specialties.length
-            ? " " + specialties.join(", ")
-            : " —"
-        )
-      );
+      specialtiesText.textContent =
+        specialties.length
+          ? "Specializzati in " + specialties.join(", ")
+          : "Specializzati in —";
     }
 
     function closeWorkLightbox(){
