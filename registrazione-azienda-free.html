@@ -651,6 +651,126 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
   z-index:5;
 }
 
+
+.actions{
+  text-align:center;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(201,127,145,.045),
+      rgba(255,255,255,0) 42%,
+      rgba(133,175,209,.05)
+    ),
+    #fff;
+  box-shadow:0 12px 34px rgba(70,68,64,.035);
+}
+
+.publish{
+  width:min(520px,100%);
+  min-height:54px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 24px;
+  border:1px solid rgba(159,98,113,.20);
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--rose-dark),var(--blue-dark));
+  color:#fff;
+  box-shadow:0 10px 28px rgba(95,136,170,.12);
+  cursor:pointer;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  transition:.18s ease;
+}
+
+.publish:hover{
+  transform:translateY(-1px);
+  box-shadow:0 13px 32px rgba(95,136,170,.17);
+}
+
+.publish:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.message{
+  min-height:18px;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.55;
+}
+
+.message.error{
+  color:var(--danger);
+}
+
+.success{
+  display:none;
+  max-width:760px;
+  margin:26px auto 0;
+  padding:36px 28px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 22% 18%,rgba(201,127,145,.08),transparent 34%),
+    radial-gradient(circle at 78% 18%,rgba(133,175,209,.08),transparent 34%),
+    #fff;
+  box-shadow:0 18px 48px rgba(70,68,64,.06);
+  text-align:center;
+}
+
+.success.show{
+  display:block;
+}
+
+.success h2{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(30px,5vw,42px);
+  line-height:1.1;
+  font-weight:400;
+  color:var(--rose-dark);
+}
+
+.success p{
+  max-width:610px;
+  margin:13px auto 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+}
+
+.success a{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:21px;
+  padding:0 24px;
+  border:1px solid rgba(159,98,113,.18);
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--rose-dark),var(--blue-dark));
+  color:#fff;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:.18s ease;
+}
+
+.success a:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(95,136,170,.13);
+}
+
 @media(max-width:760px){
   .upload-grid{
     grid-template-columns:1fr;
@@ -1431,7 +1551,10 @@ form.onsubmit=async e=>{
       const {error:uerr}=await sb.auth.updateUser({data:{onboarding_azienda_completato:true,piano_attivo:"free",nome_attivita:payload.nome_attivita}});
       if(uerr)throw uerr;
     }
-    form.style.display="none";document.getElementById("successPanel").classList.add("show");window.scrollTo({top:0,behavior:"smooth"});
+    form.style.display="none";
+    const successPanel=document.getElementById("successPanel");
+    successPanel.classList.add("show");
+    successPanel.scrollIntoView({behavior:"smooth",block:"center"});
   }catch(err){
     console.error(err);
     msg("Errore durante il salvataggio: "+(err.message||"Riprova. Se è il primo avvio, esegui beautyslot-free-schema.sql su Supabase."),"error");

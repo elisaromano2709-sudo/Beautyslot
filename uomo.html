@@ -373,6 +373,10 @@
       width:100%;
       min-height:44px;
       margin-top:17px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-decoration:none;
       border:1px solid rgba(134,171,199,.42);
       border-radius:999px;
       background:#fff;
@@ -1209,7 +1213,7 @@
           <h3>Gentlemen Barber</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Taglio uomo, barba, rasatura tradizionale e cura del look.</p>
-          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=barber-01'">Scopri il salone</button>
+          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=barber-01'">Scopri salone</button>
         </div>
       </article>
 
@@ -1227,7 +1231,7 @@
           <h3>Urban Hair Men</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Taglio, styling, colore e trattamenti specifici per capelli uomo.</p>
-          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=hairman-01'">Scopri il salone</button>
+          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=hairman-01'">Scopri salone</button>
         </div>
       </article>
 
@@ -1245,7 +1249,7 @@
           <h3>Man Wellness</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Massaggi, trattamenti corpo, relax e percorsi benessere uomo.</p>
-          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=wellness-01'">Scopri il centro</button>
+          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=wellness-01'">Scopri centro</button>
         </div>
       </article>
 
@@ -1263,7 +1267,7 @@
           <h3>The Barber Club</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Sfumature, barba, taglio classico e moderno, styling professionale.</p>
-          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=barber-02'">Scopri il salone</button>
+          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=barber-02'">Scopri salone</button>
         </div>
       </article>
 
@@ -1281,7 +1285,7 @@
           <h3>Man Style Studio</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.6</span></div>
           <p class="shop-desc">Taglio, styling e trattamenti personalizzati per capelli e cuoio capelluto.</p>
-          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=hairman-02'">Scopri il salone</button>
+          <button class="book" type="button" onclick="window.location.href='salone-uomo.html?id=hairman-02'">Scopri salone</button>
         </div>
       </article>
 
@@ -2088,9 +2092,7 @@
         if(!card) return "";
 
         const href =
-          card.dataset.free === "true" && card.dataset.phone
-            ? "tel:" + card.dataset.phone
-            : "salone-uomo.html?id=" + encodeURIComponent(id);
+          "salone-uomo.html?id=" + encodeURIComponent(id);
 
         return `
           <a class="favorite-item" href="${href}">
@@ -2178,10 +2180,25 @@
         const categories = Array.isArray(item.categorie) ? item.categorie : [];
         const pubblico = String(item.pubblico || "").toLowerCase();
 
-        if(categories.includes("Benessere")) return true;
-        if(categories.includes("Barbiere")) return true;
+        const isBarber =
+          categories.includes("Barbiere");
 
-        if(categories.includes("Parrucchiere")){
+        const isHairdresser =
+          categories.includes("Parrucchiere");
+
+        const isWellnessOnly =
+          categories.length === 1 &&
+          categories.includes("Benessere");
+
+        if(isBarber){
+          return true;
+        }
+
+        if(isHairdresser){
+          return pubblico === "uomo" || pubblico === "unisex";
+        }
+
+        if(isWellnessOnly){
           return pubblico === "uomo" || pubblico === "unisex";
         }
 
@@ -2213,19 +2230,15 @@
             [item.comune,item.provincia].filter(Boolean).join(" · ") ||
             "Attività Beautyslot";
 
-          let contactButton = "";
+          const discoverLabel = "Scopri salone";
 
-          if(phone){
-            contactButton =
-              '<a class="book" href="tel:' +
-              freeEscapeHtml(phone) +
-              '">Chiama</a>';
-          }else if(email){
-            contactButton =
-              '<a class="book" href="mailto:' +
-              freeEscapeHtml(email) +
-              '">Contatta</a>';
-          }
+          const detailButton =
+            '<button class="book" type="button" ' +
+            'onclick="window.location.href=\'salone-uomo.html?id=' +
+            encodeURIComponent(id) +
+            '\'">' +
+            discoverLabel +
+            '</button>';
 
           const card = document.createElement("article");
           card.className = "shop-card";
@@ -2271,7 +2284,7 @@
                 item.descrizione || "Profilo professionale su Beautyslot."
               )}</p>
 
-              ${contactButton}
+              ${detailButton}
             </div>
           `;
 

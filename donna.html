@@ -1214,7 +1214,7 @@
           <h3>Atelier Hair</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Taglio, piega, colore e trattamenti professionali per capelli.</p>
-          <a class="book" href="salone-donna.html?id=hair-01&v=20260903-navfix2">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=hair-01&v=20260903-navfix2">Scopri salone</a>
         </div>
       </article>
 
@@ -1232,7 +1232,7 @@
           <h3>Maison Beauty</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Viso, corpo, ceretta, sopracciglia e trattamenti estetici.</p>
-          <a class="book" href="salone-donna.html?id=beauty-01&v=20260903-navfix2">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=beauty-01&v=20260903-navfix2">Scopri centro</a>
         </div>
       </article>
 
@@ -1250,7 +1250,7 @@
           <h3>Nails Studio</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.7</span></div>
           <p class="shop-desc">Manicure, gel, semipermanente, ricostruzione e nail art.</p>
-          <a class="book" href="salone-donna.html?id=nails-01&v=20260903-navfix2">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=nails-01&v=20260903-navfix2">Scopri salone</a>
         </div>
       </article>
 
@@ -1268,7 +1268,7 @@
           <h3>Skin & Wellness</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.9</span></div>
           <p class="shop-desc">Laser, epilazione, sopracciglia e percorsi benessere.</p>
-          <a class="book" href="salone-donna.html?id=wellness-01&v=20260903-navfix2">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=wellness-01&v=20260903-navfix2">Scopri centro</a>
         </div>
       </article>
 
@@ -1286,7 +1286,7 @@
           <h3>Blush Hair Lab</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.8</span></div>
           <p class="shop-desc">Styling, balayage, colore e cura personalizzata dei capelli.</p>
-          <a class="book" href="salone-donna.html?id=hair-02&v=20260903-navfix2">Scopri il salone</a>
+          <a class="book" href="salone-donna.html?id=hair-02&v=20260903-navfix2">Scopri salone</a>
         </div>
       </article>
 
@@ -1304,7 +1304,7 @@
           <h3>Pure Beauty</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.6</span></div>
           <p class="shop-desc">Trattamenti viso e corpo, epilazione e cura dello sguardo.</p>
-          <a class="book" href="salone-donna.html?id=beauty-02&v=20260903-navfix2">Scopri il centro</a>
+          <a class="book" href="salone-donna.html?id=beauty-02&v=20260903-navfix2">Scopri centro</a>
         </div>
       </article>
 
@@ -1322,7 +1322,7 @@
           <h3>Aura Beauty Studio</h3>
           <div class="shop-meta"><span>Centro estetico</span><span>★ 4.8</span></div>
           <p class="shop-desc">Unghie, manicure, semipermanente, gel, pedicure, ceretta, sopracciglia, viso e trattamenti corpo.</p>
-          <a class="book" href="calendario-donna.html?id=beauty-test-01">Apri il calendario</a>
+          <a class="book" href="salone-donna.html?id=beauty-test-01">Scopri centro</a>
         </div>
       </article>
 
@@ -2132,9 +2132,7 @@
         if(!card) return "";
 
         const href =
-          card.dataset.free === "true" && card.dataset.phone
-            ? "tel:" + card.dataset.phone
-            : "salone-donna.html?id=" + encodeURIComponent(id);
+          "salone-donna.html?id=" + encodeURIComponent(id);
 
         return `
           <a class="favorite-item" href="${href}">
@@ -2222,18 +2220,28 @@
         const categories = Array.isArray(item.categorie) ? item.categorie : [];
         const pubblico = String(item.pubblico || "").toLowerCase();
 
-        if(categories.includes("Benessere")) return true;
-
-        if(
+        const femaleOnlyCategory =
           categories.includes("Estetista") ||
           categories.includes("Unghie") ||
           categories.includes("Ciglia e sopracciglia") ||
-          categories.includes("Make-up")
-        ){
+          categories.includes("Make-up");
+
+        const isHairdresser =
+          categories.includes("Parrucchiere");
+
+        const isWellnessOnly =
+          categories.length === 1 &&
+          categories.includes("Benessere");
+
+        if(femaleOnlyCategory){
           return true;
         }
 
-        if(categories.includes("Parrucchiere")){
+        if(isHairdresser){
+          return pubblico === "donna" || pubblico === "unisex";
+        }
+
+        if(isWellnessOnly){
           return pubblico === "donna" || pubblico === "unisex";
         }
 
@@ -2266,19 +2274,15 @@
             [item.comune,item.provincia].filter(Boolean).join(" · ") ||
             "Attività Beautyslot";
 
-          let contactButton = "";
+          const discoverLabel = "Scopri salone";
 
-          if(phone){
-            contactButton =
-              '<a class="book" href="tel:' +
-              freeEscapeHtml(phone) +
-              '">Chiama</a>';
-          }else if(email){
-            contactButton =
-              '<a class="book" href="mailto:' +
-              freeEscapeHtml(email) +
-              '">Contatta</a>';
-          }
+          const detailButton =
+            '<button class="book" type="button" ' +
+            'onclick="window.location.href=\'salone-donna.html?id=' +
+            encodeURIComponent(id) +
+            '\'">' +
+            discoverLabel +
+            '</button>';
 
           const card = document.createElement("article");
           card.className = "shop-card";
@@ -2324,7 +2328,7 @@
                 item.descrizione || "Profilo professionale su Beautyslot."
               )}</p>
 
-              ${contactButton}
+              ${detailButton}
             </div>
           `;
 
