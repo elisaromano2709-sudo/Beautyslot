@@ -12,9 +12,12 @@
       --bg:#f8f2f2;
       --bg-soft:#fbf7f7;
       --card:#ffffff;
+
+      /* Colore attivo dashboard: viene aggiornato dal profilo professionista */
       --rose:#c98291;
       --rose-dark:#9f6671;
       --rose-soft:#f7e9ec;
+
       --text:#554e50;
       --muted:#8d8285;
       --line:rgba(120,91,98,.14);
@@ -22,6 +25,92 @@
       --green-soft:#edf6f0;
       --gold:#c89b42;
       --shadow:0 20px 55px rgba(75,55,60,.08);
+    }
+
+    body.theme-pink{
+      --bg:#f7ecec;
+      --bg-soft:#fbf4f5;
+      --rose:#c97f91;
+      --rose-dark:#9f6271;
+      --rose-soft:#f6e5e9;
+      --line:rgba(201,127,145,.18);
+      --shadow:0 20px 55px rgba(120,75,85,.09);
+      background:
+        radial-gradient(circle at 20% 0%,rgba(201,127,145,.17),transparent 31%),
+        linear-gradient(180deg,#fff 0%,#f7ecec 100%);
+    }
+
+    body.theme-blue{
+      --bg:#eef5fa;
+      --bg-soft:#f5f9fc;
+      --rose:#85afd1;
+      --rose-dark:#5f88aa;
+      --rose-soft:#e8f1f8;
+      --line:rgba(133,175,209,.20);
+      --shadow:0 20px 55px rgba(74,105,130,.09);
+      background:
+        radial-gradient(circle at 20% 0%,rgba(133,175,209,.18),transparent 31%),
+        linear-gradient(180deg,#fff 0%,#eef5fa 100%);
+    }
+
+    body.theme-mixed{
+      --bg:#ffffff;
+      --bg-soft:#ffffff;
+      --rose:#9c8fa9;
+      --rose-dark:#7d718d;
+      --rose-soft:#f5f1f7;
+      --line:rgba(100,96,90,.16);
+      --shadow:0 20px 55px rgba(70,68,64,.08);
+      background:
+        radial-gradient(circle at 30% 35%,rgba(201,127,145,.15),transparent 31%),
+        radial-gradient(circle at 72% 42%,rgba(133,175,209,.16),transparent 33%),
+        #ffffff;
+    }
+
+    body.theme-mixed .welcome-card{
+      background:
+        radial-gradient(circle at 16% 18%,rgba(201,127,145,.13),transparent 31%),
+        radial-gradient(circle at 90% 20%,rgba(133,175,209,.14),transparent 32%),
+        rgba(255,255,255,.94);
+    }
+
+    body.theme-mixed .top-plan{
+      background:
+        linear-gradient(
+          90deg,
+          rgba(201,127,145,.15),
+          rgba(133,175,209,.15)
+        );
+      color:#766d78;
+    }
+
+    body.theme-mixed .business-logo,
+    body.theme-mixed .lock-icon{
+      background:
+        linear-gradient(
+          135deg,
+          rgba(201,127,145,.16),
+          rgba(133,175,209,.16)
+        );
+      color:#786d7b;
+    }
+
+    body.theme-mixed .button.primary{
+      background:
+        linear-gradient(
+          90deg,
+          #b87888,
+          #759fbe
+        );
+    }
+
+    body.theme-mixed .switch input:checked + .switch-track{
+      background:
+        linear-gradient(
+          90deg,
+          #c97f91,
+          #85afd1
+        );
     }
 
     *{box-sizing:border-box}
@@ -1102,6 +1191,61 @@
       if(showUomo)return "Uomo";
       return "—";
     }
+    function dashboardTheme(profile){
+      const categories=normalizeCategories(profile?.categorie);
+      const pubblico=String(profile?.pubblico||"unisex").toLowerCase();
+
+      // MIXED: esattamente per Benessere oppure Parrucchiere Unisex.
+      if(
+        categories.includes("Benessere") ||
+        (
+          categories.includes("Parrucchiere") &&
+          pubblico==="unisex"
+        )
+      ){
+        return "mixed";
+      }
+
+      // ROSA: Parrucchiere Donna + categorie femminili.
+      if(
+        (
+          categories.includes("Parrucchiere") &&
+          pubblico==="donna"
+        ) ||
+        categories.includes("Estetista") ||
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up")
+      ){
+        return "pink";
+      }
+
+      // AZZURRA: Parrucchiere Uomo + Barbiere.
+      if(
+        (
+          categories.includes("Parrucchiere") &&
+          pubblico==="uomo"
+        ) ||
+        categories.includes("Barbiere")
+      ){
+        return "blue";
+      }
+
+      return "mixed";
+    }
+
+    function applyDashboardTheme(profile){
+      const theme=dashboardTheme(profile);
+
+      document.body.classList.remove(
+        "theme-pink",
+        "theme-blue",
+        "theme-mixed"
+      );
+
+      document.body.classList.add("theme-" + theme);
+    }
+
 
     function fullAddress(profile){
       return [
@@ -1270,6 +1414,8 @@
 
     function renderBusiness(user,profile){
       business=profile;
+
+      applyDashboardTheme(profile);
 
       const metadata=user?.user_metadata || {};
       const firstName=
