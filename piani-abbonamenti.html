@@ -231,6 +231,12 @@
       font-size:10px;
       color:var(--muted);
     }
+    /* Modalità informativa: accesso dal lucchetto calendario della dashboard.
+       Mostra soltanto piani e funzioni, senza possibilità di attivazione/cambio piano. */
+    body.info-only .trial-banner{display:none}
+    body.info-only .choose,
+    body.info-only .trial-action,
+    body.info-only .trial-note{display:none !important}
     .bottom-note{
       margin-top:18px;
       padding:18px 20px;
@@ -257,8 +263,8 @@
 
     <section class="hero">
       <div class="kicker">Piani professionisti</div>
-      <h1>Scegli il tuo abbonamento</h1>
-      <p>
+      <h1 id="plansTitle">Scegli il tuo abbonamento</h1>
+      <p id="plansIntro">
         Scegli prima il piano più adatto alla tua attività. Dopo la scelta passerai alla registrazione professionista.
       </p>
     </section>
@@ -408,5 +414,28 @@
       Nessuna commissione sulle prenotazioni. I tuoi clienti e i tuoi guadagni rimangono tuoi.
     </div>
   </main>
+
+  <script>
+    (function(){
+      const params = new URLSearchParams(window.location.search);
+      const infoOnly = params.get("modalita") === "informativa";
+
+      if(!infoOnly) return;
+
+      document.body.classList.add("info-only");
+
+      const title = document.getElementById("plansTitle");
+      const intro = document.getElementById("plansIntro");
+
+      if(title){
+        title.textContent = "Scopri i piani Beautyslot";
+      }
+
+      if(intro){
+        intro.textContent =
+          "Confronta i piani e le funzioni disponibili. Per cambiare abbonamento torna alla dashboard e usa il pulsante Cambia piano.";
+      }
+    })();
+  </script>
 </body>
 </html>
