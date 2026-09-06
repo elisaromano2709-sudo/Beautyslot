@@ -1308,7 +1308,7 @@
         </div>
       </article>
 
-      <article class="shop-card" data-id="nails-01" data-category="unghie" data-name="Nails Studio">
+      <article class="shop-card" data-id="nails-01" data-category="nail-artist" data-name="Nails Studio">
         <div class="shop-image">
           <button class="fav-btn" aria-label="Aggiungi ai preferiti">
             <svg viewBox="0 0 24 24">
@@ -1318,7 +1318,7 @@
           <div class="shop-mark">NS</div>
         </div>
         <div class="shop-body">
-          <span class="category">Unghie</span>
+          <span class="category">Nail Artist</span>
           <h3>Nails Studio</h3>
           <div class="shop-meta"><span>Vicino a te</span><span>★ 4.7</span></div>
           <p class="shop-desc">Manicure, gel, semipermanente, ricostruzione e nail art.</p>
@@ -1413,7 +1413,9 @@
         <button class="menu-item active" data-filter="all">Tutti</button>
         <button class="menu-item" data-filter="parrucchiere">Parrucchiere</button>
         <button class="menu-item" data-filter="estetista">Estetista</button>
-        <button class="menu-item" data-filter="unghie">Unghie</button>
+        <button class="menu-item" data-filter="nail-artist">Nail Artist</button>
+        <button class="menu-item" data-filter="lash-maker">Lash Maker</button>
+        <button class="menu-item" data-filter="make-up">Make-up</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
 
@@ -1441,7 +1443,9 @@
         <button class="map-chip active" data-map-filter="tutti">Tutti</button>
         <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
         <button class="map-chip" data-map-filter="estetista">Estetiste</button>
-        <button class="map-chip" data-map-filter="unghie">Unghie</button>
+        <button class="map-chip" data-map-filter="nail-artist">Nail Artist</button>
+        <button class="map-chip" data-map-filter="lash-maker">Lash Maker</button>
+        <button class="map-chip" data-map-filter="make-up">Make-up</button>
         <button class="map-chip" data-map-filter="benessere">Benessere</button>
         <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
       </div>
@@ -2524,28 +2528,23 @@
         const categories = Array.isArray(item.categorie) ? item.categorie : [];
         const pubblico = String(item.pubblico || "").toLowerCase();
 
-        const femaleOnlyCategory =
+        const automaticDonna =
           categories.includes("Estetista") ||
+          categories.includes("Nail Artist") ||
           categories.includes("Unghie") ||
+          categories.includes("Lash Maker") ||
           categories.includes("Ciglia e sopracciglia") ||
-          categories.includes("Make-up");
+          categories.includes("Make-up") ||
+          categories.includes("Benessere");
 
         const isHairdresser =
           categories.includes("Parrucchiere");
 
-        const isWellnessOnly =
-          categories.length === 1 &&
-          categories.includes("Benessere");
-
-        if(femaleOnlyCategory){
+        if(automaticDonna){
           return true;
         }
 
         if(isHairdresser){
-          return pubblico === "donna" || pubblico === "unisex";
-        }
-
-        if(isWellnessOnly){
           return pubblico === "donna" || pubblico === "unisex";
         }
 
@@ -2563,8 +2562,11 @@
 
         let dataCategory = "estetista";
         if(categories.includes("Parrucchiere")) dataCategory = "parrucchiere";
-        else if(categories.includes("Unghie")) dataCategory = "unghie";
+        else if(categories.includes("Nail Artist") || categories.includes("Unghie")) dataCategory = "nail-artist";
+        else if(categories.includes("Lash Maker") || categories.includes("Ciglia e sopracciglia")) dataCategory = "lash-maker";
+        else if(categories.includes("Make-up")) dataCategory = "make-up";
         else if(categories.includes("Benessere")) dataCategory = "benessere";
+        else if(categories.includes("Estetista")) dataCategory = "estetista";
 
           const image =
             item.logo_url ||

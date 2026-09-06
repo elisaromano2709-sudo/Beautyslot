@@ -1068,11 +1068,39 @@
       },2600);
     }
 
-    function audienceLabel(value){
-      const v=String(value||"unisex").toLowerCase();
-      if(v==="donna")return "Donna";
-      if(v==="uomo")return "Uomo";
-      return "Unisex";
+    function normalizeCategories(categories){
+      return (Array.isArray(categories) ? categories : []).map(category=>{
+        if(category==="Unghie")return "Nail Artist";
+        if(category==="Ciglia e sopracciglia")return "Lash Maker";
+        return category;
+      });
+    }
+
+    function audienceLabel(profile){
+      const categories=normalizeCategories(profile?.categorie);
+      const pubblico=String(profile?.pubblico||"unisex").toLowerCase();
+
+      let showDonna=
+        categories.includes("Estetista") ||
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up") ||
+        categories.includes("Benessere");
+
+      let showUomo=
+        categories.includes("Barbiere") ||
+        categories.includes("Estetista") ||
+        categories.includes("Benessere");
+
+      if(categories.includes("Parrucchiere")){
+        if(pubblico==="donna" || pubblico==="unisex")showDonna=true;
+        if(pubblico==="uomo" || pubblico==="unisex")showUomo=true;
+      }
+
+      if(showDonna && showUomo)return "Donna e Uomo";
+      if(showDonna)return "Donna";
+      if(showUomo)return "Uomo";
+      return "—";
     }
 
     function fullAddress(profile){
@@ -1175,22 +1203,20 @@
     }
 
     function canShowDonna(profile){
-      const categories=Array.isArray(profile.categorie) ? profile.categorie : [];
+      const categories=normalizeCategories(profile.categorie);
       const pubblico=String(profile.pubblico||"unisex").toLowerCase();
 
-      const femaleOnly=
+      if(
         categories.includes("Estetista") ||
-        categories.includes("Unghie") ||
-        categories.includes("Ciglia e sopracciglia") ||
-        categories.includes("Make-up");
-
-      if(femaleOnly)return true;
-
-      if(categories.includes("Parrucchiere")){
-        return pubblico==="donna" || pubblico==="unisex";
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up") ||
+        categories.includes("Benessere")
+      ){
+        return true;
       }
 
-      if(categories.length===1 && categories.includes("Benessere")){
+      if(categories.includes("Parrucchiere")){
         return pubblico==="donna" || pubblico==="unisex";
       }
 
@@ -1198,16 +1224,18 @@
     }
 
     function canShowUomo(profile){
-      const categories=Array.isArray(profile.categorie) ? profile.categorie : [];
+      const categories=normalizeCategories(profile.categorie);
       const pubblico=String(profile.pubblico||"unisex").toLowerCase();
 
-      if(categories.includes("Barbiere"))return true;
-
-      if(categories.includes("Parrucchiere")){
-        return pubblico==="uomo" || pubblico==="unisex";
+      if(
+        categories.includes("Barbiere") ||
+        categories.includes("Estetista") ||
+        categories.includes("Benessere")
+      ){
+        return true;
       }
 
-      if(categories.length===1 && categories.includes("Benessere")){
+      if(categories.includes("Parrucchiere")){
         return pubblico==="uomo" || pubblico==="unisex";
       }
 
@@ -1273,9 +1301,11 @@
       document.getElementById("detailName").textContent=
         profile.nome_attivita || "—";
 
+      const normalizedCategories=normalizeCategories(profile.categorie);
+
       document.getElementById("detailCategories").textContent=
-        Array.isArray(profile.categorie) && profile.categorie.length
-          ? profile.categorie.join(" · ")
+        normalizedCategories.length
+          ? normalizedCategories.join(" · ")
           : "—";
 
       document.getElementById("detailPhone").textContent=
@@ -1288,7 +1318,7 @@
         fullAddress(profile) || "—";
 
       document.getElementById("detailAudience").textContent=
-        audienceLabel(profile.pubblico);
+        audienceLabel(profile);
 
       document.getElementById("detailInstagram").textContent=
         profile.instagram || "—";

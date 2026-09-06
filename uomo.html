@@ -1372,6 +1372,7 @@
       <div class="menu-list">
         <button class="menu-item" data-filter="barbiere">Barbiere</button>
         <button class="menu-item" data-filter="parrucchiere">Parrucchiere</button>
+        <button class="menu-item" data-filter="estetista">Estetista</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
 
@@ -1399,6 +1400,7 @@
         <button class="map-chip active" data-map-filter="tutti">Tutti</button>
         <button class="map-chip" data-map-filter="barbiere">Barbieri</button>
         <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
+        <button class="map-chip" data-map-filter="estetista">Estetista</button>
         <button class="map-chip" data-map-filter="benessere">Benessere</button>
         <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
       </div>
@@ -2481,25 +2483,19 @@
         const categories = Array.isArray(item.categorie) ? item.categorie : [];
         const pubblico = String(item.pubblico || "").toLowerCase();
 
-        const isBarber =
-          categories.includes("Barbiere");
+        const automaticUomo =
+          categories.includes("Barbiere") ||
+          categories.includes("Estetista") ||
+          categories.includes("Benessere");
 
         const isHairdresser =
           categories.includes("Parrucchiere");
 
-        const isWellnessOnly =
-          categories.length === 1 &&
-          categories.includes("Benessere");
-
-        if(isBarber){
+        if(automaticUomo){
           return true;
         }
 
         if(isHairdresser){
-          return pubblico === "uomo" || pubblico === "unisex";
-        }
-
-        if(isWellnessOnly){
           return pubblico === "uomo" || pubblico === "unisex";
         }
 
@@ -2517,7 +2513,9 @@
 
         let dataCategory = "parrucchiere";
         if(categories.includes("Barbiere")) dataCategory = "barbiere";
+        else if(categories.includes("Estetista")) dataCategory = "estetista";
         else if(categories.includes("Benessere")) dataCategory = "benessere";
+        else if(categories.includes("Parrucchiere")) dataCategory = "parrucchiere";
 
           const image =
             item.logo_url ||

@@ -861,8 +861,8 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
         <label class="choice"><input type="checkbox" value="Parrucchiere" id="categoryParrucchiere"><span>Parrucchiere</span></label>
         <label class="choice"><input type="checkbox" value="Barbiere"><span>Barbiere</span></label>
         <label class="choice"><input type="checkbox" value="Estetista"><span>Estetista</span></label>
-        <label class="choice"><input type="checkbox" value="Unghie"><span>Unghie / Nail</span></label>
-        <label class="choice"><input type="checkbox" value="Ciglia e sopracciglia"><span>Ciglia e sopracciglia</span></label>
+        <label class="choice"><input type="checkbox" value="Nail Artist"><span>Nail Artist</span></label>
+        <label class="choice"><input type="checkbox" value="Lash Maker"><span>Lash Maker</span></label>
         <label class="choice"><input type="checkbox" value="Make-up"><span>Make-up</span></label>
         <label class="choice"><input type="checkbox" value="Benessere"><span>Benessere</span></label>
       </div>
@@ -1345,7 +1345,12 @@ function applyExistingProfile(profile){
   }
 
   const selectedCategories=
-    Array.isArray(profile.categorie) ? profile.categorie : [];
+    (Array.isArray(profile.categorie) ? profile.categorie : [])
+      .map(category=>{
+        if(category==="Unghie")return "Nail Artist";
+        if(category==="Ciglia e sopracciglia")return "Lash Maker";
+        return category;
+      });
 
   categoryInputs.forEach(input=>{
     input.checked=selectedCategories.includes(input.value);
@@ -1423,18 +1428,31 @@ const categoryInputs = [
 function clientelaMode(){
   const categories = getCategories();
 
-  if(categories.includes("Parrucchiere")){
-    return "parrucchiere";
-  }
+  return categories.includes("Parrucchiere")
+    ? "parrucchiere"
+    : "";
+}
 
-  if(
-    categories.length === 1 &&
-    categories.includes("Benessere")
-  ){
-    return "benessere";
-  }
+function automaticAudience(categories){
+  const list=Array.isArray(categories) ? categories : [];
 
-  return "";
+  const showDonna =
+    list.includes("Estetista") ||
+    list.includes("Nail Artist") ||
+    list.includes("Lash Maker") ||
+    list.includes("Make-up") ||
+    list.includes("Benessere");
+
+  const showUomo =
+    list.includes("Barbiere") ||
+    list.includes("Estetista") ||
+    list.includes("Benessere");
+
+  if(showDonna && showUomo)return "unisex";
+  if(showDonna)return "donna";
+  if(showUomo)return "uomo";
+
+  return "unisex";
 }
 
 function updateClientela(){
@@ -1449,10 +1467,6 @@ function updateClientela(){
     clientelaTitle.textContent = "Clientela parrucchiere";
     clientelaHelp.textContent =
       "Donna = pagina Donna, Uomo = pagina Uomo, Unisex = entrambe.";
-  }else if(mode === "benessere"){
-    clientelaTitle.textContent = "Clientela benessere";
-    clientelaHelp.textContent =
-      "Benessere selezionato da solo: scegli Donna, Uomo o Unisex.";
   }
 
   if(active){
@@ -1919,9 +1933,7 @@ form.onsubmit=async e=>{
     !document.querySelector('input[name="pubblico"]:checked')
   ){
     msg(
-      mode === "parrucchiere"
-        ? "Se hai scelto Parrucchiere, indica se la clientela è Donna, Uomo o Unisex."
-        : "Se hai scelto solo Benessere, indica se la clientela è Donna, Uomo o Unisex.",
+      "Se hai scelto Parrucchiere, indica se la clientela è Donna, Uomo o Unisex.",
       "error"
     );
     clientelaBox.scrollIntoView({behavior:"smooth",block:"center"});
@@ -1949,7 +1961,7 @@ form.onsubmit=async e=>{
       latitude,longitude,
       pubblico:clientelaMode()
         ? (document.querySelector('input[name="pubblico"]:checked')?.value || "unisex")
-        : "unisex",
+        : automaticAudience(categories),
       categorie:categories,
       specializzazioni:document.getElementById("specializzazioni").value.split(",").map(x=>x.trim()).filter(Boolean),
       orari:getHours(),
