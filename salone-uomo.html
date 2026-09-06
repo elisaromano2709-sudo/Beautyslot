@@ -449,6 +449,26 @@
     .time{color:#4b5e69;font-weight:500}
 
 
+    .specialties-box{
+      margin-top:16px;
+      padding:22px;
+      border:1px solid var(--line);
+      border-radius:21px;
+      background:rgba(255,255,255,.58);
+    }
+
+    .specialties-copy{
+      margin-top:10px;
+      font-size:14px;
+      line-height:1.65;
+      color:#526570;
+    }
+
+    .specialties-copy strong{
+      color:var(--rose-dark);
+      font-weight:600;
+    }
+
     .calendar-box{
       margin-top:20px;
       padding:22px;
@@ -615,6 +635,11 @@
         <section class="hours">
           <div class="label">Orari di apertura</div>
           <div class="hours-list" id="hoursList"></div>
+        </section>
+
+        <section class="specialties-box">
+          <div class="label">Specializzazioni</div>
+          <div class="specialties-copy" id="specialtiesText"><strong>Specializzati in</strong> —</div>
         </section>
 
 
@@ -882,6 +907,7 @@
         "telefono",
         "instagram",
         "categorie",
+        "specializzazioni",
         "orari",
         "logo_url",
         "gallery_urls",
@@ -946,6 +972,13 @@
             ? item.gallery_urls.filter(Boolean).slice(0,6)
             : [],
         initials:makeInitials(item.nome_attivita),
+        specialties:
+          Array.isArray(item.specializzazioni)
+            ? item.specializzazioni.map(value=>String(value).trim()).filter(Boolean)
+            : String(item.specializzazioni || "")
+                .split(",")
+                .map(value=>value.trim())
+                .filter(Boolean),
         hours:formatHours(item.orari)
       };
     }
@@ -1199,6 +1232,31 @@
 
           hoursList.appendChild(row);
         });
+
+      const specialtiesText =
+        document.getElementById("specialtiesText");
+
+      const specialties =
+        Array.isArray(salon.specialties)
+          ? salon.specialties.map(value=>String(value).trim()).filter(Boolean)
+          : [];
+
+      specialtiesText.innerHTML = "";
+
+      const specialtiesPrefix =
+        document.createElement("strong");
+
+      specialtiesPrefix.textContent =
+        "Specializzati in";
+
+      specialtiesText.appendChild(specialtiesPrefix);
+      specialtiesText.appendChild(
+        document.createTextNode(
+          specialties.length
+            ? " " + specialties.join(", ")
+            : " —"
+        )
+      );
     }
 
     function closeWorkLightbox(){
