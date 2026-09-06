@@ -885,7 +885,11 @@
             emailRedirectTo:
               tipo === "cliente"
                 ? "https://beauty-slot.it/scelta-trattamenti.html"
-                : "https://beauty-slot.it/login.html",
+                : (
+                    selectedPlan === "free"
+                      ? "https://beauty-slot.it/registrazione-azienda-free.html"
+                      : "https://beauty-slot.it/login.html"
+                  ),
             data: {
               nome: nome,
               cognome: cognome,
@@ -942,7 +946,11 @@
           window.location.href =
             tipo === "cliente"
               ? "scelta-trattamenti.html"
-              : "login.html";
+              : (
+                  selectedPlan === "free"
+                    ? "registrazione-azienda-free.html"
+                    : "login.html"
+                );
         }
       } catch (error) {
         console.error(error);
