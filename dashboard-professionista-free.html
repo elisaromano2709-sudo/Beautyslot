@@ -237,6 +237,37 @@
       color:var(--rose-dark);
     }
 
+    .button.danger{
+      border-color:rgba(168,76,86,.30);
+      background:#fff;
+      color:#9b555e;
+    }
+
+    .button.danger:hover{
+      background:rgba(168,76,86,.05);
+    }
+
+    .account-danger{
+      margin-top:22px;
+      padding-top:20px;
+      border-top:1px solid rgba(168,76,86,.18);
+    }
+
+    .account-danger-title{
+      margin:0 0 7px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:18px;
+      font-weight:400;
+      color:#91555d;
+    }
+
+    .account-danger-copy{
+      margin:0;
+      font-size:11px;
+      line-height:1.55;
+      color:var(--muted);
+    }
+
     .button:hover{
       transform:translateY(-1px);
     }
@@ -1405,6 +1436,18 @@
           <button class="button secondary" id="logoutButton" style="width:100%;margin-top:24px" type="button">
             Esci dall'account
           </button>
+
+          <div class="account-danger">
+            <h3 class="account-danger-title">Elimina account</h3>
+            <p class="account-danger-copy">
+              Eliminando l'account verrai cancellato definitivamente da Beautyslot.
+              Tutti i dati dell'attività e del profilo andranno persi e non potranno essere recuperati.
+            </p>
+            <button class="button danger" id="deleteAccountButton" style="width:100%;margin-top:16px" type="button">
+              Cancella il mio account
+            </button>
+            <div class="message" id="deleteAccountMessage"></div>
+          </div>
         </section>
       </aside>
     </section>
@@ -2219,6 +2262,75 @@
 
     document.getElementById("logoutButton").addEventListener("click",logout);
     document.getElementById("logoutTop").addEventListener("click",logout);
+
+    function clearAllBeautyslotBrowserData(){
+      [localStorage,sessionStorage].forEach(storage=>{
+        for(let i=storage.length-1;i>=0;i--){
+          const key=storage.key(i);
+          if(key && key.startsWith("beautyslot_")){
+            storage.removeItem(key);
+          }
+        }
+      });
+    }
+
+    async function deleteMyAccount(){
+      const button=document.getElementById("deleteAccountButton");
+      const message=document.getElementById("deleteAccountMessage");
+
+      if(PREVIEW_MODE){
+        window.alert(
+          "Anteprima: nella versione online questo pulsante cancellerà definitivamente l'account dopo una doppia conferma."
+        );
+        return;
+      }
+
+      const firstConfirm=window.confirm(
+        "Vuoi davvero cancellare definitivamente il tuo account professionista Beautyslot? La vetrina, i dati dell'attività e le foto associate andranno persi e non potranno essere recuperati."
+      );
+
+      if(!firstConfirm)return;
+
+      const typed=window.prompt(
+        "Per confermare la cancellazione definitiva scrivi CANCELLA"
+      );
+
+      if(typed!=="CANCELLA"){
+        message.className="message show error";
+        message.textContent="Cancellazione annullata. Per confermare devi scrivere esattamente CANCELLA.";
+        return;
+      }
+
+      button.disabled=true;
+      button.textContent="Cancellazione in corso…";
+      message.className="message";
+      message.textContent="";
+
+      try{
+        const { data, error } = await sb.functions.invoke("delete-account", {
+          body:{ confirmation:"CANCELLA" }
+        });
+
+        if(error)throw error;
+        if(!data || data.deleted!==true){
+          throw new Error(data?.error || "La cancellazione non è stata completata.");
+        }
+
+        try{ await sb.auth.signOut({ scope:"local" }); }catch(_error){}
+        clearAllBeautyslotBrowserData();
+        window.location.replace("index.html?account=eliminato");
+      }catch(error){
+        console.error("Beautyslot delete account:",error);
+        message.className="message show error";
+        message.textContent=
+          "Non è stato possibile cancellare l'account. " +
+          (error?.message || "Riprova tra poco.");
+        button.disabled=false;
+        button.textContent="Cancella il mio account";
+      }
+    }
+
+    document.getElementById("deleteAccountButton").addEventListener("click",deleteMyAccount);
 
     async function init(){
       if(PREVIEW_MODE){
