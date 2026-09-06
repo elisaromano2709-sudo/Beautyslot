@@ -528,8 +528,7 @@
     }
 
     .floating-map svg,
-    .bottom-home svg,
-    .floating-favorites svg{
+    .bottom-home svg{
       width:27px;
       height:27px;
       fill:none;
@@ -537,6 +536,18 @@
       stroke-width:1.55;
       stroke-linecap:round;
       stroke-linejoin:round;
+    }
+
+    .floating-favorites{
+      color:#d2a440;
+    }
+
+    .floating-favorites svg{
+      width:27px;
+      height:27px;
+      fill:currentColor;
+      stroke:currentColor;
+      stroke-width:1.2;
     }
 
     .bottom-home{
@@ -939,17 +950,9 @@
       }
     }
 
-    .floating-favorites{
-      color:var(--rose-dark);
-    }
+    
 
-    .floating-favorites svg{
-      fill:none;
-      stroke:currentColor;
-      stroke-width:1.7;
-      stroke-linecap:round;
-      stroke-linejoin:round;
-    }
+    
 
     .fav-count{
       position:absolute;
@@ -1475,7 +1478,7 @@
     </svg>
   </a>
   <button class="bottom-nav-item floating-favorites" id="favoritesButton" aria-label="Preferiti">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
+    <svg viewBox="0 0 24 24">
       <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
     </svg>
     <span class="fav-count" id="favCount">0</span>
