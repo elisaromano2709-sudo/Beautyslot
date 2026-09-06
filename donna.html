@@ -2040,7 +2040,11 @@
     const drawerBackdrop = document.getElementById("drawerBackdrop");
     const menuButton = document.getElementById("menuButton");
     const closeMenu = document.getElementById("closeMenu");
-    const cards = [...document.querySelectorAll(".shop-card")];
+    let cards = [...document.querySelectorAll(".shop-card")];
+
+    function refreshShopCards(){
+      cards = [...document.querySelectorAll(".shop-card")];
+    }
     const menuItems = [...document.querySelectorAll(".menu-item[data-filter]")];
     const resultCount = document.getElementById("resultCount");
     const sectionTitle = document.getElementById("sectionTitle");
@@ -2109,6 +2113,7 @@
     function syncStars(){
       cards.forEach(card => {
         const button = card.querySelector(".fav-btn");
+        if(!button) return;
         button.classList.toggle("active", favorites.includes(card.dataset.id));
       });
     }
@@ -2126,8 +2131,13 @@
         const card = cards.find(c => c.dataset.id === id);
         if(!card) return "";
 
+        const href =
+          card.dataset.free === "true" && card.dataset.phone
+            ? "tel:" + card.dataset.phone
+            : "salone-donna.html?id=" + encodeURIComponent(id);
+
         return `
-          <a class="favorite-item" href="salone-donna.html?id=${encodeURIComponent(id)}">
+          <a class="favorite-item" href="${href}">
             <strong>${card.dataset.name}</strong>
             <span>${card.dataset.category}</span>
           </a>
@@ -2135,8 +2145,13 @@
       }).join("");
     }
 
-    cards.forEach(card => {
+    function bindFavoriteCard(card){
+      if(card.dataset.favoriteBound === "true") return;
+
       const button = card.querySelector(".fav-btn");
+      if(!button) return;
+
+      card.dataset.favoriteBound = "true";
 
       button.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -2148,7 +2163,9 @@
 
         saveFavorites();
       });
-    });
+    }
+
+    cards.forEach(bindFavoriteCard);
 
     favoritesButton.addEventListener("click", () => {
       favoritesPanel.classList.toggle("open");
@@ -2164,8 +2181,180 @@
       }
     });
 
+    function freeEscapeHtml(value){
+      return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;");
+    }
+
+    function freeInitials(name){
+      return String(name || "BS")
+        .trim()
+        .split(/\s+/)
+        .slice(0,2)
+        .map(part => part.charAt(0).toUpperCase())
+        .join("") || "BS";
+    }
+
+    async function loadFreeBusinesses(){
+      try{
+        const publicClient = supabase.createClient(
+          "https://kfhjydwgjtiyjdkedvrp.supabase.co",
+          "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7"
+        );
+
+        const { data:businesses, error } = await publicClient
+          .from("beautyslot_professionisti")
+          .select(
+            "user_id,nome_attivita,descrizione,telefono,email,comune,provincia,latitude,longitude,categorie,pubblico,logo_url,gallery_urls,piano,pubblicato"
+          )
+          .eq("pubblicato", true)
+          .eq("piano", "free");
+
+        if(error){
+          console.warn("Profili FREE non caricati:", error.message);
+          return;
+        }
+
+      const visible = businesses.filter(item => {
+        const categories = Array.isArray(item.categorie) ? item.categorie : [];
+        const pubblico = String(item.pubblico || "").toLowerCase();
+
+        if(categories.includes("Benessere")) return true;
+
+        if(
+          categories.includes("Estetista") ||
+          categories.includes("Unghie") ||
+          categories.includes("Ciglia e sopracciglia") ||
+          categories.includes("Make-up")
+        ){
+          return true;
+        }
+
+        if(categories.includes("Parrucchiere")){
+          return pubblico === "donna" || pubblico === "unisex";
+        }
+
+        return false;
+      });
+
+        const shopGrid = document.getElementById("shopGrid");
+        const addedCards = [];
+
+        visible.forEach(item => {
+          const id = "free-" + item.user_id;
+          if(document.querySelector('[data-id="' + id + '"]')) return;
+
+          const categories = Array.isArray(item.categorie) ? item.categorie : [];
+
+        let dataCategory = "estetista";
+        if(categories.includes("Parrucchiere")) dataCategory = "parrucchiere";
+        else if(categories.includes("Unghie")) dataCategory = "unghie";
+        else if(categories.includes("Benessere")) dataCategory = "benessere";
+
+          const image =
+            item.logo_url ||
+            (Array.isArray(item.gallery_urls) ? item.gallery_urls[0] : "") ||
+            "";
+
+          const phone = String(item.telefono || "").trim();
+          const email = String(item.email || "").trim();
+
+          const locationText =
+            [item.comune,item.provincia].filter(Boolean).join(" · ") ||
+            "Attività Beautyslot";
+
+          let contactButton = "";
+
+          if(phone){
+            contactButton =
+              '<a class="book" href="tel:' +
+              freeEscapeHtml(phone) +
+              '">Chiama</a>';
+          }else if(email){
+            contactButton =
+              '<a class="book" href="mailto:' +
+              freeEscapeHtml(email) +
+              '">Contatta</a>';
+          }
+
+          const card = document.createElement("article");
+          card.className = "shop-card";
+          card.dataset.id = id;
+          card.dataset.category = dataCategory;
+          card.dataset.name = item.nome_attivita || "Attività Beautyslot";
+          card.dataset.free = "true";
+          card.dataset.phone = phone;
+
+          if(Number.isFinite(Number(item.latitude))){
+            card.dataset.lat = String(item.latitude);
+          }
+
+          if(Number.isFinite(Number(item.longitude))){
+            card.dataset.lng = String(item.longitude);
+          }
+
+          card.innerHTML = `
+            <div class="shop-image">
+              ${image
+                ? '<img src="' + freeEscapeHtml(image) + '" alt="' +
+                  freeEscapeHtml(item.nome_attivita || "Attività") +
+                  '" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">'
+                : '<div class="shop-mark">' + freeInitials(item.nome_attivita) + '</div>'
+              }
+              <button class="fav-btn" aria-label="Aggiungi ai preferiti">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="shop-body">
+              <span class="category">${freeEscapeHtml(categories.join(" · ") || "Attività")}</span>
+              <h3>${freeEscapeHtml(item.nome_attivita || "Attività Beautyslot")}</h3>
+
+              <div class="shop-meta">
+                <span>${freeEscapeHtml(locationText)}</span>
+                <span>FREE</span>
+              </div>
+
+              <p class="shop-desc">${freeEscapeHtml(
+                item.descrizione || "Profilo professionale su Beautyslot."
+              )}</p>
+
+              ${contactButton}
+            </div>
+          `;
+
+          shopGrid.appendChild(card);
+          addedCards.push(card);
+        });
+
+        if(addedCards.length){
+          refreshShopCards();
+          addedCards.forEach(bindFavoriteCard);
+          applyFilters();
+          renderFavorites();
+          syncStars();
+
+          if(
+            typeof beautyMap !== "undefined" &&
+            beautyMap &&
+            lastMapPosition
+          ){
+            renderBusinessMarkers();
+          }
+        }
+      }catch(error){
+        console.warn("Caricamento attività FREE non disponibile:", error);
+      }
+    }
+
     applyFilters();
     saveFavorites();
+    loadFreeBusinesses();
   </script>
 
 </body>

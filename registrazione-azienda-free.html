@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beautyslot — Configura attività FREE</title>
+<style>
+:root{
+  --bg:#fbf4f4;--card:#fffafa;--rose:#b47880;--rose-dark:#8f5f66;
+  --text:#655a5e;--muted:#9b858a;--line:rgba(157,104,112,.18);
+  --soft:#f7e9eb;--danger:#a85f67;--success:#66816d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Helvetica Neue",Arial,sans-serif;color:var(--text)}
+body{background:linear-gradient(180deg,#fbf6f6,#f7eeee);padding:28px 16px 52px}
+button,input,select,textarea{font:inherit}
+.page{width:min(1100px,100%);margin:0 auto}
+.brand{text-align:center;margin-bottom:26px}
+.brand h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:36px;font-weight:400;color:var(--rose-dark)}
+.brand div{margin-top:7px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.hero{text-align:center;max-width:760px;margin:0 auto 22px}
+.hero .kicker{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--rose)}
+.hero h1{margin:8px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,6vw,50px);font-weight:400;color:var(--rose-dark)}
+.hero p{margin:0 auto;max-width:680px;font-size:13px;line-height:1.7;color:var(--muted)}
+.badge{display:inline-flex;margin-top:14px;padding:9px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;font-size:10px;font-weight:700;color:var(--rose-dark)}
+.note{max-width:800px;margin:0 auto 18px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:center;font-size:11px;line-height:1.6;color:var(--muted)}
+.note strong{color:var(--rose-dark)}
+form{display:grid;gap:15px}
+.section{padding:24px;border:1px solid var(--line);border-radius:23px;background:rgba(255,255,255,.72)}
+.head{display:flex;gap:12px;margin-bottom:18px}
+.num{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;background:var(--soft);color:var(--rose-dark);font-size:12px;font-weight:700}
+.head h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:27px;font-weight:400;color:var(--rose-dark)}
+.head p{margin:5px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.full{grid-column:1/-1}
+label,.legend{display:block;margin-bottom:7px;font-size:9px;font-weight:700;letter-spacing:1.25px;text-transform:uppercase;color:var(--muted)}
+.req:after{content:" *";color:var(--rose)}
+input[type=text],input[type=email],input[type=tel],select,textarea{
+  width:100%;min-height:49px;padding:0 14px;border:1px solid var(--line);
+  border-radius:14px;background:#fff;color:var(--text);outline:none
+}
+textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
+.choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.choice{position:relative}
+.choice input{position:absolute;opacity:0}
+.choice span{display:flex;align-items:center;justify-content:center;min-height:47px;padding:8px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:center;font-size:11px;cursor:pointer}
+.choice input:checked+span{background:var(--soft);border-color:rgba(180,120,128,.6);color:var(--rose-dark)}
+.geo{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:11px}
+.secondary{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--rose-dark);font-size:10px;font-weight:700;cursor:pointer}
+.geo span{font-size:10px;color:var(--muted)}
+.days{display:grid;gap:8px}
+.day{display:grid;grid-template-columns:110px repeat(4,1fr);gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.day label{margin:0;display:flex;align-items:center;gap:7px;font-size:11px;text-transform:none;letter-spacing:0;color:var(--text)}
+.day.closed select{opacity:.35;pointer-events:none}
+.services{display:grid;gap:8px}
+.service{display:grid;grid-template-columns:1fr 150px 38px;gap:8px}
+.remove{border:1px solid var(--line);border-radius:50%;background:#fff;color:var(--rose-dark);font-size:18px;cursor:pointer}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.upload{min-height:150px;padding:16px;border:1px dashed rgba(157,104,112,.35);border-radius:17px;background:#fff;text-align:center}
+.upload strong{display:block;color:var(--rose-dark);font-size:11px;margin-bottom:7px}
+.upload small{display:block;color:var(--muted);font-size:10px;margin-bottom:10px}
+.logo-preview{width:82px;height:82px;object-fit:cover;border-radius:15px;display:none;margin:0 auto 10px}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:9px}
+.gallery img{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:10px}
+.actions{text-align:center;padding:20px;border:1px solid var(--line);border-radius:20px;background:#fff}
+.publish{width:min(520px,100%);min-height:55px;border:0;border-radius:999px;background:var(--rose-dark);color:#fff;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;cursor:pointer}
+.publish:disabled{opacity:.5}
+.message{margin-top:11px;min-height:18px;font-size:11px;color:var(--muted)}
+.message.error{color:var(--danger)}
+.success{display:none;text-align:center;padding:34px 22px;border:1px solid var(--line);border-radius:22px;background:#fff}
+.success.show{display:block}
+.success h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:34px;font-weight:400;color:var(--rose-dark)}
+.success p{max-width:580px;margin:10px auto 0;font-size:13px;line-height:1.65;color:var(--muted)}
+.success a{display:inline-flex;margin-top:18px;min-height:45px;align-items:center;padding:0 20px;border-radius:999px;background:var(--rose-dark);color:#fff;text-decoration:none;font-size:10px;font-weight:700}
+@media(max-width:760px){.grid,.upload-grid{grid-template-columns:1fr}.full{grid-column:auto}.choices{grid-template-columns:repeat(2,1fr)}.day{grid-template-columns:1fr 1fr}.day label{grid-column:1/-1}}
+@media(max-width:520px){body{padding:20px 11px}.section{padding:19px 14px}.service{grid-template-columns:1fr 110px 36px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="brand"><h2>Beautyslot</h2><div>Book beauty. Your way.</div></header>
+
+  <section class="hero">
+    <div class="kicker">Registrazione attività</div>
+    <h1>Completa il tuo profilo FREE</h1>
+    <p>Inserisci le informazioni essenziali per creare la tua vetrina su Beautyslot e farti trovare dai clienti.</p>
+    <div class="badge">Piano FREE · €0 / mese</div>
+  </section>
+
+  <div class="note"><strong>Il piano FREE è una vetrina base e non include il calendario di prenotazione.</strong> I clienti possono vedere chi sei, dove ti trovi, i tuoi orari, le foto e i contatti e poi chiamarti direttamente.</div>
+
+  <form id="businessForm">
+
+    <section class="section">
+      <div class="head"><div class="num">1</div><div><h2>Dati attività</h2><p>Informazioni principali della tua scheda pubblica.</p></div></div>
+      <div class="grid">
+        <div><label class="req" for="nomeAttivita">Nome attività</label><input id="nomeAttivita" type="text" required></div>
+        <div><label class="req" for="telefono">Telefono</label><input id="telefono" type="tel" required></div>
+        <div><label for="emailPubblica">Email pubblica</label><input id="emailPubblica" type="email"></div>
+        <div><label for="instagram">Instagram</label><input id="instagram" type="text" placeholder="@nomeprofilo"></div>
+        <div><label for="tiktok">TikTok</label><input id="tiktok" type="text" placeholder="@nomeprofilo"></div>
+        <div><label for="facebook">Facebook</label><input id="facebook" type="text"></div>
+        <div class="full"><label class="req" for="descrizione">Descrizione</label><textarea id="descrizione" required maxlength="800"></textarea></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">2</div><div><h2>Indirizzo e posizione</h2><p>Serve per comparire nelle ricerche vicine.</p></div></div>
+      <div class="grid">
+        <div class="full"><label class="req" for="indirizzo">Via e numero civico</label><input id="indirizzo" type="text" required></div>
+        <div><label class="req" for="comune">Comune</label><input id="comune" type="text" required></div>
+        <div><label for="provincia">Provincia</label><input id="provincia" type="text" maxlength="2"></div>
+        <div><label for="cap">CAP</label><input id="cap" type="text" maxlength="5"></div>
+        <div><label for="paese">Paese</label><input id="paese" type="text" value="Italia"></div>
+      </div>
+      <div class="geo"><button type="button" class="secondary" id="geoButton">Usa posizione attuale</button><span id="geoStatus">Se sei in sede puoi salvare la posizione precisa.</span></div>
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">3</div><div><h2>Categoria e clientela</h2><p>Puoi scegliere più categorie.</p></div></div>
+      <span class="legend req">Categorie</span>
+      <div class="choices" id="categories">
+        <label class="choice"><input type="checkbox" value="Parrucchiere" id="categoryParrucchiere"><span>Parrucchiere</span></label>
+        <label class="choice"><input type="checkbox" value="Barbiere"><span>Barbiere</span></label>
+        <label class="choice"><input type="checkbox" value="Estetista"><span>Estetista</span></label>
+        <label class="choice"><input type="checkbox" value="Unghie"><span>Unghie / Nail</span></label>
+        <label class="choice"><input type="checkbox" value="Ciglia e sopracciglia"><span>Ciglia e sopracciglia</span></label>
+        <label class="choice"><input type="checkbox" value="Make-up"><span>Make-up</span></label>
+        <label class="choice"><input type="checkbox" value="Benessere"><span>Benessere</span></label>
+      </div>
+
+      <div id="hairClientelaBox" hidden>
+        <div style="height:17px"></div>
+        <span class="legend req">Clientela parrucchiere</span>
+        <div class="choices" style="grid-template-columns:repeat(3,1fr)">
+          <label class="choice"><input type="radio" name="pubblico" value="donna"><span>Donna</span></label>
+          <label class="choice"><input type="radio" name="pubblico" value="uomo"><span>Uomo</span></label>
+          <label class="choice"><input type="radio" name="pubblico" value="unisex"><span>Unisex</span></label>
+        </div>
+        <div style="font-size:10px;line-height:1.55;color:var(--muted);margin-top:8px">
+          Questa scelta determina se il parrucchiere verrà mostrato nella pagina Donna, Uomo o in entrambe.
+        </div>
+      </div>
+
+      <div style="height:17px"></div>
+      <label for="specializzazioni">Specializzazioni</label>
+      <input id="specializzazioni" type="text" placeholder="Es. balayage, nail art, curly hair — separate da virgola">
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">4</div><div><h2>Orari di apertura</h2><p>Disattiva i giorni di chiusura.</p></div></div>
+      <div class="days" id="days"></div>
+    </section>
+
+
+    <section class="section">
+      <div class="head"><div class="num">5</div><div><h2>Logo e fotografie</h2><p>Puoi caricare un logo e fino a 6 foto.</p></div></div>
+      <div class="upload-grid">
+        <div class="upload">
+          <img id="logoPreview" class="logo-preview" alt="Logo">
+          <strong>Logo attività</strong><small>JPG, PNG o WEBP · max 5 MB.</small>
+          <input id="logoFile" type="file" accept="image/jpeg,image/png,image/webp">
+        </div>
+        <div class="upload">
+          <strong>Foto attività</strong><small>Fino a 6 immagini · max 5 MB ciascuna.</small>
+          <input id="galleryFiles" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+          <div id="galleryPreview" class="gallery"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="publishButton" class="publish" type="submit">Salva e pubblica la mia attività</button>
+      <div id="formMessage" class="message"></div>
+    </section>
+  </form>
+
+  <section id="successPanel" class="success">
+    <h2>Attività FREE salvata</h2>
+    <p>La tua scheda è stata registrata. Il calendario resta disattivato, come previsto dal piano FREE.</p>
+    <a href="index.html">Vai a Beautyslot</a>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const PREVIEW_MODE = false;
+const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+const BUCKET = "beautyslot-professionisti";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
+
+let user = null, latitude = null, longitude = null;
+const form = document.getElementById("businessForm");
+const message = document.getElementById("formMessage");
+const publishButton = document.getElementById("publishButton");
+
+function msg(t, cls=""){message.textContent=t||"";message.className="message"+(cls?" "+cls:"")}
+
+const days = [
+ ["lunedi","Lunedì",1],["martedi","Martedì",1],["mercoledi","Mercoledì",1],
+ ["giovedi","Giovedì",1],["venerdi","Venerdì",1],["sabato","Sabato",1],["domenica","Domenica",0]
+];
+
+function buildQuarterOptions(selected){
+  const options = [];
+
+  for(let hour = 0; hour < 24; hour++){
+    for(const minute of [0,15,30,45]){
+      const value =
+        String(hour).padStart(2,"0") +
+        ":" +
+        String(minute).padStart(2,"0");
+
+      options.push(
+        '<option value="' + value + '"' +
+        (value === selected ? ' selected' : '') +
+        '>' + value + '</option>'
+      );
+    }
+  }
+
+  return options.join("");
+}
+
+function renderDays(){
+  const box=document.getElementById("days");
+  box.innerHTML="";
+
+  days.forEach(([key,label,open])=>{
+    const row=document.createElement("div");
+    row.className="day"+(open?"":" closed");
+    row.dataset.day=key;
+
+    row.innerHTML=`
+      <label><input class="open" type="checkbox" ${open?"checked":""}> ${label}</label>
+      <select class="a1" aria-label="${label} apertura mattina">
+        ${buildQuarterOptions("09:00")}
+      </select>
+      <select class="a2" aria-label="${label} chiusura mattina">
+        ${buildQuarterOptions("13:00")}
+      </select>
+      <select class="b1" aria-label="${label} apertura pomeriggio">
+        ${buildQuarterOptions("15:00")}
+      </select>
+      <select class="b2" aria-label="${label} chiusura pomeriggio">
+        ${buildQuarterOptions("19:00")}
+      </select>`;
+
+    row.querySelector(".open").addEventListener("change",e=>{
+      row.classList.toggle("closed",!e.target.checked);
+    });
+
+    box.appendChild(row);
+  });
+}
+
+function getCategories(){return [...document.querySelectorAll('#categories input:checked')].map(x=>x.value)}
+function getHours(){
+  const o={};
+  document.querySelectorAll(".day").forEach(r=>{
+    const open=r.querySelector(".open").checked;
+    o[r.dataset.day]={open,mattina:open?[r.querySelector(".a1").value,r.querySelector(".a2").value]:null,pomeriggio:open?[r.querySelector(".b1").value,r.querySelector(".b2").value]:null};
+  });
+  return o;
+}
+function validateImage(f){
+  if(!f)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(f.type))throw new Error("Usa solo JPG, PNG o WEBP.");
+  if(f.size>5*1024*1024)throw new Error("Ogni immagine deve essere massimo 5 MB.");
+}
+function safeName(n){return String(n||"file").replace(/[^a-zA-Z0-9._-]+/g,"-").toLowerCase()}
+async function upload(f,folder){
+  validateImage(f);
+  if(PREVIEW_MODE)return URL.createObjectURL(f);
+  const path=`${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName(f.name)}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type});
+  if(error)throw error;
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+async function mediaUrls(){
+  let logo=null, gallery=[];
+  const lf=document.getElementById("logoFile").files[0];
+  const gf=[...document.getElementById("galleryFiles").files];
+  if(gf.length>6)throw new Error("Puoi caricare al massimo 6 fotografie.");
+  if(lf)logo=await upload(lf,"logo");
+  for(const f of gf)gallery.push(await upload(f,"gallery"));
+  return {logo,gallery};
+}
+function prefill(){
+  const m=user?.user_metadata||{};
+  document.getElementById("nomeAttivita").value=m.azienda||"";
+  document.getElementById("indirizzo").value=m.indirizzo_azienda||"";
+  document.getElementById("telefono").value=m.telefono||"";
+  document.getElementById("instagram").value=m.instagram||"";
+  document.getElementById("tiktok").value=m.tiktok||"";
+  document.getElementById("emailPubblica").value=user?.email||"";
+}
+
+const categoryParrucchiere = document.getElementById("categoryParrucchiere");
+const hairClientelaBox = document.getElementById("hairClientelaBox");
+
+function updateHairClientela(){
+  const active = categoryParrucchiere.checked;
+  hairClientelaBox.hidden = !active;
+
+  const radios = hairClientelaBox.querySelectorAll('input[name="pubblico"]');
+
+  if(active){
+    radios.forEach(radio => radio.required = true);
+  }else{
+    radios.forEach(radio => {
+      radio.checked = false;
+      radio.required = false;
+    });
+  }
+}
+
+categoryParrucchiere.addEventListener("change", updateHairClientela);
+updateHairClientela();
+
+document.getElementById("geoButton").onclick=()=>{
+  const s=document.getElementById("geoStatus");
+  if(!navigator.geolocation){s.textContent="Geolocalizzazione non disponibile.";return}
+  s.textContent="Rilevamento…";
+  navigator.geolocation.getCurrentPosition(p=>{
+    latitude=p.coords.latitude;longitude=p.coords.longitude;
+    s.textContent=`Posizione acquisita: ${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+  },()=>s.textContent="Posizione non acquisita. Puoi continuare con l'indirizzo.");
+};
+
+document.getElementById("logoFile").onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  try{validateImage(f);const img=document.getElementById("logoPreview");img.src=URL.createObjectURL(f);img.style.display="block"}catch(err){e.target.value="";msg(err.message,"error")}
+};
+document.getElementById("galleryFiles").onchange=e=>{
+  const files=[...e.target.files], box=document.getElementById("galleryPreview");box.innerHTML="";
+  try{
+    if(files.length>6)throw new Error("Puoi caricare al massimo 6 fotografie.");
+    files.forEach(validateImage);
+    files.forEach(f=>{const i=document.createElement("img");i.src=URL.createObjectURL(f);box.appendChild(i)});
+  }catch(err){e.target.value="";box.innerHTML="";msg(err.message,"error")}
+};
+
+form.onsubmit=async e=>{
+  e.preventDefault();msg("");
+  if(!form.checkValidity()){form.reportValidity();return}
+  const categories=getCategories();
+  if(!categories.length){msg("Seleziona almeno una categoria.","error");return}
+
+  if(
+    categories.includes("Parrucchiere") &&
+    !document.querySelector('input[name="pubblico"]:checked')
+  ){
+    msg("Se hai scelto Parrucchiere, indica se la clientela è Donna, Uomo o Unisex.","error");
+    hairClientelaBox.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  publishButton.disabled=true;publishButton.textContent="Salvataggio…";
+  try{
+    const media=await mediaUrls();
+    const payload={
+      user_id:user?.id||"preview-user",piano:"free",
+      nome_attivita:document.getElementById("nomeAttivita").value.trim(),
+      descrizione:document.getElementById("descrizione").value.trim(),
+      email:document.getElementById("emailPubblica").value.trim(),
+      telefono:document.getElementById("telefono").value.trim(),
+      instagram:document.getElementById("instagram").value.trim(),
+      tiktok:document.getElementById("tiktok").value.trim(),
+      facebook:document.getElementById("facebook").value.trim(),
+      indirizzo:document.getElementById("indirizzo").value.trim(),
+      cap:document.getElementById("cap").value.trim(),
+      comune:document.getElementById("comune").value.trim(),
+      provincia:document.getElementById("provincia").value.trim().toUpperCase(),
+      paese:document.getElementById("paese").value.trim()||"Italia",
+      latitude,longitude,
+      pubblico:categories.includes("Parrucchiere")
+        ? (document.querySelector('input[name="pubblico"]:checked')?.value || "unisex")
+        : "unisex",
+      categorie:categories,
+      specializzazioni:document.getElementById("specializzazioni").value.split(",").map(x=>x.trim()).filter(Boolean),
+      orari:getHours(),
+      logo_url:media.logo,gallery_urls:media.gallery,
+      calendario_attivo:false,pubblicato:true,updated_at:new Date().toISOString()
+    };
+    if(!PREVIEW_MODE){
+      const {error}=await sb.from("beautyslot_professionisti").upsert(payload,{onConflict:"user_id"});
+      if(error)throw error;
+      const {error:uerr}=await sb.auth.updateUser({data:{onboarding_azienda_completato:true,piano_attivo:"free",nome_attivita:payload.nome_attivita}});
+      if(uerr)throw uerr;
+    }
+    form.style.display="none";document.getElementById("successPanel").classList.add("show");window.scrollTo({top:0,behavior:"smooth"});
+  }catch(err){
+    console.error(err);
+    msg("Errore durante il salvataggio: "+(err.message||"Riprova. Se è il primo avvio, esegui beautyslot-free-schema.sql su Supabase."),"error");
+  }finally{
+    publishButton.disabled=false;publishButton.textContent="Salva e pubblica la mia attività";
+  }
+};
+
+async function init(){
+  renderDays();
+  if(PREVIEW_MODE){
+    user={id:"preview",email:"titolare@azienda.it",user_metadata:{tipo_utente:"professionista",piano_scelto:"free",azienda:"Aura Beauty Studio",indirizzo_azienda:"Via Roma 24",telefono:"+39 333 123 4567",instagram:"@aurabeautystudio"}};
+    prefill();return;
+  }
+  const {data:{user:u},error}=await sb.auth.getUser();
+  if(error||!u){msg("Sessione non disponibile. Apri questa pagina dal link di conferma ricevuto via email.","error");publishButton.disabled=true;return}
+  user=u;
+  const m=u.user_metadata||{};
+  if(m.tipo_utente!=="professionista"){location.href="index.html";return}
+  if(String(m.piano_scelto||"").toLowerCase()!=="free"){location.href="login.html";return}
+  prefill();
+}
+init();
+</script>
+</body>
+</html>
