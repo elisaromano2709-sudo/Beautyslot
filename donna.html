@@ -1638,9 +1638,9 @@
             String(card.dataset.id || "").startsWith("free-");
 
           /*
-            IMPORTANTE:
-            i saloni registrati non ricevono mai una posizione dimostrativa.
-            Se non hanno coordinate reali, non vengono messi sulla mappa.
+            I saloni registrati non ricevono mai coordinate dimostrative.
+            Se un vecchio profilo non ha ancora lat/lng, viene geocodificato
+            automaticamente dal suo indirizzo salvato prima del rendering.
           */
           if(isRegisteredSalon && !hasRealPosition){
             return null;
@@ -1676,6 +1676,183 @@
           };
         })
         .filter(Boolean);
+    }
+
+
+    const registeredGeocodeCache = new Map();
+    let registeredGeocodePromise = null;
+
+    function hasValidCardCoordinates(card){
+      const lat = parseFloat(card.dataset.lat);
+      const lng = parseFloat(card.dataset.lng);
+
+      return (
+        Number.isFinite(lat) &&
+        Number.isFinite(lng) &&
+        lat >= -90 &&
+        lat <= 90 &&
+        lng >= -180 &&
+        lng <= 180
+      );
+    }
+
+    function registeredCardAddress(card){
+      return [
+        card.dataset.address,
+        card.dataset.cap,
+        card.dataset.comune,
+        card.dataset.provincia,
+        card.dataset.paese || "Italia"
+      ]
+        .map(value => String(value || "").trim())
+        .filter(Boolean)
+        .join(", ");
+    }
+
+    function waitMs(ms){
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function geocodeRegisteredCard(card){
+      if(hasValidCardCoordinates(card)){
+        return true;
+      }
+
+      const query = registeredCardAddress(card);
+
+      if(!query){
+        return false;
+      }
+
+      if(registeredGeocodeCache.has(query)){
+        const cached = registeredGeocodeCache.get(query);
+
+        if(cached){
+          card.dataset.lat = String(cached.lat);
+          card.dataset.lng = String(cached.lng);
+          return true;
+        }
+
+        return false;
+      }
+
+      try{
+        const endpoint =
+          "https://nominatim.openstreetmap.org/search" +
+          "?format=jsonv2" +
+          "&limit=5" +
+          "&countrycodes=it" +
+          "&addressdetails=1" +
+          "&q=" +
+          encodeURIComponent(query);
+
+        const response = await fetch(endpoint,{
+          headers:{
+            "Accept":"application/json"
+          }
+        });
+
+        if(!response.ok){
+          registeredGeocodeCache.set(query,null);
+          return false;
+        }
+
+        const results = await response.json();
+
+        if(!Array.isArray(results) || !results.length){
+          registeredGeocodeCache.set(query,null);
+          return false;
+        }
+
+        const expectedCity =
+          String(card.dataset.comune || "")
+            .trim()
+            .toLowerCase();
+
+        const best =
+          results.find(result => {
+            const address = result.address || {};
+
+            const resultCity =
+              address.city ||
+              address.town ||
+              address.village ||
+              address.municipality ||
+              address.hamlet ||
+              "";
+
+            return (
+              expectedCity &&
+              String(resultCity)
+                .toLowerCase()
+                .includes(expectedCity)
+            );
+          }) ||
+          results[0];
+
+        const lat = parseFloat(best.lat);
+        const lng = parseFloat(best.lon);
+
+        if(
+          !Number.isFinite(lat) ||
+          !Number.isFinite(lng)
+        ){
+          registeredGeocodeCache.set(query,null);
+          return false;
+        }
+
+        card.dataset.lat = String(lat);
+        card.dataset.lng = String(lng);
+
+        registeredGeocodeCache.set(query,{
+          lat:lat,
+          lng:lng
+        });
+
+        return true;
+      }catch(error){
+        console.warn(
+          "Geocodifica salone non disponibile:",
+          query,
+          error
+        );
+
+        registeredGeocodeCache.set(query,null);
+        return false;
+      }
+    }
+
+    async function prepareRegisteredBusinessPositions(){
+      if(registeredGeocodePromise){
+        return registeredGeocodePromise;
+      }
+
+      registeredGeocodePromise = (async function(){
+        const missingCards = [
+          ...document.querySelectorAll(
+            '.shop-card[data-registered="true"]'
+          )
+        ].filter(card => !hasValidCardCoordinates(card));
+
+        for(let index=0; index<missingCards.length; index++){
+          await geocodeRegisteredCard(missingCards[index]);
+
+          /*
+            Nominatim pubblico richiede richieste non aggressive.
+            Questo fallback serve solo per i vecchi profili:
+            le nuove registrazioni salvano già latitudine/longitudine.
+          */
+          if(index < missingCards.length - 1){
+            await waitMs(1100);
+          }
+        }
+      })();
+
+      try{
+        await registeredGeocodePromise;
+      }finally{
+        registeredGeocodePromise = null;
+      }
     }
 
     function makeDivIcon(className){
@@ -2094,6 +2271,13 @@
           beautyMap.invalidateSize();
         },120);
       }
+
+      prepareRegisteredBusinessPositions()
+        .then(function(){
+          if(beautyMap && lastMapPosition){
+            renderBusinessMarkers();
+          }
+        });
     }
 
     function closeMap(){
@@ -2299,7 +2483,7 @@
         const { data:businesses, error } = await publicClient
           .from("beautyslot_professionisti")
           .select(
-            "user_id,nome_attivita,descrizione,telefono,email,comune,provincia,latitude,longitude,categorie,pubblico,logo_url,gallery_urls,piano,pubblicato"
+            "user_id,nome_attivita,descrizione,telefono,email,indirizzo,cap,comune,provincia,paese,latitude,longitude,categorie,pubblico,logo_url,gallery_urls,piano,pubblicato"
           )
           .eq("pubblicato", true)
           .eq("piano", "free");
@@ -2386,13 +2570,29 @@
           card.dataset.registered = "true";
           card.dataset.phone = phone;
 
-          if(Number.isFinite(Number(item.latitude))){
-            card.dataset.lat = String(item.latitude);
+          const savedLat =
+            item.latitude === null || item.latitude === ""
+              ? NaN
+              : parseFloat(item.latitude);
+
+          const savedLng =
+            item.longitude === null || item.longitude === ""
+              ? NaN
+              : parseFloat(item.longitude);
+
+          if(
+            Number.isFinite(savedLat) &&
+            Number.isFinite(savedLng)
+          ){
+            card.dataset.lat = String(savedLat);
+            card.dataset.lng = String(savedLng);
           }
 
-          if(Number.isFinite(Number(item.longitude))){
-            card.dataset.lng = String(item.longitude);
-          }
+          card.dataset.address = item.indirizzo || "";
+          card.dataset.cap = item.cap || "";
+          card.dataset.comune = item.comune || "";
+          card.dataset.provincia = item.provincia || "";
+          card.dataset.paese = item.paese || "Italia";
 
           card.innerHTML = `
             <div class="shop-image">
@@ -2437,13 +2637,16 @@
           renderFavorites();
           syncStars();
 
-          if(
-            typeof beautyMap !== "undefined" &&
-            beautyMap &&
-            lastMapPosition
-          ){
-            renderBusinessMarkers();
-          }
+          prepareRegisteredBusinessPositions()
+            .then(function(){
+              if(
+                typeof beautyMap !== "undefined" &&
+                beautyMap &&
+                lastMapPosition
+              ){
+                renderBusinessMarkers();
+              }
+            });
         }
       }catch(error){
         console.warn("Caricamento attività FREE non disponibile:", error);
