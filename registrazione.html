@@ -210,6 +210,262 @@
       .card{padding:30px 22px 26px;border-radius:22px}
       h1{font-size:33px}
     }
+    /* Area informativa mostrata solo nella registrazione professionista. */
+    .professional-offer{
+      display:none;
+      margin-top:28px;
+      text-align:left;
+    }
+
+    body.pro-mode{
+      align-items:flex-start;
+    }
+
+    body.pro-mode .page{
+      width:min(1180px,100%);
+    }
+
+    body.pro-mode .card{
+      width:min(560px,100%);
+      margin:0 auto;
+    }
+
+    body.pro-mode .professional-offer{
+      display:block;
+    }
+
+    .trial-banner{
+      margin:26px 0 22px;
+      padding:24px 26px;
+      border:1px solid rgba(157,104,112,.22);
+      border-radius:24px;
+      background:rgba(255,255,255,.62);
+      box-shadow:0 14px 38px rgba(120,78,84,.06);
+      text-align:center;
+    }
+
+    .trial-eyebrow{
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:1.8px;
+      text-transform:uppercase;
+      color:var(--rose);
+    }
+
+    .trial-banner h2{
+      margin:8px 0 8px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(28px,4vw,40px);
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .trial-banner p{
+      margin:0 auto;
+      max-width:760px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    .trial-points{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:center;
+      gap:8px;
+      margin-top:16px;
+    }
+
+    .trial-chip{
+      padding:8px 11px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:#fff;
+      color:var(--text);
+      font-size:10px;
+      font-weight:650;
+    }
+
+    .plans-title{
+      margin:36px 0 8px;
+      text-align:center;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:34px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .plans-subtitle{
+      margin:0 auto 22px;
+      max-width:760px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    .plans-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .plan-card{
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+      padding:23px;
+      border:1px solid var(--line);
+      border-radius:23px;
+      background:rgba(255,255,255,.58);
+      box-shadow:0 12px 34px rgba(120,78,84,.045);
+    }
+
+    .plan-card.pro{
+      border-color:rgba(187,129,136,.52);
+      background:rgba(255,255,255,.78);
+      box-shadow:0 16px 42px rgba(120,78,84,.09);
+    }
+
+    .plan-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:13px;
+    }
+
+    .plan-name{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .plan-tag{
+      display:inline-flex;
+      padding:6px 9px;
+      border-radius:999px;
+      background:#fff;
+      border:1px solid var(--line);
+      color:var(--rose-dark);
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+
+    .plan-price{
+      margin:0 0 5px;
+      font-size:25px;
+      font-weight:700;
+      color:var(--text);
+    }
+
+    .plan-price small{
+      font-size:11px;
+      font-weight:500;
+      color:var(--muted);
+    }
+
+    .plan-ideal{
+      min-height:38px;
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+    }
+
+    .plan-card details{
+      margin-top:auto;
+      border-top:1px solid var(--line);
+      padding-top:13px;
+    }
+
+    .plan-card summary{
+      cursor:pointer;
+      list-style:none;
+      color:var(--rose-dark);
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.5px;
+    }
+
+    .plan-card summary::-webkit-details-marker{display:none}
+
+    .plan-card ul{
+      margin:14px 0 0;
+      padding-left:18px;
+      color:var(--text);
+      font-size:12px;
+      line-height:1.65;
+    }
+
+    .plan-card li + li{margin-top:5px}
+
+    .offer-section{
+      margin-top:16px;
+      padding:22px 24px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:rgba(255,255,255,.52);
+    }
+
+    .offer-section h3{
+      margin:0 0 9px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:23px;
+      font-weight:400;
+      color:var(--rose-dark);
+    }
+
+    .offer-section p{
+      margin:0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.65;
+    }
+
+    .offer-section ul{
+      margin:12px 0 0;
+      padding-left:18px;
+      color:var(--text);
+      font-size:12px;
+      line-height:1.65;
+    }
+
+    .no-commission{
+      margin:18px 0 0;
+      padding:18px 20px;
+      border:1px solid rgba(157,104,112,.24);
+      border-radius:18px;
+      background:#fff;
+      text-align:center;
+      color:var(--rose-dark);
+      font-size:13px;
+      font-weight:700;
+      line-height:1.55;
+    }
+
+    .enterprise-note{
+      margin-top:8px;
+      font-size:10px;
+      color:var(--muted);
+    }
+
+    @media(max-width:820px){
+      .plans-grid{grid-template-columns:1fr}
+      body.pro-mode .page{width:min(620px,100%)}
+    }
+
+    @media(max-width:560px){
+      .trial-banner{padding:21px 18px}
+      .plan-card{padding:20px}
+      .offer-section{padding:20px}
+    }
+
   </style>
 </head>
 
@@ -230,6 +486,30 @@
       <form id="registrationForm" novalidate>
         <input type="hidden" id="tipoUtente" name="tipoUtente" value="cliente">
 
+
+        <div id="companyFields" hidden>
+          <div class="field">
+            <label for="azienda">Nome azienda</label>
+            <input
+              id="azienda"
+              name="azienda"
+              type="text"
+              autocomplete="organization"
+              placeholder="Nome della tua azienda"
+            >
+          </div>
+
+          <div class="field">
+            <label for="indirizzo_azienda">Via / indirizzo azienda</label>
+            <input
+              id="indirizzo_azienda"
+              name="indirizzo_azienda"
+              type="text"
+              autocomplete="street-address"
+              placeholder="Via e numero civico"
+            >
+          </div>
+        </div>
 
         <div class="field">
           <label for="nome">Nome</label>
@@ -298,6 +578,17 @@
           >
         </div>
 
+        <div class="field" id="instagramField" hidden>
+          <label for="instagram">Instagram <span style="color:var(--muted);font-weight:400;">(facoltativo)</span></label>
+          <input
+            id="instagram"
+            name="instagram"
+            type="text"
+            autocomplete="off"
+            placeholder="@nomeprofilo"
+          >
+        </div>
+
         <button class="submit" type="submit" id="submitButton">
           Crea account
         </button>
@@ -308,7 +599,6 @@
         <a href="login.html">Accedi</a>
       </div>
     </section>
-
     <div class="back-row">
       <a class="back" href="index.html">← Torna indietro</a>
     </div>
@@ -335,21 +625,62 @@
     const title = document.getElementById("title");
     const intro = document.getElementById("intro");
     const submitButton = document.getElementById("submitButton");
+    const nomeLabel = document.querySelector('label[for="nome"]');
+    const nomeInput = document.getElementById("nome");
+    const cognomeLabel = document.querySelector('label[for="cognome"]');
+    const cognomeInput = document.getElementById("cognome");
+    const instagramField = document.getElementById("instagramField");
+    const instagramInput = document.getElementById("instagram");
+    const companyFields = document.getElementById("companyFields");
+    const aziendaInput = document.getElementById("azienda");
+    const indirizzoAziendaInput = document.getElementById("indirizzo_azienda");
 
     tipoInput.value = tipo;
 
     if (tipo === "professionista") {
+      document.body.classList.add("pro-mode");
       kicker.textContent = "Area professionisti";
       title.textContent = "Registrati come professionista";
       intro.textContent =
-        "Crea il tuo account per iniziare a configurare il tuo calendario Beautyslot.";
+        "Crea il tuo account per iniziare a configurare la tua attività su Beautyslot.";
       submitButton.textContent = "Continua";
+
+      companyFields.hidden = false;
+      aziendaInput.required = true;
+      indirizzoAziendaInput.required = true;
+
+      nomeLabel.textContent = "Nome intestatario";
+      nomeInput.placeholder = "Nome dell'intestatario";
+      nomeInput.autocomplete = "given-name";
+
+      cognomeLabel.textContent = "Cognome intestatario";
+      cognomeInput.placeholder = "Cognome dell'intestatario";
+      cognomeInput.autocomplete = "family-name";
+
+      instagramField.hidden = false;
     } else {
       kicker.textContent = "Area clienti";
       title.textContent = "Registrati su Beautyslot";
       intro.textContent =
         "Crea il tuo account per trovare il servizio più adatto a te e prenotare in autonomia.";
       submitButton.textContent = "Continua";
+
+      companyFields.hidden = true;
+      aziendaInput.required = false;
+      indirizzoAziendaInput.required = false;
+      aziendaInput.value = "";
+      indirizzoAziendaInput.value = "";
+
+      nomeLabel.textContent = "Nome";
+      nomeInput.placeholder = "Nome";
+      nomeInput.autocomplete = "given-name";
+
+      cognomeLabel.textContent = "Cognome";
+      cognomeInput.placeholder = "Cognome";
+      cognomeInput.autocomplete = "family-name";
+
+      instagramField.hidden = true;
+      instagramInput.value = "";
     }
 
     const password = document.getElementById("password");
@@ -373,6 +704,9 @@
 
       const nome = document.getElementById("nome").value.trim();
       const cognome = document.getElementById("cognome").value.trim();
+      const azienda = aziendaInput.value.trim();
+      const indirizzoAzienda = indirizzoAziendaInput.value.trim();
+      const instagram = instagramInput.value.trim();
       const email = document.getElementById("email").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const passwordValue = password.value;
@@ -401,13 +735,16 @@
             emailRedirectTo:
               tipo === "cliente"
                 ? "https://beauty-slot.it/scelta-trattamenti.html"
-                : "https://beauty-slot.it/login.html",
+                : "https://beauty-slot.it/piani-abbonamenti.html",
             data: {
               nome: nome,
               cognome: cognome,
               full_name: (nome + " " + cognome).trim(),
               telefono: telefono,
-              tipo_utente: tipo
+              tipo_utente: tipo,
+              azienda: tipo === "professionista" ? azienda : "",
+              indirizzo_azienda: tipo === "professionista" ? indirizzoAzienda : "",
+              instagram: tipo === "professionista" ? instagram : ""
             }
           }
         });
@@ -422,6 +759,7 @@
           */
           sessionStorage.setItem("beautyslot_pending_user_id", data.user.id || "");
           sessionStorage.setItem("beautyslot_pending_email", email);
+          sessionStorage.setItem("beautyslot_pending_tipo_utente", tipo);
 
           form.reset();
 
@@ -438,10 +776,15 @@
           localStorage.setItem("beautyslot_email", data.user.email || email);
           localStorage.setItem("beautyslot_nome", nome);
           localStorage.setItem("beautyslot_cognome", cognome);
-          localStorage.setItem("beautyslot_full_name", (nome + " " + cognome).trim());
+          localStorage.setItem(
+            "beautyslot_full_name",
+            (nome + " " + cognome).trim()
+          );
 
           window.location.href =
-            tipo === "cliente" ? "scelta-trattamenti.html" : "login.html";
+            tipo === "cliente"
+              ? "scelta-trattamenti.html"
+              : "piani-abbonamenti.html";
         }
       } catch (error) {
         console.error(error);
