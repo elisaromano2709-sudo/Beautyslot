@@ -460,6 +460,46 @@
       body.pro-mode .page{width:min(620px,100%)}
     }
 
+    .selected-plan{
+      display:none;
+      margin:0 0 24px;
+      padding:16px 18px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,255,255,.42);
+      text-align:left;
+    }
+    body.pro-mode .selected-plan{display:block}
+    .selected-plan-label{
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:1.5px;
+      text-transform:uppercase;
+      color:var(--rose);
+    }
+    .selected-plan-name{
+      margin-top:5px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      color:var(--rose-dark);
+    }
+    .selected-plan-desc{
+      margin-top:5px;
+      font-size:11px;
+      line-height:1.55;
+      color:var(--muted);
+    }
+    .change-plan{
+      display:inline-block;
+      margin-top:9px;
+      color:var(--rose-dark);
+      font-size:10px;
+      font-weight:700;
+      text-decoration:none;
+      border-bottom:1px solid rgba(157,104,112,.34);
+    }
+    .plan-extra{display:none}
+    .plan-extra.show{display:block}
     @media(max-width:560px){
       .trial-banner{padding:21px 18px}
       .plan-card{padding:20px}
@@ -482,6 +522,13 @@
       <p class="intro" id="intro">
         Registrati per continuare su Beautyslot.
       </p>
+
+      <div class="selected-plan" id="selectedPlanBox">
+        <div class="selected-plan-label">Piano scelto</div>
+        <div class="selected-plan-name" id="selectedPlanName">—</div>
+        <div class="selected-plan-desc" id="selectedPlanDesc"></div>
+        <a class="change-plan" href="piani-abbonamenti.html">Cambia piano</a>
+      </div>
 
       <form id="registrationForm" novalidate>
         <input type="hidden" id="tipoUtente" name="tipoUtente" value="cliente">
@@ -589,6 +636,22 @@
           >
         </div>
 
+        <div class="plan-extra" id="operatorsField">
+          <div class="field">
+            <label for="numero_operatori">Numero operatori</label>
+            <select id="numero_operatori" name="numero_operatori">
+              <option value="">Seleziona</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="plan-extra" id="locationsField">
+          <div class="field">
+            <label for="numero_sedi">Numero sedi</label>
+            <input id="numero_sedi" name="numero_sedi" type="number" min="1" step="1" placeholder="1">
+          </div>
+        </div>
+
         <button class="submit" type="submit" id="submitButton">
           Crea account
         </button>
@@ -600,7 +663,7 @@
       </div>
     </section>
     <div class="back-row">
-      <a class="back" href="index.html">← Torna indietro</a>
+      <a class="back" href="index.html" id="backLink">← Torna indietro</a>
     </div>
   </main>
 
@@ -620,6 +683,19 @@
       ? "professionista"
       : "cliente";
 
+    const VALID_PLANS = ["free","start","pro","business","enterprise","trial-pro"];
+    const requestedPlan = (params.get("piano") || "").toLowerCase();
+    const selectedPlan = VALID_PLANS.includes(requestedPlan) ? requestedPlan : "trial-pro";
+
+    const PLAN_INFO = {
+      "free": {name:"FREE · €0/mese", desc:"Profilo e visibilità su Beautyslot, senza calendario online."},
+      "start": {name:"START · €14,90/mese", desc:"Per un professionista singolo con calendario e prenotazioni online."},
+      "pro": {name:"PRO · €29,90/mese", desc:"Per saloni da 1 a 3 operatori con calendario condiviso, CRM e statistiche."},
+      "business": {name:"BUSINESS · €49,90/mese", desc:"Per attività strutturate fino a 8 operatori, staff, risorse e marketing."},
+      "enterprise": {name:"ENTERPRISE · su preventivo", desc:"Per gruppi, catene e attività con più sedi e molti operatori."},
+      "trial-pro": {name:"PRO · 30 giorni gratis", desc:"Prova gratuita del piano PRO per 30 giorni, fino a 3 operatori."}
+    };
+
     const tipoInput = document.getElementById("tipoUtente");
     const kicker = document.getElementById("kicker");
     const title = document.getElementById("title");
@@ -634,6 +710,65 @@
     const companyFields = document.getElementById("companyFields");
     const aziendaInput = document.getElementById("azienda");
     const indirizzoAziendaInput = document.getElementById("indirizzo_azienda");
+    const selectedPlanBox = document.getElementById("selectedPlanBox");
+    const selectedPlanName = document.getElementById("selectedPlanName");
+    const selectedPlanDesc = document.getElementById("selectedPlanDesc");
+    const operatorsField = document.getElementById("operatorsField");
+    const locationsField = document.getElementById("locationsField");
+    const operatorsInput = document.getElementById("numero_operatori");
+    const locationsInput = document.getElementById("numero_sedi");
+    const backLink = document.getElementById("backLink");
+
+    function setOperatorOptions(max){
+      operatorsInput.innerHTML = '<option value="">Seleziona</option>';
+      for(let i = 1; i <= max; i++){
+        const option = document.createElement("option");
+        option.value = String(i);
+        option.textContent = i === 1 ? "1 operatore" : i + " operatori";
+        operatorsInput.appendChild(option);
+      }
+    }
+
+    function configureSelectedPlan(){
+      const info = PLAN_INFO[selectedPlan];
+      selectedPlanName.textContent = info.name;
+      selectedPlanDesc.textContent = info.desc;
+
+      operatorsField.classList.remove("show");
+      locationsField.classList.remove("show");
+      operatorsInput.required = false;
+      locationsInput.required = false;
+      operatorsInput.innerHTML = '<option value="">Seleziona</option>';
+      locationsInput.value = "";
+
+      if(selectedPlan === "start"){
+        const option = document.createElement("option");
+        option.value = "1";
+        option.textContent = "1 operatore";
+        option.selected = true;
+        operatorsInput.appendChild(option);
+      }
+
+      if(selectedPlan === "pro" || selectedPlan === "trial-pro"){
+        operatorsField.classList.add("show");
+        operatorsInput.required = true;
+        setOperatorOptions(3);
+      }
+
+      if(selectedPlan === "business"){
+        operatorsField.classList.add("show");
+        operatorsInput.required = true;
+        setOperatorOptions(8);
+      }
+
+      if(selectedPlan === "enterprise"){
+        operatorsField.classList.add("show");
+        locationsField.classList.add("show");
+        operatorsInput.required = true;
+        locationsInput.required = true;
+        operatorsInput.innerHTML = '<option value="">Seleziona</option><option value="1-8">1–8 operatori</option><option value="9-20">9–20 operatori</option><option value="21-50">21–50 operatori</option><option value="50+">Più di 50 operatori</option>';
+      }
+    }
 
     tipoInput.value = tipo;
 
@@ -658,6 +793,8 @@
       cognomeInput.autocomplete = "family-name";
 
       instagramField.hidden = false;
+      configureSelectedPlan();
+      backLink.href = "piani-abbonamenti.html";
     } else {
       kicker.textContent = "Area clienti";
       title.textContent = "Registrati su Beautyslot";
@@ -681,6 +818,11 @@
 
       instagramField.hidden = true;
       instagramInput.value = "";
+      selectedPlanBox.style.display = "none";
+      operatorsField.classList.remove("show");
+      locationsField.classList.remove("show");
+      operatorsInput.required = false;
+      locationsInput.required = false;
     }
 
     const password = document.getElementById("password");
@@ -710,6 +852,14 @@
       const email = document.getElementById("email").value.trim();
       const telefono = document.getElementById("telefono").value.trim();
       const passwordValue = password.value;
+      const numeroOperatori =
+        tipo === "professionista"
+          ? (selectedPlan === "start" ? "1" : operatorsInput.value)
+          : "";
+      const numeroSedi =
+        tipo === "professionista" && selectedPlan === "enterprise"
+          ? locationsInput.value.trim()
+          : "";
 
       submitButton.disabled = true;
       submitButton.textContent = "Registrazione...";
@@ -735,7 +885,7 @@
             emailRedirectTo:
               tipo === "cliente"
                 ? "https://beauty-slot.it/scelta-trattamenti.html"
-                : "https://beauty-slot.it/piani-abbonamenti.html",
+                : "https://beauty-slot.it/login.html",
             data: {
               nome: nome,
               cognome: cognome,
@@ -744,7 +894,12 @@
               tipo_utente: tipo,
               azienda: tipo === "professionista" ? azienda : "",
               indirizzo_azienda: tipo === "professionista" ? indirizzoAzienda : "",
-              instagram: tipo === "professionista" ? instagram : ""
+              instagram: tipo === "professionista" ? instagram : "",
+              piano_scelto: tipo === "professionista" ? selectedPlan : "",
+              piano_base: tipo === "professionista" ? (selectedPlan === "trial-pro" ? "pro" : selectedPlan) : "",
+              prova_30_giorni: tipo === "professionista" && selectedPlan === "trial-pro",
+              numero_operatori: tipo === "professionista" ? numeroOperatori : "",
+              numero_sedi: tipo === "professionista" ? numeroSedi : ""
             }
           }
         });
@@ -760,6 +915,9 @@
           sessionStorage.setItem("beautyslot_pending_user_id", data.user.id || "");
           sessionStorage.setItem("beautyslot_pending_email", email);
           sessionStorage.setItem("beautyslot_pending_tipo_utente", tipo);
+          if (tipo === "professionista") {
+            sessionStorage.setItem("beautyslot_pending_piano", selectedPlan);
+          }
 
           form.reset();
 
@@ -784,7 +942,7 @@
           window.location.href =
             tipo === "cliente"
               ? "scelta-trattamenti.html"
-              : "piani-abbonamenti.html";
+              : "login.html";
         }
       } catch (error) {
         console.error(error);

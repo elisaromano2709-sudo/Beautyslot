@@ -169,20 +169,17 @@
       font-size:12px;
       line-height:1.55;
     }
-    details{
+    .plan-includes{
       margin-top:auto;
       border-top:1px solid var(--line);
       padding-top:13px;
     }
-    summary{
-      cursor:pointer;
-      list-style:none;
+    .plan-includes-title{
       color:var(--rose-dark);
       font-size:11px;
       font-weight:700;
       letter-spacing:.5px;
     }
-    summary::-webkit-details-marker{display:none}
     ul{
       margin:14px 0 0;
       padding-left:18px;
@@ -212,6 +209,28 @@
       color:#fff;
       border-color:var(--rose-dark);
     }
+    .trial-action{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      margin-top:18px;
+      padding:0 22px;
+      border:1px solid var(--rose-dark);
+      border-radius:999px;
+      background:var(--rose-dark);
+      color:#fff;
+      text-decoration:none;
+      font-size:10px;
+      font-weight:700;
+      letter-spacing:1.2px;
+      text-transform:uppercase;
+    }
+    .trial-note{
+      margin-top:10px;
+      font-size:10px;
+      color:var(--muted);
+    }
     .bottom-note{
       margin-top:18px;
       padding:18px 20px;
@@ -240,16 +259,16 @@
       <div class="kicker">Piani professionisti</div>
       <h1>Scegli il tuo abbonamento</h1>
       <p>
-        Il tuo account è stato confermato. Ora scegli il piano più adatto alla tua attività.
+        Scegli prima il piano più adatto alla tua attività. Dopo la scelta passerai alla registrazione professionista.
       </p>
     </section>
 
     <section class="trial-banner">
       <h2>30 giorni di Beauty Slot PRO gratis</h2>
       <p>
-        Tutti i nuovi professionisti iniziano con 30 giorni di PRO gratis.
-        Durante la prova hai calendario, fino a 3 operatori, prenotazioni illimitate,
-        geolocalizzazione, Disponibile Ora, CRM, statistiche, lista d'attesa e promemoria.
+        Vuoi provare prima di scegliere? Attiva 30 giorni gratuiti del piano PRO e completa la registrazione.
+        Durante la prova hai calendario, fino a 3 operatori, prenotazioni illimitate, geolocalizzazione,
+        Disponibile Ora, CRM, statistiche, lista d'attesa e promemoria.
       </p>
       <div class="trial-points">
         <span class="trial-chip">Calendario</span>
@@ -261,6 +280,8 @@
         <span class="trial-chip">Lista d'attesa</span>
         <span class="trial-chip">Promemoria</span>
       </div>
+      <a class="trial-action" href="registrazione.html?tipo=professionista&piano=trial-pro">Prova PRO gratis per 30 giorni</a>
+      <div class="trial-note">Nessun piano a pagamento viene attivato da questa scelta.</div>
     </section>
 
     <section class="plans-grid">
@@ -271,8 +292,8 @@
         </div>
         <div class="plan-price">€0 <small>/ mese</small></div>
         <p class="plan-ideal">Per chi vuole essere presente su Beautyslot e farsi trovare vicino ai clienti.</p>
-        <details>
-          <summary>Vedi cosa include</summary>
+        <div class="plan-includes">
+          <div class="plan-includes-title">Vedi cosa include</div>
           <ul>
             <li>Profilo attività con nome, logo, fotografie e descrizione.</li>
             <li>Indirizzo, posizione sulla mappa e geolocalizzazione nelle ricerche.</li>
@@ -282,8 +303,8 @@
             <li>Recensioni.</li>
             <li>Nessun calendario Beautyslot.</li>
           </ul>
-        </details>
-        <a class="choose" href="#">Scegli FREE</a>
+        </div>
+        <a class="choose" href="registrazione.html?tipo=professionista&piano=free">Scegli FREE</a>
       </article>
 
       <article class="plan-card">
@@ -293,8 +314,8 @@
         </div>
         <div class="plan-price">€14,90 <small>/ mese</small></div>
         <p class="plan-ideal">Per barbieri, parrucchieri, estetiste e professionisti beauty che lavorano da soli.</p>
-        <details>
-          <summary>Vedi cosa include</summary>
+        <div class="plan-includes">
+          <div class="plan-includes-title">Vedi cosa include</div>
           <ul>
             <li>Tutto il FREE.</li>
             <li>Calendario digitale personale.</li>
@@ -305,8 +326,8 @@
             <li>Storico clienti.</li>
             <li>Link personale Beautyslot.</li>
           </ul>
-        </details>
-        <a class="choose" href="#">Scegli START</a>
+        </div>
+        <a class="choose" href="registrazione.html?tipo=professionista&piano=start">Scegli START</a>
       </article>
 
       <article class="plan-card pro">
@@ -316,8 +337,8 @@
         </div>
         <div class="plan-price">€29,90 <small>/ mese</small></div>
         <p class="plan-ideal">Per saloni con 1–3 operatori.</p>
-        <details open>
-          <summary>Vedi cosa include</summary>
+        <div class="plan-includes">
+          <div class="plan-includes-title">Vedi cosa include</div>
           <ul>
             <li>Tutto START.</li>
             <li>Fino a 3 operatori con calendario individuale.</li>
@@ -328,8 +349,8 @@
             <li>Statistiche.</li>
             <li>Provenienza cliente da Beautyslot o link personale.</li>
           </ul>
-        </details>
-        <a class="choose" href="#">Scegli PRO</a>
+        </div>
+        <a class="choose" href="registrazione.html?tipo=professionista&piano=pro">Scegli PRO</a>
       </article>
 
       <article class="plan-card">
@@ -339,8 +360,8 @@
         </div>
         <div class="plan-price">€49,90 <small>/ mese</small></div>
         <p class="plan-ideal">Per saloni e centri più organizzati, fino a circa 8 operatori.</p>
-        <details>
-          <summary>Vedi cosa include</summary>
+        <div class="plan-includes">
+          <div class="plan-includes-title">Vedi cosa include</div>
           <ul>
             <li>Tutto PRO.</li>
             <li>Fino a circa 8 operatori.</li>
@@ -351,8 +372,8 @@
             <li>Gift card, coupon e fidelity.</li>
             <li>Marketing e recupero clienti inattivi.</li>
           </ul>
-        </details>
-        <a class="choose" href="#">Scegli BUSINESS</a>
+        </div>
+        <a class="choose" href="registrazione.html?tipo=professionista&piano=business">Scegli BUSINESS</a>
       </article>
 
       <article class="plan-card">
@@ -362,8 +383,8 @@
         </div>
         <div class="plan-price">Contattaci</div>
         <p class="plan-ideal">Per catene, franchising e gruppi con molte sedi.</p>
-        <details>
-          <summary>Vedi cosa include</summary>
+        <div class="plan-includes">
+          <div class="plan-includes-title">Vedi cosa include</div>
           <ul>
             <li>Operatori illimitati.</li>
             <li>Sedi multiple.</li>
@@ -376,8 +397,8 @@
             <li>Importazione database clienti.</li>
             <li>Assistenza dedicata.</li>
           </ul>
-        </details>
-        <a class="choose" href="#">Contattaci</a>
+        </div>
+        <a class="choose" href="registrazione.html?tipo=professionista&piano=enterprise">Scegli ENTERPRISE</a>
       </article>
     </section>
 
