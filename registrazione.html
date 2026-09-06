@@ -139,6 +139,34 @@
       box-shadow:0 0 0 4px rgba(187,129,136,.08);
     }
 
+    .email-status{
+      display:none;
+      margin-top:8px;
+      padding:10px 12px;
+      border:1px solid rgba(181,91,104,.24);
+      border-radius:12px;
+      background:rgba(181,91,104,.055);
+      color:#9f5964;
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    .email-status.show{
+      display:block;
+    }
+
+    .email-status a{
+      color:var(--rose-dark);
+      font-weight:700;
+      text-decoration:none;
+      border-bottom:1px solid rgba(157,104,112,.34);
+    }
+
+    input.email-error{
+      border-color:rgba(181,91,104,.58);
+      box-shadow:0 0 0 4px rgba(181,91,104,.07);
+    }
+
     .password-wrap{
       position:relative;
     }
@@ -592,6 +620,11 @@
             placeholder="nome@email.it"
             required
           >
+          <div class="email-status" id="emailStatus" role="alert" aria-live="polite">
+            Questa email è già registrata.
+            <a href="login.html">Accedi</a>
+            oppure usa un’altra email.
+          </div>
         </div>
 
         <div class="field">
@@ -835,9 +868,58 @@
     });
 
     const form = document.getElementById("registrationForm");
+    const emailInput = document.getElementById("email");
+    const emailStatus = document.getElementById("emailStatus");
+
+    function clearEmailStatus() {
+      emailStatus.classList.remove("show");
+      emailInput.classList.remove("email-error");
+      emailInput.removeAttribute("aria-invalid");
+    }
+
+    function showDuplicateEmail() {
+      emailStatus.classList.add("show");
+      emailInput.classList.add("email-error");
+      emailInput.setAttribute("aria-invalid", "true");
+      emailInput.focus();
+    }
+
+    function isDuplicateSignup(data, error) {
+      const code = String(error?.code || "").toLowerCase();
+      const message = String(error?.message || "").toLowerCase();
+
+      if (
+        code === "user_already_exists" ||
+        code === "email_exists" ||
+        message.includes("already registered") ||
+        message.includes("already exists") ||
+        message.includes("already been registered") ||
+        message.includes("user already registered")
+      ) {
+        return true;
+      }
+
+      /*
+        Con conferma email attiva, Supabase può volutamente NON restituire
+        un errore esplicito per un indirizzo già esistente.
+        In quel caso restituisce un user "offuscato" senza identities.
+        Questo controllo impedisce di mandare l'utente avanti come se
+        la registrazione fosse nuova.
+      */
+      const identities = data?.user?.identities;
+
+      return (
+        data?.user &&
+        Array.isArray(identities) &&
+        identities.length === 0
+      );
+    }
+
+    emailInput.addEventListener("input", clearEmailStatus);
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
+      clearEmailStatus();
 
       if (!form.checkValidity()) {
         form.reportValidity();
@@ -908,6 +990,11 @@
           }
         });
 
+        if (isDuplicateSignup(data, error)) {
+          showDuplicateEmail();
+          return;
+        }
+
         if (error) throw error;
 
         if (data.user) {
@@ -954,7 +1041,16 @@
         }
       } catch (error) {
         console.error(error);
-        alert("Errore durante la registrazione: " + (error.message || "Riprova."));
+
+        if (isDuplicateSignup(null, error)) {
+          showDuplicateEmail();
+          return;
+        }
+
+        alert(
+          "Errore durante la registrazione: " +
+          (error.message || "Riprova.")
+        );
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = "Continua";
