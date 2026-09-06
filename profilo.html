@@ -66,17 +66,17 @@
       font-weight:400;
       text-align:left;
       text-decoration:none;
+      -webkit-tap-highlight-color:transparent;
     }
 
     .forgot-link:hover{
       opacity:.86;
     }
 
-    .forgot-description{
-      margin:7px 0 0;
-      font-size:12px;
-      line-height:1.55;
-      color:var(--muted);
+    .forgot-link:focus-visible{
+      outline:2px solid var(--accent);
+      outline-offset:5px;
+      border-radius:6px;
     }
 
     .recovery-box{
@@ -191,11 +191,8 @@
 
           <section class="section">
             <button class="forgot-link" type="button" id="forgotPassword">
-              Password dimenticata
+              Password dimenticata?
             </button>
-            <p class="forgot-description">
-              Ricevi un codice di verifica via email per impostare una nuova password.
-            </p>
 
             <div class="recovery-box" id="recoveryBox">
               <h3 class="recovery-title">Recupera la password</h3>
