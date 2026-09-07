@@ -205,134 +205,6 @@
 
     .message.show{display:block}
 
-    .message.ok{
-      display:block;
-      background:rgba(102,153,122,.10);
-      color:#52715e;
-      border-color:rgba(102,153,122,.16);
-    }
-
-    .message.error{
-      display:block;
-      background:rgba(160,89,96,.10);
-      color:#86545a;
-      border-color:rgba(160,89,96,.16);
-    }
-
-    .forgot-row{
-      margin-top:-6px;
-      margin-bottom:18px;
-      text-align:right;
-    }
-
-    .forgot-link{
-      display:inline-flex;
-      padding:0;
-      border:0;
-      background:transparent;
-      color:var(--rose-dark);
-      cursor:pointer;
-      font-size:12px;
-      font-weight:600;
-      text-decoration:underline;
-      text-underline-offset:3px;
-    }
-
-    .recovery-box{
-      display:none;
-      margin:8px 0 20px;
-      padding:18px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:rgba(255,255,255,.40);
-    }
-
-    .recovery-box.open{
-      display:block;
-    }
-
-    .recovery-title{
-      margin:0 0 6px;
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:21px;
-      font-weight:400;
-      color:var(--rose-dark);
-    }
-
-    .recovery-text{
-      margin:0 0 14px;
-      font-size:12px;
-      line-height:1.55;
-      color:var(--muted);
-    }
-
-    .recovery-email{
-      margin:0 0 12px;
-      padding:10px 12px;
-      border-radius:12px;
-      background:rgba(255,255,255,.50);
-      color:var(--text);
-      font-size:12px;
-      line-height:1.45;
-      word-break:break-word;
-    }
-
-    .recovery-button{
-      width:100%;
-      min-height:46px;
-      border-radius:999px;
-      border:1px solid rgba(169,108,116,.30);
-      background:rgba(255,255,255,.54);
-      color:var(--rose-dark);
-      font-size:10px;
-      font-weight:600;
-      letter-spacing:1.4px;
-      text-transform:uppercase;
-      cursor:pointer;
-    }
-
-    .recovery-button:hover{
-      background:rgba(255,255,255,.76);
-    }
-
-    .recovery-button:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .code-row{
-      display:none;
-      margin-top:14px;
-    }
-
-    .code-row.open{
-      display:block;
-    }
-
-    .code-input{
-      text-align:center;
-      letter-spacing:7px;
-      font-size:20px !important;
-      font-weight:600;
-    }
-
-    .verified-box{
-      display:none;
-      margin-top:14px;
-    }
-
-    .verified-box.open{
-      display:block;
-    }
-
-    .verified-box .field{
-      margin-bottom:14px;
-    }
-
-    .verified-box .field:last-of-type{
-      margin-bottom:0;
-    }
-
     .links{
       margin-top:22px;
       text-align:center;
@@ -410,95 +282,6 @@
           </div>
         </div>
 
-        <div class="forgot-row">
-          <button class="forgot-link" type="button" id="forgotPassword">
-            Password dimenticata?
-          </button>
-        </div>
-
-        <div class="recovery-box" id="recoveryBox">
-          <h3 class="recovery-title">Recupera la password</h3>
-
-          <p class="recovery-text">
-            Ti invieremo un codice di verifica di 6 cifre all'indirizzo email del tuo account.
-          </p>
-
-          <div class="recovery-email" id="recoveryEmailText">
-            Inserisci prima l'email del tuo account nel campo qui sopra.
-          </div>
-
-          <button
-            class="recovery-button"
-            type="button"
-            id="sendRecoveryCode"
-          >
-            Invia codice via email
-          </button>
-
-          <div class="message" id="sendCodeMessage"></div>
-
-          <div class="code-row" id="codeRow">
-            <div class="field">
-              <label for="recoveryCode">Codice ricevuto via email</label>
-              <input
-                class="code-input"
-                id="recoveryCode"
-                type="text"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                minlength="6"
-                maxlength="6"
-                pattern="[0-9]{6}"
-                placeholder="000000"
-              >
-            </div>
-
-            <button
-              class="recovery-button"
-              type="button"
-              id="verifyRecoveryCode"
-            >
-              Verifica codice
-            </button>
-
-            <div class="message" id="verifyCodeMessage"></div>
-          </div>
-
-          <div class="verified-box" id="verifiedBox">
-            <div class="field">
-              <label for="recoveryPassword">Nuova password</label>
-              <input
-                id="recoveryPassword"
-                type="password"
-                autocomplete="new-password"
-                minlength="6"
-                placeholder="Nuova password"
-              >
-            </div>
-
-            <div class="field">
-              <label for="recoveryPasswordConfirm">Conferma nuova password</label>
-              <input
-                id="recoveryPasswordConfirm"
-                type="password"
-                autocomplete="new-password"
-                minlength="6"
-                placeholder="Ripeti la nuova password"
-              >
-            </div>
-
-            <button
-              class="recovery-button"
-              type="button"
-              id="saveRecoveryPassword"
-            >
-              Aggiorna password
-            </button>
-
-            <div class="message" id="recoveryPasswordMessage"></div>
-          </div>
-        </div>
-
         <button class="submit" type="submit" id="submitButton">
           Accedi
         </button>
@@ -536,22 +319,6 @@
     const submitButton = document.getElementById("submitButton");
     const message = document.getElementById("message");
 
-    const forgotPassword = document.getElementById("forgotPassword");
-    const recoveryBox = document.getElementById("recoveryBox");
-    const recoveryEmailText = document.getElementById("recoveryEmailText");
-    const sendRecoveryCode = document.getElementById("sendRecoveryCode");
-    const sendCodeMessage = document.getElementById("sendCodeMessage");
-    const codeRow = document.getElementById("codeRow");
-    const recoveryCodeInput = document.getElementById("recoveryCode");
-    const verifyRecoveryCode = document.getElementById("verifyRecoveryCode");
-    const verifyCodeMessage = document.getElementById("verifyCodeMessage");
-    const verifiedBox = document.getElementById("verifiedBox");
-    const saveRecoveryPassword = document.getElementById("saveRecoveryPassword");
-    const recoveryPasswordMessage = document.getElementById("recoveryPasswordMessage");
-
-    let recoveryEmail = "";
-    let recoveryRequestInProgress = false;
-
     togglePassword.addEventListener("click", function () {
       const visible = passwordInput.type === "text";
       passwordInput.type = visible ? "password" : "text";
@@ -562,368 +329,6 @@
       message.textContent = text;
       message.classList.add("show");
     }
-
-
-    function clearRecoveryMessages() {
-      [
-        sendCodeMessage,
-        verifyCodeMessage,
-        recoveryPasswordMessage
-      ].forEach(function(node){
-        node.className = "message";
-        node.textContent = "";
-      });
-    }
-
-    function updateRecoveryEmailText() {
-      const email = emailInput.value.trim().toLowerCase();
-
-      recoveryEmailText.textContent = email
-        ? "Codice da inviare a: " + email
-        : "Inserisci prima l'email del tuo account nel campo qui sopra.";
-    }
-
-    emailInput.addEventListener("input", function(){
-      updateRecoveryEmailText();
-
-      /*
-        Se l'utente cambia email dopo aver richiesto un codice,
-        azzeriamo il flusso per evitare di verificare il codice
-        contro un indirizzo diverso.
-      */
-      const typedEmail = emailInput.value.trim().toLowerCase();
-
-      if(recoveryEmail && typedEmail !== recoveryEmail){
-        recoveryEmail = "";
-        sessionStorage.removeItem("beautyslot_recovery_email");
-        codeRow.classList.remove("open");
-        verifiedBox.classList.remove("open");
-        recoveryCodeInput.value = "";
-        clearRecoveryMessages();
-      }
-    });
-
-    recoveryCodeInput.addEventListener("input", function(){
-      recoveryCodeInput.value = recoveryCodeInput.value
-        .replace(/\D/g, "")
-        .slice(0, 6);
-    });
-
-    forgotPassword.addEventListener("click", function(){
-      recoveryBox.classList.toggle("open");
-      updateRecoveryEmailText();
-
-      if(recoveryBox.classList.contains("open")){
-        recoveryBox.scrollIntoView({
-          behavior:"smooth",
-          block:"nearest"
-        });
-      }
-    });
-
-    sendRecoveryCode.addEventListener("click", async function(){
-      if(recoveryRequestInProgress) return;
-
-      clearRecoveryMessages();
-
-      const email =
-        emailInput.value.trim().toLowerCase();
-
-      if(!email){
-        sendCodeMessage.className = "message error";
-        sendCodeMessage.textContent =
-          "Inserisci prima l'email del tuo account.";
-        emailInput.focus();
-        return;
-      }
-
-      if(!emailInput.checkValidity()){
-        sendCodeMessage.className = "message error";
-        sendCodeMessage.textContent =
-          "Inserisci un indirizzo email valido.";
-        emailInput.focus();
-        return;
-      }
-
-      recoveryEmail = email;
-
-      verifiedBox.classList.remove("open");
-      codeRow.classList.remove("open");
-      recoveryCodeInput.value = "";
-      document.getElementById("recoveryPassword").value = "";
-      document.getElementById("recoveryPasswordConfirm").value = "";
-
-      recoveryRequestInProgress = true;
-      sendRecoveryCode.disabled = true;
-      sendRecoveryCode.textContent = "Invio in corso…";
-
-      try{
-        /*
-          Stesso flusso usato nella pagina profilo:
-          crea una nuova richiesta di recovery e riceviamo
-          via email un OTP di 6 cifre.
-        */
-        await supabaseClient.auth.signOut({ scope:"local" });
-
-        localStorage.removeItem("beautyslot_nome");
-        localStorage.removeItem("beautyslot_cognome");
-        localStorage.removeItem("beautyslot_full_name");
-        localStorage.removeItem("beautyslot_user_id");
-        localStorage.removeItem("beautyslot_email");
-        sessionStorage.removeItem("beautyslot_tipo_utente");
-
-        const recoveryRedirect = new URL(
-          "login.html",
-          window.location.href
-        ).href;
-
-        const { error } =
-          await supabaseClient.auth.resetPasswordForEmail(
-            recoveryEmail,
-            {
-              redirectTo: recoveryRedirect
-            }
-          );
-
-        if(error) throw error;
-
-        sessionStorage.setItem(
-          "beautyslot_recovery_email",
-          recoveryEmail
-        );
-
-        sendCodeMessage.className = "message ok";
-        sendCodeMessage.textContent =
-          "Codice di verifica inviato a " +
-          recoveryEmail +
-          ". Usa l'ultimo codice ricevuto.";
-
-        codeRow.classList.add("open");
-        recoveryCodeInput.focus();
-
-      }catch(error){
-        console.error(
-          "Beautyslot recovery request:",
-          error
-        );
-
-        sendCodeMessage.className = "message error";
-        sendCodeMessage.textContent =
-          "Non è stato possibile inviare il codice. " +
-          (error?.message || "Riprova.");
-      }finally{
-        recoveryRequestInProgress = false;
-        sendRecoveryCode.disabled = false;
-        sendRecoveryCode.textContent =
-          "Invia di nuovo il codice";
-      }
-    });
-
-    verifyRecoveryCode.addEventListener("click", async function(){
-      const code =
-        recoveryCodeInput.value.trim();
-
-      const emailForRecovery =
-        (
-          recoveryEmail ||
-          sessionStorage.getItem(
-            "beautyslot_recovery_email"
-          ) ||
-          emailInput.value ||
-          ""
-        )
-          .trim()
-          .toLowerCase();
-
-      verifyCodeMessage.className = "message";
-      verifyCodeMessage.textContent = "";
-
-      if(!emailForRecovery){
-        verifyCodeMessage.className = "message error";
-        verifyCodeMessage.textContent =
-          "Email di recupero non disponibile. Richiedi nuovamente il codice.";
-        return;
-      }
-
-      if(!/^\d{6}$/.test(code)){
-        verifyCodeMessage.className = "message error";
-        verifyCodeMessage.textContent =
-          "Inserisci esattamente le 6 cifre ricevute nell'ultima email Beautyslot.";
-        return;
-      }
-
-      verifyRecoveryCode.disabled = true;
-      verifyRecoveryCode.textContent =
-        "Verifica in corso…";
-
-      try{
-        const { data, error } =
-          await supabaseClient.auth.verifyOtp({
-            email:emailForRecovery,
-            token:code,
-            type:"recovery"
-          });
-
-        if(error) throw error;
-
-        if(!data?.session || !data?.user){
-          throw new Error(
-            "Supabase non ha creato la sessione di recupero."
-          );
-        }
-
-        recoveryEmail =
-          data.user.email ||
-          emailForRecovery;
-
-        emailInput.value = recoveryEmail;
-
-        verifyCodeMessage.className =
-          "message ok";
-
-        verifyCodeMessage.textContent =
-          "Codice verificato. Ora puoi scegliere una nuova password.";
-
-        verifiedBox.classList.add("open");
-        document
-          .getElementById("recoveryPassword")
-          .focus();
-
-      }catch(error){
-        console.error(
-          "Beautyslot verify recovery OTP:",
-          error
-        );
-
-        const detail =
-          error?.code ||
-          error?.message ||
-          "Codice non valido o scaduto.";
-
-        verifyCodeMessage.className =
-          "message error";
-
-        verifyCodeMessage.textContent =
-          "Il codice non è stato accettato: " +
-          detail +
-          " Usa l'ultimo codice ricevuto oppure richiedine uno nuovo.";
-      }finally{
-        verifyRecoveryCode.disabled = false;
-        verifyRecoveryCode.textContent =
-          "Verifica codice";
-      }
-    });
-
-    saveRecoveryPassword.addEventListener("click", async function(){
-      const password =
-        document.getElementById(
-          "recoveryPassword"
-        ).value;
-
-      const confirm =
-        document.getElementById(
-          "recoveryPasswordConfirm"
-        ).value;
-
-      recoveryPasswordMessage.className =
-        "message";
-
-      recoveryPasswordMessage.textContent =
-        "";
-
-      if(password.length < 6){
-        recoveryPasswordMessage.className =
-          "message error";
-
-        recoveryPasswordMessage.textContent =
-          "La nuova password deve contenere almeno 6 caratteri.";
-        return;
-      }
-
-      if(password !== confirm){
-        recoveryPasswordMessage.className =
-          "message error";
-
-        recoveryPasswordMessage.textContent =
-          "Le due password non coincidono.";
-        return;
-      }
-
-      saveRecoveryPassword.disabled = true;
-      saveRecoveryPassword.textContent =
-        "Aggiornamento…";
-
-      try{
-        const { error } =
-          await supabaseClient.auth.updateUser({
-            password:password
-          });
-
-        if(error) throw error;
-
-        /*
-          Siamo sulla pagina di login:
-          dopo il cambio password chiudiamo la sessione
-          recovery, così l'utente effettua un accesso normale
-          con la nuova password.
-        */
-        await supabaseClient.auth.signOut({
-          scope:"local"
-        });
-
-        sessionStorage.removeItem(
-          "beautyslot_recovery_email"
-        );
-
-        passwordInput.value = "";
-        recoveryCodeInput.value = "";
-        document.getElementById(
-          "recoveryPassword"
-        ).value = "";
-        document.getElementById(
-          "recoveryPasswordConfirm"
-        ).value = "";
-
-        codeRow.classList.remove("open");
-        verifiedBox.classList.remove("open");
-        recoveryBox.classList.remove("open");
-
-        sendCodeMessage.className = "message";
-        sendCodeMessage.textContent = "";
-        verifyCodeMessage.className = "message";
-        verifyCodeMessage.textContent = "";
-        recoveryPasswordMessage.className = "message";
-        recoveryPasswordMessage.textContent = "";
-
-        sendRecoveryCode.disabled = false;
-        sendRecoveryCode.textContent = "Invia codice via email";
-
-        recoveryEmail = "";
-
-        message.className = "message ok";
-        message.textContent =
-          "Password aggiornata correttamente. Ora puoi accedere con la nuova password.";
-
-        passwordInput.focus();
-
-      }catch(error){
-        console.error(
-          "Beautyslot update recovery password:",
-          error
-        );
-
-        recoveryPasswordMessage.className =
-          "message error";
-
-        recoveryPasswordMessage.textContent =
-          "Non è stato possibile aggiornare la password. " +
-          (error?.message || "Riprova.");
-      }finally{
-        saveRecoveryPassword.disabled = false;
-        saveRecoveryPassword.textContent =
-          "Aggiorna password";
-      }
-    });
 
 
     form.addEventListener("submit", async function (event) {
@@ -941,24 +346,13 @@
       submitButton.textContent = "Accesso...";
 
       try {
-        /*
-          Un login esplicito deve sostituire qualsiasi account precedente
-          presente nello stesso browser.
-        */
-        await supabaseClient.auth.signOut();
-        localStorage.removeItem("beautyslot_nome");
-        localStorage.removeItem("beautyslot_cognome");
-        localStorage.removeItem("beautyslot_full_name");
-        localStorage.removeItem("beautyslot_user_id");
-        localStorage.removeItem("beautyslot_email");
-        sessionStorage.removeItem("beautyslot_tipo_utente");
-
         const { data, error } = await supabaseClient.auth.signInWithPassword({
           email,
           password
         });
 
         if (error) throw error;
+
 
         const metadata = data.user?.user_metadata || {};
         let nomeUtente =
@@ -975,9 +369,6 @@
           }
         }
 
-        localStorage.setItem("beautyslot_user_id", data.user?.id || "");
-        localStorage.setItem("beautyslot_email", data.user?.email || email);
-
         if (nomeUtente) {
           localStorage.setItem("beautyslot_nome", nomeUtente);
         }
@@ -988,11 +379,6 @@
 
         if (metadata.full_name) {
           localStorage.setItem("beautyslot_full_name", metadata.full_name);
-        } else if (nomeUtente) {
-          localStorage.setItem(
-            "beautyslot_full_name",
-            [nomeUtente, metadata.cognome || ""].filter(Boolean).join(" ")
-          );
         }
 
         const tipoUtente =
@@ -1011,7 +397,74 @@
 
         if (tipoUtente === "professionista") {
           sessionStorage.setItem("beautyslot_tipo_utente", "professionista");
-          showMessage("Accesso effettuato correttamente. L'area professionista sarà collegata al prossimo passaggio.");
+
+          localStorage.setItem(
+            "beautyslot_user_id",
+            data.user?.id || ""
+          );
+
+          localStorage.setItem(
+            "beautyslot_email",
+            data.user?.email || email
+          );
+
+          const { data:profile, error:profileError } =
+            await supabaseClient
+              .from("beautyslot_professionisti")
+              .select("user_id,piano")
+              .eq("user_id", data.user.id)
+              .maybeSingle();
+
+          if (profileError) {
+            throw profileError;
+          }
+
+          const piano = String(
+            profile?.piano ||
+            metadata.piano_attivo ||
+            metadata.piano_scelto ||
+            metadata.piano_base ||
+            ""
+          ).toLowerCase();
+
+          function dashboardPerPiano(plan) {
+            if (plan === "free") return "dashboard-professionista-free.html";
+            if (plan === "start") return "dashboard-professionista-start.html";
+            if (plan === "pro" || plan === "trial-pro") return "dashboard-professionista-pro.html";
+            if (plan === "business") return "dashboard-professionista-business.html";
+            if (plan === "enterprise") return "dashboard-professionista-enterprise.html";
+            return "";
+          }
+
+          function onboardingPerPiano(plan) {
+            if (plan === "free") return "registrazione-azienda-free.html";
+            if (plan === "start") return "registrazione-azienda-start.html";
+            if (plan === "pro" || plan === "trial-pro") return "registrazione-azienda-pro.html";
+            if (plan === "business") return "registrazione-azienda-business.html";
+            if (plan === "enterprise") return "registrazione-azienda-enterprise.html";
+            return "piani-abbonamenti.html";
+          }
+
+          if (profile) {
+            const dashboard = dashboardPerPiano(piano);
+
+            if (!dashboard) {
+              showMessage("Piano professionista non riconosciuto. Controlla il profilo.");
+              return;
+            }
+
+            window.location.replace(
+              new URL(dashboard, window.location.href).href
+            );
+            return;
+          }
+
+          window.location.replace(
+            new URL(
+              onboardingPerPiano(piano),
+              window.location.href
+            ).href
+          );
           return;
         }
 
