@@ -1572,6 +1572,67 @@
     const worksPhotoCounter=document.getElementById("worksPhotoCounter");
     const photoMessage=document.getElementById("photoMessage");
 
+    const DASHBOARD_HISTORY_LOCK_KEY =
+      "beautyslot_dashboard_history_lock_disabled";
+
+    function dashboardHistoryLockEnabled(){
+      return sessionStorage.getItem(
+        DASHBOARD_HISTORY_LOCK_KEY
+      ) !== "1";
+    }
+
+    function armDashboardHistoryLock(){
+      if(!dashboardHistoryLockEnabled()) return;
+
+      const currentUrl =
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
+
+      history.replaceState(
+        {beautyslotDashboardBase:true},
+        "",
+        currentUrl
+      );
+
+      history.pushState(
+        {beautyslotDashboardGuard:true},
+        "",
+        currentUrl
+      );
+    }
+
+    function keepUserInsideDashboard(){
+      if(!dashboardHistoryLockEnabled()) return;
+
+      const currentUrl =
+        window.location.pathname +
+        window.location.search +
+        window.location.hash;
+
+      history.pushState(
+        {beautyslotDashboardGuard:true},
+        "",
+        currentUrl
+      );
+    }
+
+    // Impedisce al normale tasto Indietro del browser di lasciare
+    // la dashboard mentre il professionista è ancora autenticato.
+    window.addEventListener("popstate",()=>{
+      keepUserInsideDashboard();
+    });
+
+    // Riattiva il blocco anche se il browser ripristina la dashboard
+    // dalla cache di navigazione.
+    window.addEventListener("pageshow",()=>{
+      if(dashboardHistoryLockEnabled()){
+        armDashboardHistoryLock();
+      }
+    });
+
+    armDashboardHistoryLock();
+
     let currentUser=null;
     let business=null;
     let businessRealtimeChannel=null;
@@ -2119,13 +2180,13 @@
 
       if(canShowDonna(profile)){
         buttons.push(
-          `<a class="button secondary" href="salone-donna.html?id=${encodeURIComponent(id)}&from=dashboard">Vedi vetrina Donna</a>`
+          `<a class="button secondary" href="salone-donna.html?id=${encodeURIComponent(id)}&from=dashboard&dashboard_plan=${encodeURIComponent(String(profile.piano||"free").toLowerCase())}">Vedi vetrina Donna</a>`
         );
       }
 
       if(canShowUomo(profile)){
         buttons.push(
-          `<a class="button secondary" href="salone-uomo.html?id=${encodeURIComponent(id)}&from=dashboard">Vedi vetrina Uomo</a>`
+          `<a class="button secondary" href="salone-uomo.html?id=${encodeURIComponent(id)}&from=dashboard&dashboard_plan=${encodeURIComponent(String(profile.piano||"free").toLowerCase())}">Vedi vetrina Uomo</a>`
         );
       }
 
@@ -2323,6 +2384,11 @@
     });
 
     async function logout(){
+      sessionStorage.setItem(
+        DASHBOARD_HISTORY_LOCK_KEY,
+        "1"
+      );
+
       if(!PREVIEW_MODE){
         await sb.auth.signOut();
       }
@@ -2468,6 +2534,10 @@
       }
 
       currentUser=user;
+      sessionStorage.removeItem(
+        DASHBOARD_HISTORY_LOCK_KEY
+      );
+      armDashboardHistoryLock();
       const metadata=user.user_metadata || {};
 
       if(metadata.tipo_utente!=="professionista"){
