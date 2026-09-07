@@ -805,16 +805,28 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
   </form>
 </dialog>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const STORAGE_EVENTS = "beautyslot_start_calendar_events_v1";
-const STORAGE_AVAILABILITY = "beautyslot_start_calendar_availability_v1";
+const SUPABASE_URL="https://kfhjydwgjtiyjdkedvrp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
+const sb=supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY,
+  {
+    auth:{
+      persistSession:true,
+      autoRefreshToken:true,
+      detectSessionInUrl:true
+    }
+  }
+);
 
 const MONTH_NAMES=[
   "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
   "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"
 ];
 const WEEKDAY_NAMES=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
-const WEEKDAY_LONG=["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
 
 const defaultAvailability={
   0:{enabled:false,start:"09:00",end:"19:00"},
@@ -826,8 +838,11 @@ const defaultAvailability={
   6:{enabled:true,start:"09:00",end:"19:00"}
 };
 
-let events=loadJSON(STORAGE_EVENTS,[]);
-let availability=loadJSON(STORAGE_AVAILABILITY,defaultAvailability);
+let currentUser=null;
+let business=null;
+let events=[];
+let availability=structuredClone(defaultAvailability);
+let agendaChannel=null;
 
 let selectedDate=new Date();
 selectedDate.setHours(0,0,0,0);
@@ -845,28 +860,16 @@ const yearTitle=document.getElementById("yearTitle");
 const selectedDayLabel=document.getElementById("selectedDayLabel");
 const selectedDayList=document.getElementById("selectedDayList");
 
-function loadJSON(key,fallback){
-  try{
-    const raw=localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : structuredClone(fallback);
-  }catch{
-    return structuredClone(fallback);
-  }
-}
-function saveState(){
-  localStorage.setItem(STORAGE_EVENTS,JSON.stringify(events));
-  localStorage.setItem(STORAGE_AVAILABILITY,JSON.stringify(availability));
-}
-function uid(){
-  return (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random());
-}
 function pad(n){return String(n).padStart(2,"0")}
 function dateKey(date){
   return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
 }
 function parseDateKey(key){
-  const [y,m,d]=key.split("-").map(Number);
+  const [y,m,d]=String(key).split("-").map(Number);
   return new Date(y,m-1,d);
+}
+function timeShort(value){
+  return String(value || "").slice(0,5);
 }
 function longDate(date){
   return new Intl.DateTimeFormat("it-IT",{
@@ -874,10 +877,26 @@ function longDate(date){
   }).format(date).replace(/^./,c=>c.toUpperCase());
 }
 function eventLabel(event){
-  if(event.type==="appointment") return `${event.client} · ${event.service}`;
-  if(event.type==="block") return event.reason || "Orario bloccato";
-  if(event.type==="pause") return event.reason || "Pausa";
+  if(event.type==="prenotazione" || event.type==="appuntamento"){
+    return `${event.client || "Cliente"} · ${event.service || "Appuntamento"}`;
+  }
+  if(event.type==="blocco") return event.reason || "Orario bloccato";
+  if(event.type==="pausa") return event.reason || "Pausa";
   return event.reason || "Ferie / assenza";
+}
+function normalizeAgendaRow(row){
+  return {
+    id:row.id,
+    type:row.tipo,
+    date:String(row.data),
+    start:timeShort(row.ora_inizio),
+    end:timeShort(row.ora_fine),
+    duration:row.durata_minuti,
+    client:row.cliente_nome || "",
+    service:row.servizio_nome || "",
+    reason:row.motivo || row.note || "",
+    source:row.origine || "professionista"
+  };
 }
 function eventsForDate(date){
   const key=dateKey(date);
@@ -894,6 +913,117 @@ function isAvailableAt(date,hour){
 function currentViewId(){
   return document.querySelector(".view.active")?.id || "dayView";
 }
+
+async function loadBusiness(){
+  const { data:{ user }, error:userError }=await sb.auth.getUser();
+
+  if(userError || !user){
+    window.location.replace("login.html");
+    return false;
+  }
+
+  currentUser=user;
+
+  const { data:profile, error }=await sb
+    .from("beautyslot_professionisti")
+    .select("user_id,nome_attivita,piano,calendario_attivo,pubblicato")
+    .eq("user_id",user.id)
+    .maybeSingle();
+
+  if(error || !profile){
+    window.location.replace("registrazione-azienda-start.html");
+    return false;
+  }
+
+  if(
+    String(profile.piano || "").toLowerCase()==="free" ||
+    profile.calendario_attivo !== true
+  ){
+    window.location.replace("dashboard-professionista-free.html");
+    return false;
+  }
+
+  business=profile;
+
+  const eyebrow=document.querySelector(".eyebrow");
+  if(eyebrow){
+    eyebrow.textContent=
+      `${profile.nome_attivita || "La tua attività"} · Piano ${String(profile.piano || "START").toUpperCase()}`;
+  }
+
+  return true;
+}
+
+async function loadAgenda(){
+  if(!currentUser) return;
+
+  const { data, error }=await sb
+    .from("beautyslot_agenda")
+    .select("id,tipo,data,ora_inizio,ora_fine,durata_minuti,cliente_nome,servizio_nome,motivo,note,origine,stato")
+    .eq("professionista_user_id",currentUser.id)
+    .neq("stato","annullata")
+    .order("data",{ascending:true})
+    .order("ora_inizio",{ascending:true});
+
+  if(error){
+    console.error("Agenda non caricata:",error);
+    alert("Non riesco a leggere l'agenda da Supabase. Controlla di aver eseguito lo SQL del calendario.");
+    return;
+  }
+
+  events=(data || []).map(normalizeAgendaRow);
+}
+
+async function loadAvailability(){
+  if(!currentUser) return;
+
+  const { data, error }=await sb
+    .from("beautyslot_disponibilita")
+    .select("giorno_settimana,attivo,ora_inizio,ora_fine")
+    .eq("professionista_user_id",currentUser.id);
+
+  if(error){
+    console.warn("Disponibilità non caricate:",error.message);
+    availability=structuredClone(defaultAvailability);
+    return;
+  }
+
+  availability=structuredClone(defaultAvailability);
+
+  (data || []).forEach(row=>{
+    availability[row.giorno_settimana]={
+      enabled:row.attivo === true,
+      start:timeShort(row.ora_inizio),
+      end:timeShort(row.ora_fine)
+    };
+  });
+}
+
+function subscribeAgenda(){
+  if(!currentUser) return;
+
+  if(agendaChannel){
+    sb.removeChannel(agendaChannel);
+  }
+
+  agendaChannel=sb
+    .channel("beautyslot-agenda-"+currentUser.id)
+    .on(
+      "postgres_changes",
+      {
+        event:"*",
+        schema:"public",
+        table:"beautyslot_agenda",
+        filter:`professionista_user_id=eq.${currentUser.id}`
+      },
+      async ()=>{
+        await loadAgenda();
+        renderAll();
+      }
+    )
+    .subscribe();
+}
+
 function activateView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
   document.querySelectorAll("[data-view-target]").forEach(b=>{
@@ -901,17 +1031,19 @@ function activateView(id){
   });
   renderAll();
 }
+
 function renderAll(){
   const view=currentViewId();
 
   if(view==="dayView"){
     headingEl.textContent=longDate(selectedDate);
-    subtitleEl.textContent="Vista giorno · appuntamenti, blocchi, pause e assenze.";
+    subtitleEl.textContent="Vista giorno · appuntamenti, prenotazioni clienti, blocchi, pause e assenze.";
     renderDay();
   }else if(view==="weekView"){
     const start=getWeekStart(selectedDate);
     const end=new Date(start); end.setDate(end.getDate()+6);
-    headingEl.textContent=`${start.getDate()} ${MONTH_NAMES[start.getMonth()].toLowerCase()} – ${end.getDate()} ${MONTH_NAMES[end.getMonth()].toLowerCase()} ${end.getFullYear()}`;
+    headingEl.textContent=
+      `${start.getDate()} ${MONTH_NAMES[start.getMonth()].toLowerCase()} – ${end.getDate()} ${MONTH_NAMES[end.getMonth()].toLowerCase()} ${end.getFullYear()}`;
     subtitleEl.textContent="Vista settimana · clicca su un giorno per aprirlo.";
     renderWeek();
   }else if(view==="monthView"){
@@ -926,6 +1058,7 @@ function renderAll(){
 
   renderSelectedDayPanel();
 }
+
 function renderDay(){
   const dayEvents=eventsForDate(selectedDate);
   const hours=[];
@@ -934,15 +1067,13 @@ function renderDay(){
   dayColumn.innerHTML=hours.map(hour=>{
     const matching=dayEvents.filter(e=>{
       const sh=Number((e.start||"00:00").slice(0,2));
-      return sh===hour || (e.type==="absence" && hour===9);
+      return sh===hour || (e.type==="assenza" && hour===9);
     });
-
-    const classes=isAvailableAt(selectedDate,hour) ? "" : " closed-hour";
 
     return `
       <div class="day-row">
         <div class="day-time">${pad(hour)}:00</div>
-        <div class="day-content${classes}">
+        <div class="day-content${isAvailableAt(selectedDate,hour)?"":" closed-hour"}">
           ${matching.map(renderBooking).join("")}
         </div>
       </div>
@@ -952,28 +1083,36 @@ function renderDay(){
   if(!dayEvents.length){
     dayColumn.insertAdjacentHTML("afterbegin",`
       <div class="empty-note">
-        Nessun appuntamento, blocco o pausa per questa giornata.
+        Nessun appuntamento, prenotazione, blocco o pausa per questa giornata.
       </div>
     `);
   }
 }
+
 function renderBooking(event){
-  const timeText=event.type==="absence"
+  const timeText=event.type==="assenza"
     ? "Tutto il giorno"
     : `${event.start}${event.end ? "–"+event.end : ""}`;
 
-  const detail=event.type==="appointment"
-    ? `${event.service}${event.duration ? " · "+event.duration+" min" : ""}`
-    : eventLabel(event);
+  let detail="";
+
+  if(event.type==="prenotazione"){
+    detail=`Prenotazione cliente · ${event.service || "Servizio"}`;
+  }else if(event.type==="appuntamento"){
+    detail=event.service || "Appuntamento manuale";
+  }else{
+    detail=event.reason || eventLabel(event);
+  }
 
   return `
-    <div class="booking ${event.type!=="appointment" ? "block" : ""}">
-      <strong>${timeText}${event.type==="appointment" ? " · "+event.client : ""}</strong>
+    <div class="booking ${event.type!=="prenotazione" && event.type!=="appuntamento" ? "block" : ""}">
+      <strong>${timeText}${event.client ? " · "+event.client : ""}</strong>
       ${detail}
       <button class="event-delete" type="button" data-delete-event="${event.id}" title="Elimina">×</button>
     </div>
   `;
 }
+
 function getWeekStart(date){
   const d=new Date(date);
   const diff=(d.getDay()+6)%7;
@@ -981,23 +1120,26 @@ function getWeekStart(date){
   d.setHours(0,0,0,0);
   return d;
 }
+
 function renderWeek(){
   const start=getWeekStart(selectedDate);
   let html=`<div class="day-head"></div>`;
-
   const days=[];
+
   for(let i=0;i<7;i++){
-    const d=new Date(start); d.setDate(start.getDate()+i); days.push(d);
+    const d=new Date(start);
+    d.setDate(start.getDate()+i);
+    days.push(d);
     html+=`<div class="day-head" data-open-day="${dateKey(d)}">${WEEKDAY_NAMES[i]}<strong>${d.getDate()}</strong></div>`;
   }
 
-  const hours=[9,11,13,15,17,19];
-  hours.forEach(hour=>{
+  [9,11,13,15,17,19].forEach(hour=>{
     html+=`<div class="time">${pad(hour)}:00</div>`;
+
     days.forEach(d=>{
       const list=eventsForDate(d).filter(e=>{
         const sh=Number((e.start||"09:00").slice(0,2));
-        return sh>=hour && sh<hour+2 || (e.type==="absence" && hour===9);
+        return (sh>=hour && sh<hour+2) || (e.type==="assenza" && hour===9);
       });
 
       html+=`<div class="slot ${isAvailableAt(d,hour)?"":"closed-hour"}">${list.map(renderBooking).join("")}</div>`;
@@ -1006,6 +1148,7 @@ function renderWeek(){
 
   weekGrid.innerHTML=html;
 }
+
 function calendarCells(year,month){
   const first=new Date(year,month,1);
   const firstWeekday=(first.getDay()+6)%7;
@@ -1016,51 +1159,69 @@ function calendarCells(year,month){
   for(let i=firstWeekday-1;i>=0;i--){
     cells.push({day:prevMonthDays-i,muted:true,date:new Date(year,month-1,prevMonthDays-i)});
   }
+
   for(let d=1;d<=daysInMonth;d++){
     cells.push({day:d,muted:false,date:new Date(year,month,d)});
   }
+
   let next=1;
   while(cells.length<42){
     cells.push({day:next,muted:true,date:new Date(year,month+1,next)});
     next++;
   }
+
   return cells;
 }
+
 function renderMonth(){
   const y=monthCursor.getFullYear();
   const m=monthCursor.getMonth();
   monthTitle.textContent=`${MONTH_NAMES[m]} ${y}`;
 
-  const weekdays=WEEKDAY_NAMES.map(x=>`<div class="month-name">${x}</div>`).join("");
+  const weekdays=WEEKDAY_NAMES
+    .map(x=>`<div class="month-name">${x}</div>`)
+    .join("");
 
   const cells=calendarCells(y,m).map(cell=>{
-    const count=eventsForDate(cell.date).length;
+    const dayEvents=eventsForDate(cell.date);
+    const count=dayEvents.length;
+
     return `
       <div class="month-day ${cell.muted?"muted":""}" data-month-day="${dateKey(cell.date)}">
         <div class="n">${cell.day}</div>
         ${count ? `<div class="month-pill">${count} ${count===1?"voce":"voci"}</div>` : ""}
-        ${count ? `<div class="month-foot">${eventsForDate(cell.date).slice(0,2).map(e=>eventLabel(e)).join("<br>")}</div>` : ""}
+        ${count ? `<div class="month-foot">${dayEvents.slice(0,2).map(e=>eventLabel(e)).join("<br>")}</div>` : ""}
       </div>
     `;
   }).join("");
 
   monthGrid.innerHTML=weekdays+cells;
 }
+
 function miniMonthHtml(year,month){
   const first=new Date(year,month,1);
   const start=(first.getDay()+6)%7;
   const days=new Date(year,month+1,0).getDate();
 
-  let out=WEEKDAY_NAMES.map(x=>`<div class="mini-weekday">${x[0]}</div>`).join("");
-  for(let i=0;i<start;i++) out+=`<div class="mini-day"></div>`;
+  let out=WEEKDAY_NAMES
+    .map(x=>`<div class="mini-weekday">${x[0]}</div>`)
+    .join("");
+
+  for(let i=0;i<start;i++){
+    out+=`<div class="mini-day"></div>`;
+  }
+
   for(let d=1;d<=days;d++){
     const date=new Date(year,month,d);
     out+=`<div class="mini-day ${eventsForDate(date).length?"has-event":""}">${d}</div>`;
   }
+
   return out;
 }
+
 function renderYear(){
   yearTitle.textContent=fullYear;
+
   yearGrid.innerHTML=MONTH_NAMES.map((name,m)=>`
     <article class="mini-month" data-open-month="${m}">
       <h4>${name}</h4>
@@ -1068,6 +1229,7 @@ function renderYear(){
     </article>
   `).join("");
 }
+
 function renderSelectedDayPanel(){
   selectedDayLabel.textContent=longDate(selectedDate);
   const list=eventsForDate(selectedDate);
@@ -1079,17 +1241,64 @@ function renderSelectedDayPanel(){
 
   selectedDayList.innerHTML=list.map(e=>`
     <div class="today-item">
-      <div class="time-label">${e.type==="absence" ? "Tutto il giorno" : e.start}</div>
+      <div class="time-label">${e.type==="assenza" ? "Tutto il giorno" : e.start}</div>
       <strong>${eventLabel(e)}</strong>
-      <span>${e.type==="appointment" ? `${e.service} · ${e.duration} min` : (e.end ? `Fino alle ${e.end}` : "")}</span>
+      <span>${
+        e.type==="prenotazione"
+          ? `Prenotazione cliente · ${e.service || "Servizio"}`
+          : e.type==="appuntamento"
+            ? `${e.service || "Appuntamento"}${e.duration ? " · "+e.duration+" min" : ""}`
+            : (e.end ? `Fino alle ${e.end}` : "")
+      }</span>
     </div>
   `).join("");
 }
 
-/* navigazione viste */
+async function insertAgenda(payload){
+  const { error }=await sb
+    .from("beautyslot_agenda")
+    .insert({
+      professionista_user_id:currentUser.id,
+      origine:"professionista",
+      stato:"confermata",
+      ...payload
+    });
+
+  if(error){
+    if(String(error.message || "").includes("SLOT_OCCUPATO")){
+      alert("Questo orario è già occupato.");
+    }else{
+      alert("Errore durante il salvataggio: "+error.message);
+    }
+    return false;
+  }
+
+  await loadAgenda();
+  renderAll();
+  return true;
+}
+
+async function deleteAgendaEvent(id){
+  const { error }=await sb
+    .from("beautyslot_agenda")
+    .delete()
+    .eq("id",id)
+    .eq("professionista_user_id",currentUser.id);
+
+  if(error){
+    alert("Non riesco a eliminare questa voce.");
+    return;
+  }
+
+  await loadAgenda();
+  renderAll();
+}
+
+/* navigazione */
 document.querySelectorAll("[data-view-target]").forEach(btn=>{
   btn.addEventListener("click",()=>activateView(btn.dataset.viewTarget));
 });
+
 document.getElementById("monthPrev").addEventListener("click",()=>{
   monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);
   renderAll();
@@ -1099,13 +1308,15 @@ document.getElementById("monthNext").addEventListener("click",()=>{
   renderAll();
 });
 document.getElementById("yearPrev").addEventListener("click",()=>{
-  fullYear--; renderAll();
+  fullYear--;
+  renderAll();
 });
 document.getElementById("yearNext").addEventListener("click",()=>{
-  fullYear++; renderAll();
+  fullYear++;
+  renderAll();
 });
 
-document.addEventListener("click",event=>{
+document.addEventListener("click",async event=>{
   const day=event.target.closest("[data-open-day]");
   if(day){
     selectedDate=parseDateKey(day.dataset.openDay);
@@ -1132,9 +1343,7 @@ document.addEventListener("click",event=>{
   const del=event.target.closest("[data-delete-event]");
   if(del){
     if(confirm("Eliminare questa voce dal calendario?")){
-      events=events.filter(e=>e.id!==del.dataset.deleteEvent);
-      saveState();
-      renderAll();
+      await deleteAgendaEvent(del.dataset.deleteEvent);
     }
   }
 });
@@ -1152,14 +1361,20 @@ document.querySelectorAll("[data-close]").forEach(btn=>{
 function setSelectedDateInput(id){
   document.getElementById(id).value=dateKey(selectedDate);
 }
+function minutesBetween(start,end){
+  const [sh,sm]=start.split(":").map(Number);
+  const [eh,em]=end.split(":").map(Number);
+  return ((eh*60)+em)-((sh*60)+sm);
+}
 
-/* appuntamento */
+/* appuntamento manuale */
 document.getElementById("addAppointmentBtn").addEventListener("click",()=>{
   setSelectedDateInput("appointmentDate");
   document.getElementById("appointmentTime").value="09:00";
   openDialog("appointmentDialog");
 });
-document.getElementById("appointmentForm").addEventListener("submit",event=>{
+
+document.getElementById("appointmentForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const date=document.getElementById("appointmentDate").value;
@@ -1175,16 +1390,25 @@ document.getElementById("appointmentForm").addEventListener("submit",event=>{
   const endDate=new Date(2000,0,1,h,m+duration);
   const end=`${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
 
-  events.push({
-    id:uid(),type:"appointment",date,start,end,duration,client,service,notes
+  const ok=await insertAgenda({
+    tipo:"appuntamento",
+    data:date,
+    ora_inizio:start,
+    ora_fine:end,
+    durata_minuti:duration,
+    cliente_nome:client,
+    servizio_nome:service,
+    servizi:[],
+    note
   });
 
-  selectedDate=parseDateKey(date);
-  monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
-  saveState();
-  closeDialog("appointmentDialog");
-  event.target.reset();
-  renderAll();
+  if(ok){
+    selectedDate=parseDateKey(date);
+    monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+    closeDialog("appointmentDialog");
+    event.target.reset();
+    renderAll();
+  }
 });
 
 /* blocco */
@@ -1194,7 +1418,8 @@ document.getElementById("blockTimeBtn").addEventListener("click",()=>{
   document.getElementById("blockEnd").value="11:00";
   openDialog("blockDialog");
 });
-document.getElementById("blockForm").addEventListener("submit",event=>{
+
+document.getElementById("blockForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const date=document.getElementById("blockDate").value;
@@ -1207,12 +1432,21 @@ document.getElementById("blockForm").addEventListener("submit",event=>{
     return;
   }
 
-  events.push({id:uid(),type:"block",date,start,end,reason});
-  selectedDate=parseDateKey(date);
-  saveState();
-  closeDialog("blockDialog");
-  event.target.reset();
-  renderAll();
+  const ok=await insertAgenda({
+    tipo:"blocco",
+    data:date,
+    ora_inizio:start,
+    ora_fine:end,
+    durata_minuti:minutesBetween(start,end),
+    motivo:reason,
+    servizi:[]
+  });
+
+  if(ok){
+    selectedDate=parseDateKey(date);
+    closeDialog("blockDialog");
+    event.target.reset();
+  }
 });
 
 /* pausa */
@@ -1223,7 +1457,8 @@ document.getElementById("pauseBtn").addEventListener("click",()=>{
   document.getElementById("pauseReason").value="Pausa";
   openDialog("pauseDialog");
 });
-document.getElementById("pauseForm").addEventListener("submit",event=>{
+
+document.getElementById("pauseForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const date=document.getElementById("pauseDate").value;
@@ -1236,11 +1471,20 @@ document.getElementById("pauseForm").addEventListener("submit",event=>{
     return;
   }
 
-  events.push({id:uid(),type:"pause",date,start,end,reason});
-  selectedDate=parseDateKey(date);
-  saveState();
-  closeDialog("pauseDialog");
-  renderAll();
+  const ok=await insertAgenda({
+    tipo:"pausa",
+    data:date,
+    ora_inizio:start,
+    ora_fine:end,
+    durata_minuti:minutesBetween(start,end),
+    motivo:reason,
+    servizi:[]
+  });
+
+  if(ok){
+    selectedDate=parseDateKey(date);
+    closeDialog("pauseDialog");
+  }
 });
 
 /* ferie / assenza */
@@ -1251,7 +1495,8 @@ document.getElementById("absenceBtn").addEventListener("click",()=>{
   document.getElementById("absenceReason").value="Ferie / assenza";
   openDialog("absenceDialog");
 });
-document.getElementById("absenceForm").addEventListener("submit",event=>{
+
+document.getElementById("absenceForm").addEventListener("submit",async event=>{
   event.preventDefault();
 
   const from=document.getElementById("absenceFrom").value;
@@ -1263,23 +1508,42 @@ document.getElementById("absenceForm").addEventListener("submit",event=>{
     return;
   }
 
-  const start=parseDateKey(from);
-  const end=parseDateKey(to);
+  const rows=[];
+  const startDate=parseDateKey(from);
+  const endDate=parseDateKey(to);
 
-  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
-    const key=dateKey(d);
-
-    if(!events.some(e=>e.type==="absence" && e.date===key)){
-      events.push({
-        id:uid(),type:"absence",date:key,start:"00:00",end:"23:59",reason
-      });
-    }
+  for(let d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1)){
+    rows.push({
+      professionista_user_id:currentUser.id,
+      tipo:"assenza",
+      data:dateKey(d),
+      ora_inizio:"00:00",
+      ora_fine:"23:59",
+      durata_minuti:1439,
+      motivo:reason,
+      servizi:[],
+      stato:"confermata",
+      origine:"professionista"
+    });
   }
 
-  selectedDate=start;
-  monthCursor=new Date(start.getFullYear(),start.getMonth(),1);
-  saveState();
+  const { error }=await sb
+    .from("beautyslot_agenda")
+    .insert(rows);
+
+  if(error){
+    alert(
+      String(error.message || "").includes("SLOT_OCCUPATO")
+        ? "In una delle giornate selezionate esiste già un impegno. Rimuovilo prima di impostare l'assenza."
+        : "Errore durante il salvataggio dell'assenza."
+    );
+    return;
+  }
+
+  selectedDate=startDate;
+  monthCursor=new Date(startDate.getFullYear(),startDate.getMonth(),1);
   closeDialog("absenceDialog");
+  await loadAgenda();
   renderAll();
 });
 
@@ -1297,6 +1561,7 @@ function renderAvailabilityForm(){
 
   document.getElementById("availabilityList").innerHTML=order.map(item=>{
     const data=availability[item.day] || defaultAvailability[item.day];
+
     return `
       <div class="availability-row">
         <label>
@@ -1309,12 +1574,16 @@ function renderAvailabilityForm(){
     `;
   }).join("");
 }
+
 document.getElementById("availabilityBtn").addEventListener("click",()=>{
   renderAvailabilityForm();
   openDialog("availabilityDialog");
 });
-document.getElementById("availabilityForm").addEventListener("submit",event=>{
+
+document.getElementById("availabilityForm").addEventListener("submit",async event=>{
   event.preventDefault();
+
+  const rows=[];
 
   for(let day=0;day<=6;day++){
     const enabled=document.querySelector(`[data-av-enabled="${day}"]`).checked;
@@ -1326,15 +1595,46 @@ document.getElementById("availabilityForm").addEventListener("submit",event=>{
       return;
     }
 
-    availability[day]={enabled,start,end};
+    rows.push({
+      professionista_user_id:currentUser.id,
+      giorno_settimana:day,
+      attivo:enabled,
+      ora_inizio:start || "09:00",
+      ora_fine:end || "19:00",
+      updated_at:new Date().toISOString()
+    });
   }
 
-  saveState();
+  const { error }=await sb
+    .from("beautyslot_disponibilita")
+    .upsert(rows,{
+      onConflict:"professionista_user_id,giorno_settimana"
+    });
+
+  if(error){
+    alert("Errore durante il salvataggio delle disponibilità.");
+    return;
+  }
+
   closeDialog("availabilityDialog");
+  await loadAvailability();
   renderAll();
 });
 
-renderAll();
+async function init(){
+  const ok=await loadBusiness();
+  if(!ok) return;
+
+  await Promise.all([
+    loadAgenda(),
+    loadAvailability()
+  ]);
+
+  subscribeAgenda();
+  renderAll();
+}
+
+init();
 </script>
 </body>
 </html>

@@ -459,7 +459,11 @@
     };
     const params = new URLSearchParams(window.location.search);
     const salonId = params.get("id") || "hair-01";
-    const salon = SALONS[salonId] || SALONS["hair-01"];
+    let salon = SALONS[salonId] || SALONS["hair-01"];
+    let professionalUserId =
+      salonId.startsWith("free-")
+        ? salonId.replace(/^free-/,"")
+        : null;
 
     const SERVICES_BY_CATEGORY = {
       "Parrucchiere": [
@@ -524,7 +528,7 @@
       ]
     };
 
-    const SERVICES =
+    let SERVICES =
       SERVICES_BY_CATEGORY[salon.category] ||
       SERVICES_BY_CATEGORY["Parrucchiere"];
 
@@ -573,9 +577,12 @@
     let selectedDate = null;
     let selectedTime = null;
 
-    // Prenotazioni confermate durante questa sessione.
-    // In seguito verranno lette/salvate su Supabase.
+    // Prenotazioni create in questa sessione.
     const sessionBookings = [];
+
+    // Agenda reale condivisa con il professionista.
+    let serverBookings = [];
+    let remoteAvailability = {};
 
     const todayBase = new Date();
     let shownYear = todayBase.getFullYear();
@@ -598,6 +605,168 @@
       const m = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
       return y + "-" + m + "-" + day;
+    }
+
+    function normalizeCategoryForCalendar(categories){
+      const list = Array.isArray(categories) ? categories : [];
+
+      if(list.includes("Barbiere")) return "Barbiere";
+      if(list.includes("Parrucchiere")) return "Parrucchiere";
+      if(list.includes("Benessere")) return "Benessere";
+      if(list.includes("Estetista")) return "Estetista";
+      if(list.includes("Nail Artist") || list.includes("Unghie")) return "Unghie";
+
+      return "Parrucchiere";
+    }
+
+    function timeShort(value){
+      return String(value || "").slice(0,5);
+    }
+
+    function addDays(date, days){
+      const d = new Date(date);
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    async function loadDynamicProfessional(){
+      if(!professionalUserId) return;
+
+      const { data:item, error } = await authClient
+        .from("beautyslot_professionisti")
+        .select("user_id,nome_attivita,categorie,piano,calendario_attivo,pubblicato")
+        .eq("user_id", professionalUserId)
+        .eq("pubblicato", true)
+        .maybeSingle();
+
+      if(error || !item){
+        console.warn(
+          "Professionista non caricato nel calendario:",
+          error?.message || "profilo assente"
+        );
+        return;
+      }
+
+      salon = {
+        ...salon,
+        name:item.nome_attivita || salon.name || "Attività Beautyslot",
+        category:normalizeCategoryForCalendar(item.categorie),
+        plan:String(item.piano || "").toLowerCase(),
+        calendarActive:item.calendario_attivo === true
+      };
+
+      SERVICES =
+        SERVICES_BY_CATEGORY[salon.category] ||
+        SERVICES_BY_CATEGORY["Parrucchiere"];
+
+      document.getElementById("salonName").textContent = salon.name;
+      document.getElementById("sumSalon").textContent = salon.name;
+    }
+
+    async function refreshRemoteCalendarData(){
+      if(!professionalUserId) return;
+
+      const from = new Date();
+      from.setHours(0,0,0,0);
+      const to = addDays(from, 370);
+
+      const [
+        { data:busyRows, error:busyError },
+        { data:availabilityRows, error:availabilityError }
+      ] = await Promise.all([
+        authClient.rpc(
+          "beautyslot_slot_occupati",
+          {
+            p_professionista_id:professionalUserId,
+            p_dal:dateKey(from),
+            p_al:dateKey(to)
+          }
+        ),
+        authClient
+          .from("beautyslot_disponibilita")
+          .select("giorno_settimana,attivo,ora_inizio,ora_fine")
+          .eq("professionista_user_id",professionalUserId)
+      ]);
+
+      if(busyError){
+        console.warn("Slot occupati non caricati:",busyError.message);
+      }else{
+        serverBookings=(busyRows || []).map(row=>({
+          date:String(row.data_giorno),
+          start:timeToMinutes(timeShort(row.ora_inizio)),
+          end:timeToMinutes(timeShort(row.ora_fine)),
+          type:row.tipo || "prenotazione"
+        }));
+      }
+
+      if(availabilityError){
+        console.warn("Disponibilità non caricate:",availabilityError.message);
+      }else{
+        remoteAvailability={};
+
+        (availabilityRows || []).forEach(row=>{
+          remoteAvailability[String(row.giorno_settimana)]={
+            enabled:row.attivo === true,
+            start:timeShort(row.ora_inizio),
+            end:timeShort(row.ora_fine)
+          };
+        });
+      }
+    }
+
+    async function saveBookingToSupabase(user, bookingName, bookedTime, bookedEnd){
+      if(!professionalUserId){
+        return { ok:true, demo:true };
+      }
+
+      const payload={
+        professionista_user_id:professionalUserId,
+        cliente_user_id:user.id,
+        tipo:"prenotazione",
+        data:dateKey(selectedDate),
+        ora_inizio:bookedTime,
+        ora_fine:minutesToTime(bookedEnd),
+        durata_minuti:getTotalDuration(),
+        cliente_nome:bookingName,
+        servizio_nome:getSelectedNames().join(" + "),
+        servizi:selectedServices.map(service=>({
+          id:service.id,
+          group:service.group || "",
+          name:service.name,
+          duration:service.duration,
+          price:service.price
+        })),
+        stato:"confermata",
+        origine:"cliente",
+        tema:"donna"
+      };
+
+      const { data:saved, error } = await authClient
+        .from("beautyslot_agenda")
+        .insert(payload)
+        .select("id")
+        .single();
+
+      if(error){
+        await refreshRemoteCalendarData();
+
+        const occupied =
+          String(error.message || "").includes("SLOT_OCCUPATO");
+
+        return {
+          ok:false,
+          message:occupied
+            ? "Questo orario è appena stato occupato. Scegli un altro orario."
+            : "Non sono riuscito a registrare la prenotazione. Riprova."
+        };
+      }
+
+      await refreshRemoteCalendarData();
+
+      return {
+        ok:true,
+        id:saved?.id || null
+      };
     }
 
     function showSlotWarning(message){
@@ -961,7 +1130,24 @@
 
       const day = selectedDate.getDay();
 
-      // Domenica chiuso.
+      if(
+        professionalUserId &&
+        Object.keys(remoteAvailability).length
+      ){
+        const remote =
+          remoteAvailability[String(day)];
+
+        if(!remote || !remote.enabled){
+          return [];
+        }
+
+        return [{
+          start:timeToMinutes(remote.start),
+          end:timeToMinutes(remote.end)
+        }];
+      }
+
+      // Domenica chiuso nel calendario demo.
       if(day === 0) return [];
 
       /*
@@ -1012,25 +1198,37 @@
       */
       const busyIntervals = [];
 
-      getDemoReferenceTimes().forEach(time => {
-        const seed =
-          selectedDate.getDate() +
-          time.charCodeAt(0) +
-          time.charCodeAt(3);
+      if(!professionalUserId){
+        getDemoReferenceTimes().forEach(time => {
+          const seed =
+            selectedDate.getDate() +
+            time.charCodeAt(0) +
+            time.charCodeAt(3);
 
-        if(seed % 5 === 0){
-          const start = timeToMinutes(time);
-          busyIntervals.push({
-            start,
-            end:start + 30,
-            source:"existing"
-          });
-        }
-      });
+          if(seed % 5 === 0){
+            const start = timeToMinutes(time);
+            busyIntervals.push({
+              start,
+              end:start + 30,
+              source:"existing"
+            });
+          }
+        });
+      }
 
-      // Prenotazioni confermate durante questa sessione.
       const key = dateKey(selectedDate);
 
+      serverBookings
+        .filter(booking => booking.date === key)
+        .forEach(booking => {
+          busyIntervals.push({
+            start:booking.start,
+            end:booking.end,
+            source:"supabase"
+          });
+        });
+
+      // Prenotazioni confermate durante questa sessione.
       sessionBookings
         .filter(booking => booking.date === key)
         .forEach(booking => {
@@ -1340,11 +1538,13 @@
 
         Il controllo Auth avviene SOLO quando prova a confermare.
       */
+      let authenticatedUser = null;
+
       try{
         const { data, error } = await authClient.auth.getUser();
-        const user = data?.user || null;
+        authenticatedUser = data?.user || null;
 
-        if(error || !user){
+        if(error || !authenticatedUser){
           /*
             Nessuna prenotazione viene registrata prima dell'accesso.
             Portiamo direttamente alla registrazione cliente.
@@ -1434,7 +1634,25 @@
       const bookedEnd =
         bookedStart + getTotalDuration();
 
-      // Registra l'intero intervallo della prenotazione.
+      const serverResult =
+        await saveBookingToSupabase(
+          authenticatedUser,
+          bookingName,
+          bookedTime,
+          bookedEnd
+        );
+
+      if(!serverResult.ok){
+        showSlotWarning(serverResult.message);
+        selectedTime=null;
+        document.getElementById("sumTime").textContent=
+          "Seleziona un orario";
+        renderTimes();
+        updateBookButton();
+        return;
+      }
+
+      // Mantiene anche la prenotazione nella sessione corrente.
       sessionBookings.push({
         bookingName:bookingName,
         date:dateKey(selectedDate),
@@ -1492,9 +1710,15 @@
         "./conferma-prenotazione-donna.html";
     });
 
-    renderServices();
-    renderMonth();
-    renderTimes();
+    async function initCalendar(){
+      await loadDynamicProfessional();
+      await refreshRemoteCalendarData();
+      renderServices();
+      renderMonth();
+      renderTimes();
+    }
+
+    initCalendar();
   </script>
 </body>
 </html>
