@@ -1377,6 +1377,67 @@ const publishButton = document.getElementById("publishButton");
 
 function msg(t, cls=""){message.textContent=t||"";message.className="message"+(cls?" "+cls:"")}
 
+function dashboardProfessionistaPerPiano(plan){
+  const normalized=String(plan||"").toLowerCase();
+
+  if(normalized==="free")return "dashboard-professionista-free.html";
+  if(normalized==="start")return "dashboard-professionista-start.html";
+  if(normalized==="pro" || normalized==="trial-pro")return "dashboard-professionista-pro.html";
+  if(normalized==="business")return "dashboard-professionista-business.html";
+  if(normalized==="enterprise")return "dashboard-professionista-enterprise.html";
+
+  return "login.html";
+}
+
+async function redirectSeOnboardingGiaCompletato(){
+  if(PREVIEW_MODE || EDIT_MODE)return false;
+
+  const {data:{user:currentUser},error:userError}=await sb.auth.getUser();
+
+  if(userError || !currentUser)return false;
+
+  const metadata=currentUser.user_metadata||{};
+
+  if(metadata.tipo_utente!=="professionista")return false;
+
+  const {data:existingProfile,error:profileError}=await sb
+    .from("beautyslot_professionisti")
+    .select("user_id,piano")
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  const onboardingCompletato=
+    metadata.onboarding_azienda_completato===true;
+
+  if(
+    !onboardingCompletato &&
+    (profileError || !existingProfile)
+  ){
+    return false;
+  }
+
+  const pianoReale=String(
+    existingProfile?.piano ||
+    metadata.piano_attivo ||
+    metadata.piano_scelto ||
+    metadata.piano_base ||
+    "start"
+  ).toLowerCase();
+
+  window.location.replace(
+    dashboardProfessionistaPerPiano(pianoReale)
+  );
+
+  return true;
+}
+
+// Se il browser torna qui dalla dashboard tramite "Indietro",
+// la pagina viene immediatamente respinta verso la dashboard.
+// ?modalita=modifica resta volutamente esclusa.
+window.addEventListener("pageshow",()=>{
+  redirectSeOnboardingGiaCompletato();
+});
+
 const days = [
  ["lunedi","Lunedì",1],["martedi","Martedì",1],["mercoledi","Mercoledì",1],
  ["giovedi","Giovedì",1],["venerdi","Venerdì",1],["sabato","Sabato",1],["domenica","Domenica",0]
@@ -2626,7 +2687,7 @@ form.onsubmit=async e=>{
       if(uerr)throw uerr;
     }
     if(!PREVIEW_MODE){
-      window.location.href="dashboard-professionista-start.html";
+      window.location.replace("dashboard-professionista-start.html");
       return;
     }
 
@@ -2656,21 +2717,47 @@ form.onsubmit=async e=>{
 
 async function init(){
   renderDays();
+
   if(PREVIEW_MODE){
     user={id:"preview",email:"titolare@azienda.it",user_metadata:{tipo_utente:"professionista",piano_scelto:"start",azienda:"Aura Beauty Studio",indirizzo_azienda:"Via Roma 24",telefono:"+39 333 123 4567",instagram:"@aurabeautystudio"}};
-    prefill();return;
+    prefill();
+    return;
   }
+
   const {data:{user:u},error}=await sb.auth.getUser();
-  if(error||!u){msg("Sessione non disponibile. Accedi nuovamente al tuo account professionista.","error");publishButton.disabled=true;return}
+
+  if(error||!u){
+    msg("Sessione non disponibile. Accedi nuovamente al tuo account professionista.","error");
+    publishButton.disabled=true;
+    return;
+  }
+
   user=u;
+
   const m=u.user_metadata||{};
-  if(m.tipo_utente!=="professionista"){location.href="index.html";return}
+
+  if(m.tipo_utente!=="professionista"){
+    window.location.replace("index.html");
+    return;
+  }
+
+  if(
+    !EDIT_MODE &&
+    await redirectSeOnboardingGiaCompletato()
+  ){
+    return;
+  }
 
   const plan=String(
-    m.piano_attivo || m.piano_scelto || "free"
+    m.piano_attivo || m.piano_scelto || m.piano_base || "free"
   ).toLowerCase();
 
-  if(plan!=="start"){location.href="login.html";return}
+  if(plan!=="start"){
+    window.location.replace(
+      dashboardProfessionistaPerPiano(plan)
+    );
+    return;
+  }
 
   prefill();
 

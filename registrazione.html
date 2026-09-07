@@ -770,51 +770,33 @@
     const locationsInput = document.getElementById("numero_sedi");
     const backLink = document.getElementById("backLink");
 
-    function onboardingProfessionistaUrl(plan){
-      const p = String(plan || "").toLowerCase();
+    function dashboardProfessionistaPerPiano(plan){
+      const normalized = String(plan || "").toLowerCase();
 
-      if(p === "free"){
-        return "registrazione-azienda-free.html";
-      }
-
-      if(p === "start"){
-        return "registrazione-azienda-start.html";
-      }
-
-      return "login.html";
-    }
-
-    function onboardingProfessionistaUrlAssoluta(plan){
-      const relative = onboardingProfessionistaUrl(plan);
-
-      if(relative === "registrazione-azienda-free.html"){
-        return "https://beauty-slot.it/registrazione-azienda-free.html";
-      }
-
-      if(relative === "registrazione-azienda-start.html"){
-        return "https://beauty-slot.it/registrazione-azienda-start.html";
-      }
-
-      return "https://beauty-slot.it/login.html";
-    }
-
-    function dashboardProfessionistaUrl(plan){
-      const p = String(plan || "").toLowerCase();
-
-      if(p === "free"){
+      if(normalized === "free"){
         return "dashboard-professionista-free.html";
       }
 
-      if(p === "start"){
+      if(normalized === "start"){
         return "dashboard-professionista-start.html";
+      }
+
+      if(normalized === "pro" || normalized === "trial-pro"){
+        return "dashboard-professionista-pro.html";
+      }
+
+      if(normalized === "business"){
+        return "dashboard-professionista-business.html";
+      }
+
+      if(normalized === "enterprise"){
+        return "dashboard-professionista-enterprise.html";
       }
 
       return "login.html";
     }
 
     async function redirectProfessionistaGiaRegistrato(){
-      if(tipo !== "professionista") return false;
-
       const { data:{ user:currentUser }, error:userError } =
         await supabaseClient.auth.getUser();
 
@@ -824,19 +806,6 @@
 
       if(metadata.tipo_utente !== "professionista") return false;
 
-      const metadataPlan =
-        metadata.piano_attivo ||
-        metadata.piano_scelto ||
-        metadata.piano_base ||
-        "free";
-
-      if(metadata.onboarding_azienda_completato === true){
-        window.location.replace(
-          dashboardProfessionistaUrl(metadataPlan)
-        );
-        return true;
-      }
-
       const { data:existingProfile, error:profileError } =
         await supabaseClient
           .from("beautyslot_professionisti")
@@ -844,21 +813,41 @@
           .eq("user_id", currentUser.id)
           .maybeSingle();
 
-      if(!profileError && existingProfile){
-        window.location.replace(
-          dashboardProfessionistaUrl(
-            existingProfile.piano || metadataPlan
-          )
-        );
-        return true;
+      const onboardingCompletato =
+        metadata.onboarding_azienda_completato === true;
+
+      if(
+        !onboardingCompletato &&
+        (profileError || !existingProfile)
+      ){
+        return false;
       }
 
-      return false;
+      const pianoReale = String(
+        existingProfile?.piano ||
+        metadata.piano_attivo ||
+        metadata.piano_scelto ||
+        metadata.piano_base ||
+        selectedPlan ||
+        "free"
+      ).toLowerCase();
+
+      window.location.replace(
+        dashboardProfessionistaPerPiano(pianoReale)
+      );
+
+      return true;
     }
 
-    if(tipo === "professionista"){
+    // Protezione immediata: un professionista già registrato
+    // non può riaprire la registrazione normale.
+    redirectProfessionistaGiaRegistrato();
+
+    // Protezione anche quando il browser ripristina la pagina
+    // con il tasto Indietro dalla cache di navigazione.
+    window.addEventListener("pageshow",()=>{
       redirectProfessionistaGiaRegistrato();
-    }
+    });
 
     function setOperatorOptions(max){
       operatorsInput.innerHTML = '<option value="">Seleziona</option>';
@@ -1100,7 +1089,11 @@
             emailRedirectTo:
               tipo === "cliente"
                 ? "https://beauty-slot.it/scelta-trattamenti.html"
-                : onboardingProfessionistaUrlAssoluta(selectedPlan),
+                : (
+                    selectedPlan === "free"
+                      ? "https://beauty-slot.it/registrazione-azienda-free.html"
+                      : "https://beauty-slot.it/login.html"
+                  ),
             data: {
               nome: nome,
               cognome: cognome,
@@ -1165,7 +1158,11 @@
           window.location.href =
             tipo === "cliente"
               ? "scelta-trattamenti.html"
-              : onboardingProfessionistaUrl(selectedPlan);
+              : (
+                  selectedPlan === "free"
+                    ? "registrazione-azienda-free.html"
+                    : "login.html"
+                );
         }
       } catch (error) {
         console.error(error);
