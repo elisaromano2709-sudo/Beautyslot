@@ -2615,8 +2615,6 @@ form.onsubmit=async e=>{
         : automaticAudience(categories),
       categorie:categories,
       specializzazioni:document.getElementById("specializzazioni").value.split(",").map(x=>x.trim()).filter(Boolean),
-      servizi_start:getStartServices(),
-      compatibilita_colore:getColorCompatibility(),
       orari:getHours(),
       logo_url:media.logo,gallery_urls:media.gallery,
       calendario_attivo:true,pubblicato:true,updated_at:new Date().toISOString()
