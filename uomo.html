@@ -2459,7 +2459,7 @@
         .join("") || "BS";
     }
 
-    async function loadFreeBusinesses(){
+    async function loadRegisteredBusinesses(){
       try{
         const publicClient = supabase.createClient(
           "https://kfhjydwgjtiyjdkedvrp.supabase.co",
@@ -2471,11 +2471,10 @@
           .select(
             "user_id,nome_attivita,descrizione,telefono,email,indirizzo,cap,comune,provincia,paese,latitude,longitude,categorie,pubblico,logo_url,gallery_urls,piano,pubblicato"
           )
-          .eq("pubblicato", true)
-          .eq("piano", "free");
+          .eq("pubblicato", true);
 
         if(error){
-          console.warn("Profili FREE non caricati:", error.message);
+          console.warn("Profili professionisti non caricati:", error.message);
           return;
         }
 
@@ -2544,7 +2543,7 @@
           card.dataset.id = id;
           card.dataset.category = dataCategory;
           card.dataset.name = item.nome_attivita || "Attività Beautyslot";
-          card.dataset.free = "true";
+          card.dataset.free = String(String(item.piano || "").toLowerCase() === "free");
           card.dataset.registered = "true";
           card.dataset.phone = phone;
 
@@ -2633,7 +2632,7 @@
 
     applyFilters();
     saveFavorites();
-    loadFreeBusinesses();
+    loadRegisteredBusinesses();
   </script>
 
 </body>
