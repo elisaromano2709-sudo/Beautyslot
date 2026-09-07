@@ -610,6 +610,22 @@
           >
         </div>
 
+        <div class="field" id="codiceFiscaleField" hidden>
+          <label for="codice_fiscale">Codice fiscale</label>
+          <input
+            id="codice_fiscale"
+            name="codice_fiscale"
+            type="text"
+            autocomplete="off"
+            inputmode="text"
+            placeholder="RSSMRA80A01H501U"
+            minlength="16"
+            maxlength="16"
+            pattern="[A-Za-z0-9]{16}"
+            title="Inserisci un codice fiscale di 16 caratteri."
+          >
+        </div>
+
         <div class="field">
           <label for="email">Email</label>
           <input
@@ -738,6 +754,8 @@
     const nomeInput = document.getElementById("nome");
     const cognomeLabel = document.querySelector('label[for="cognome"]');
     const cognomeInput = document.getElementById("cognome");
+    const codiceFiscaleField = document.getElementById("codiceFiscaleField");
+    const codiceFiscaleInput = document.getElementById("codice_fiscale");
     const instagramField = document.getElementById("instagramField");
     const instagramInput = document.getElementById("instagram");
     const companyFields = document.getElementById("companyFields");
@@ -825,6 +843,9 @@
       cognomeInput.placeholder = "Cognome dell'intestatario";
       cognomeInput.autocomplete = "family-name";
 
+      codiceFiscaleField.hidden = false;
+      codiceFiscaleInput.required = true;
+
       instagramField.hidden = false;
       configureSelectedPlan();
       backLink.href = "piani-abbonamenti.html";
@@ -848,6 +869,10 @@
       cognomeLabel.textContent = "Cognome";
       cognomeInput.placeholder = "Cognome";
       cognomeInput.autocomplete = "family-name";
+
+      codiceFiscaleField.hidden = true;
+      codiceFiscaleInput.required = false;
+      codiceFiscaleInput.value = "";
 
       instagramField.hidden = true;
       instagramInput.value = "";
@@ -917,6 +942,13 @@
 
     emailInput.addEventListener("input", clearEmailStatus);
 
+    codiceFiscaleInput.addEventListener("input", function () {
+      this.value = this.value
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 16);
+    });
+
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
       clearEmailStatus();
@@ -928,6 +960,10 @@
 
       const nome = document.getElementById("nome").value.trim();
       const cognome = document.getElementById("cognome").value.trim();
+      const codiceFiscale =
+        tipo === "professionista"
+          ? codiceFiscaleInput.value.trim().toUpperCase()
+          : "";
       const azienda = aziendaInput.value.trim();
       const indirizzoAzienda = indirizzoAziendaInput.value.trim();
       const instagram = instagramInput.value.trim();
@@ -978,6 +1014,9 @@
               full_name: (nome + " " + cognome).trim(),
               telefono: telefono,
               tipo_utente: tipo,
+              ...(tipo === "professionista"
+                ? { codice_fiscale: codiceFiscale }
+                : {}),
               azienda: tipo === "professionista" ? azienda : "",
               indirizzo_azienda: tipo === "professionista" ? indirizzoAzienda : "",
               instagram: tipo === "professionista" ? instagram : "",
