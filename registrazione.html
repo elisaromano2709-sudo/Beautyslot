@@ -770,6 +770,42 @@
     const locationsInput = document.getElementById("numero_sedi");
     const backLink = document.getElementById("backLink");
 
+    async function redirectProfessionistaGiaRegistrato(){
+      if(tipo !== "professionista") return false;
+
+      const { data:{ user:currentUser }, error:userError } =
+        await supabaseClient.auth.getUser();
+
+      if(userError || !currentUser) return false;
+
+      const metadata = currentUser.user_metadata || {};
+
+      if(metadata.tipo_utente !== "professionista") return false;
+
+      if(metadata.onboarding_azienda_completato === true){
+        window.location.replace("dashboard-professionista-free.html");
+        return true;
+      }
+
+      const { data:existingProfile, error:profileError } =
+        await supabaseClient
+          .from("beautyslot_professionisti")
+          .select("user_id")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+      if(!profileError && existingProfile){
+        window.location.replace("dashboard-professionista-free.html");
+        return true;
+      }
+
+      return false;
+    }
+
+    if(tipo === "professionista"){
+      redirectProfessionistaGiaRegistrato();
+    }
+
     function setOperatorOptions(max){
       operatorsInput.innerHTML = '<option value="">Seleziona</option>';
       for(let i = 1; i <= max; i++){
@@ -952,6 +988,13 @@
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
       clearEmailStatus();
+
+      if(
+        tipo === "professionista" &&
+        await redirectProfessionistaGiaRegistrato()
+      ){
+        return;
+      }
 
       if (!form.checkValidity()) {
         form.reportValidity();

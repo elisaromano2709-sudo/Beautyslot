@@ -1975,7 +1975,7 @@ form.onsubmit=async e=>{
       if(uerr)throw uerr;
     }
     if(!PREVIEW_MODE){
-      window.location.href="dashboard-professionista-free.html";
+      window.location.replace("dashboard-professionista-free.html");
       return;
     }
 
@@ -2014,6 +2014,24 @@ async function init(){
   user=u;
   const m=u.user_metadata||{};
   if(m.tipo_utente!=="professionista"){location.href="index.html";return}
+
+  if(!EDIT_MODE){
+    if(m.onboarding_azienda_completato === true){
+      window.location.replace("dashboard-professionista-free.html");
+      return;
+    }
+
+    const {data:existingProfile,error:existingProfileError}=await sb
+      .from("beautyslot_professionisti")
+      .select("user_id")
+      .eq("user_id",u.id)
+      .maybeSingle();
+
+    if(!existingProfileError && existingProfile){
+      window.location.replace("dashboard-professionista-free.html");
+      return;
+    }
+  }
 
   const plan=String(
     m.piano_attivo || m.piano_scelto || "free"
