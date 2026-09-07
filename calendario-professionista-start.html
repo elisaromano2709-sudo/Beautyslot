@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario START · Beautyslot</title>
+
+<style>
+:root{
+  --rose:#b8788b;
+  --rose-dark:#715c63;
+  --soft:#f8edf1;
+  --muted:#90878a;
+  --line:#eadfe2;
+  --text:#655d60;
+  --panel:#ffffff;
+  --appointment:#f7eef2;
+  --appointment-border:#ead7de;
+  --shadow:0 22px 60px rgba(107,96,107,.09);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 9% 4%,rgba(244,219,228,.55),transparent 24%),
+    radial-gradient(circle at 91% 12%,rgba(216,232,248,.52),transparent 25%),
+    #fbfcfd;
+}
+
+a{
+  text-decoration:none;
+  color:inherit;
+}
+
+button{
+  font:inherit;
+}
+
+.page{
+  width:min(1180px,calc(100% - 30px));
+  margin:auto;
+  padding:28px 0 60px;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+  margin-bottom:24px;
+}
+
+.brand h1{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:28px;
+  font-weight:400;
+  color:#685a5f;
+}
+
+.brand div{
+  margin-top:4px;
+  font-size:10px;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.back{
+  min-height:42px;
+  padding:0 16px;
+  display:inline-flex;
+  align-items:center;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  font-size:11px;
+  font-weight:800;
+  color:#806a72;
+}
+
+.hero{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  padding:28px;
+  border:1px solid var(--line);
+  border-radius:30px;
+  background:rgba(255,255,255,.88);
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+}
+
+.eyebrow{
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#a36c7c;
+  margin-bottom:8px;
+}
+
+.hero h2{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:40px;
+  font-weight:400;
+  color:#66585d;
+}
+
+.hero p{
+  margin:8px 0 0;
+  font-size:13px;
+  line-height:1.6;
+  color:var(--muted);
+}
+
+.view-switch{
+  display:flex;
+  gap:7px;
+  padding:5px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  flex-wrap:wrap;
+}
+
+.view-switch button{
+  border:0;
+  border-radius:999px;
+  background:transparent;
+  padding:10px 15px;
+  font-size:10px;
+  font-weight:800;
+  color:#8a7d81;
+  cursor:pointer;
+}
+
+.view-switch button.active{
+  background:linear-gradient(90deg,#f6e6ec,#eef2f7);
+  color:#765e67;
+}
+
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(300px,.7fr);
+  gap:18px;
+}
+
+.panel{
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:27px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 16px 45px rgba(111,101,112,.06);
+}
+
+.panel-title{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:26px;
+  font-weight:400;
+  color:#665a5e;
+}
+
+.panel-sub{
+  margin:5px 0 0;
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.view{
+  display:none;
+  margin-top:20px;
+}
+
+.view.active{
+  display:block;
+}
+
+/* ---------- APPOINTMENT STYLE: UN SOLO COLORE ---------- */
+
+.booking{
+  border-radius:12px;
+  padding:8px 9px;
+  font-size:9px;
+  line-height:1.35;
+  background:var(--appointment);
+  border:1px solid var(--appointment-border);
+  color:#6d6065;
+}
+
+.booking strong{
+  display:block;
+  font-size:10px;
+  margin-bottom:2px;
+}
+
+.booking.block{
+  border-style:dashed;
+}
+
+/* ---------- GIORNO ---------- */
+
+.day-column{
+  display:grid;
+  gap:10px;
+}
+
+.day-row{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:12px;
+  align-items:stretch;
+}
+
+.day-time{
+  padding-top:13px;
+  font-size:10px;
+  font-weight:800;
+  color:#9a9094;
+}
+
+.day-content{
+  min-height:58px;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+
+.empty-day{
+  padding:22px;
+  border:1px dashed var(--line);
+  border-radius:17px;
+  text-align:center;
+  font-size:11px;
+  line-height:1.6;
+  color:var(--muted);
+}
+
+/* ---------- SETTIMANA ---------- */
+
+.week{
+  display:grid;
+  grid-template-columns:70px repeat(6,1fr);
+  gap:0;
+  border:1px solid var(--line);
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.week>div{
+  min-height:76px;
+  border-right:1px solid #efe7e9;
+  border-bottom:1px solid #efe7e9;
+  padding:10px;
+}
+
+.week>div:nth-child(7n){
+  border-right:0;
+}
+
+.time{
+  font-size:10px;
+  font-weight:700;
+  color:#9b9295;
+  background:#fcfbfb;
+}
+
+.day-head{
+  min-height:58px!important;
+  text-align:center;
+  background:#fcfbfc;
+  font-size:10px;
+  color:#8c8286;
+}
+
+.day-head strong{
+  display:block;
+  margin-top:4px;
+  font-size:18px;
+  color:#685d61;
+}
+
+.slot{
+  position:relative;
+  background:#fff;
+}
+
+/* ---------- MESE ---------- */
+
+.month-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+  padding-bottom:12px;
+  border-bottom:1px solid #efe6e8;
+}
+
+.month-title{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:28px;
+  color:#695b60;
+}
+
+.month-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.month-arrow{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:#fff;
+  cursor:pointer;
+  color:#816971;
+  font-size:18px;
+}
+
+.month-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+}
+
+.month-name{
+  padding:6px 2px;
+  text-align:center;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  color:#998e92;
+  text-transform:uppercase;
+}
+
+.month-day{
+  min-height:90px;
+  padding:10px;
+  border:1px solid #efe6e8;
+  border-radius:18px;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+.month-day:not(.muted):hover{
+  border-color:#dcc8cf;
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(113,103,114,.07);
+}
+
+.month-day.muted{
+  opacity:.35;
+  cursor:default;
+  background:#fcfbfb;
+}
+
+.month-day .n{
+  font-size:12px;
+  font-weight:800;
+  color:#6d5f65;
+}
+
+.month-pill{
+  display:inline-flex;
+  align-self:flex-start;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:700;
+  background:var(--appointment);
+  border:1px solid var(--appointment-border);
+  color:#7f6670;
+}
+
+.month-foot{
+  margin-top:auto;
+  font-size:9px;
+  color:#948b8f;
+  line-height:1.4;
+}
+
+/* ---------- COMPLETO: STILE CALENDARIO ANNUALE ---------- */
+
+.year-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:20px;
+}
+
+.year-title{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:42px;
+  font-weight:400;
+  color:#695b60;
+}
+
+.year-nav{
+  display:flex;
+  gap:8px;
+}
+
+.year-arrow{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:#fff;
+  color:#816971;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.year-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:17px;
+}
+
+.mini-month{
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#fff;
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+.mini-month:hover{
+  border-color:#dcc8cf;
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px rgba(113,103,114,.08);
+}
+
+.mini-month h4{
+  margin:0 0 12px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:21px;
+  font-weight:400;
+  color:#705e65;
+}
+
+.mini-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+}
+
+.mini-weekday{
+  text-align:center;
+  font-size:7px;
+  font-weight:800;
+  color:#aaa0a3;
+  text-transform:uppercase;
+}
+
+.mini-day{
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  border-radius:7px;
+  font-size:8px;
+  color:#72676b;
+}
+
+.mini-day.muted{
+  opacity:.22;
+}
+
+.mini-day.has-event{
+  background:var(--appointment);
+  border:1px solid var(--appointment-border);
+  font-weight:800;
+}
+
+/* ---------- SIDEBAR ---------- */
+
+.side-stack{
+  display:grid;
+  gap:18px;
+}
+
+.quick-actions{
+  display:grid;
+  gap:9px;
+  margin-top:18px;
+}
+
+.action{
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fff;
+  text-align:left;
+  padding:0 14px;
+  font-size:11px;
+  font-weight:700;
+  color:#75666c;
+  cursor:pointer;
+}
+
+.action.primary{
+  border:0;
+  color:#fff;
+  background:linear-gradient(90deg,#c17e92,#ae8dbb,#9fa6b8);
+}
+
+.today-list{
+  display:grid;
+  gap:10px;
+  margin-top:17px;
+}
+
+.today-item{
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fff;
+}
+
+.today-item .time-label{
+  font-size:10px;
+  font-weight:800;
+  color:#a36f7f;
+}
+
+.today-item strong{
+  display:block;
+  margin-top:5px;
+  font-size:12px;
+  color:#665b5f;
+}
+
+.today-item span{
+  display:block;
+  margin-top:3px;
+  font-size:10px;
+  color:var(--muted);
+}
+
+.legend{
+  margin-top:15px;
+  font-size:9px;
+  color:var(--muted);
+}
+
+@media(max-width:900px){
+  .layout{
+    grid-template-columns:1fr;
+  }
+
+  .week{
+    min-width:760px;
+  }
+
+  .panel.calendar-panel{
+    overflow:auto;
+  }
+
+  .month-grid{
+    min-width:760px;
+  }
+
+  .year-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px){
+  .page{
+    width:min(100% - 18px,1180px);
+  }
+
+  .hero{
+    padding:22px;
+  }
+
+  .hero h2{
+    font-size:33px;
+  }
+
+  .topbar{
+    align-items:flex-start;
+  }
+
+  .view-switch{
+    width:100%;
+  }
+
+  .year-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+<main class="page">
+
+  <div class="topbar">
+    <div class="brand">
+      <h1>Beautyslot</h1>
+      <div>Calendario professionista · START</div>
+    </div>
+
+    <a class="back" href="dashboard-professionista-start.html">
+      Torna alla dashboard
+    </a>
+  </div>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Atelier Blend · Piano START</div>
+      <h2>Il tuo calendario</h2>
+      <p>Gestisci appuntamenti, disponibilità, pause, ferie e blocchi dell'agenda.</p>
+    </div>
+
+    <div class="view-switch">
+      <button type="button" class="active" data-view-target="dayView">Giorno</button>
+      <button type="button" data-view-target="weekView">Settimana</button>
+      <button type="button" data-view-target="monthView">Mese</button>
+      <button type="button" data-view-target="fullView">Completo</button>
+    </div>
+  </section>
+
+  <section class="layout">
+
+    <div class="panel calendar-panel">
+      <h3 class="panel-title" id="viewHeading">Lunedì 7 settembre 2026</h3>
+      <p class="panel-sub" id="viewSubtitle">
+        Vista giorno · dettaglio degli appuntamenti della giornata.
+      </p>
+
+      <!-- GIORNO -->
+      <div class="view active" id="dayView">
+        <div class="day-column" id="dayColumn"></div>
+      </div>
+
+      <!-- SETTIMANA -->
+      <div class="view" id="weekView">
+        <div class="week">
+          <div class="day-head"></div>
+          <div class="day-head">Lun<strong>7</strong></div>
+          <div class="day-head">Mar<strong>8</strong></div>
+          <div class="day-head">Mer<strong>9</strong></div>
+          <div class="day-head">Gio<strong>10</strong></div>
+          <div class="day-head">Ven<strong>11</strong></div>
+          <div class="day-head">Sab<strong>12</strong></div>
+
+          <div class="time">09:00</div>
+          <div class="slot"><div class="booking"><strong>09:00 · Elisa</strong>Taglio · 45 min</div></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>09:00 · Marta</strong>Colore + Idratazione</div></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>09:15 · Chiara</strong>Taglio · 45 min</div></div>
+          <div class="slot"></div>
+
+          <div class="time">11:00</div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>11:00 · Sara</strong>Ricostruzione · 60 min</div></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking block"><strong>11:00–12:00</strong>Blocco personale</div></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>11:30 · Anna</strong>Taglio · 45 min</div></div>
+
+          <div class="time">15:00</div>
+          <div class="slot"><div class="booking"><strong>15:00 · Giulia</strong>Colore · 90 min</div></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>15:15 · Laura</strong>Taglio · 45 min</div></div>
+          <div class="slot"><div class="booking"><strong>15:00 · Elisa</strong>Colore + Trattamento</div></div>
+          <div class="slot"></div>
+
+          <div class="time">17:00</div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking"><strong>17:00 · Ilaria</strong>Taglio · 45 min</div></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot"><div class="booking block"><strong>17:00–18:00</strong>Pausa / chiusura</div></div>
+        </div>
+      </div>
+
+      <!-- MESE -->
+      <div class="view" id="monthView">
+        <div class="month-head">
+          <div class="month-title" id="monthTitle">Settembre 2026</div>
+
+          <div class="month-nav">
+            <button class="month-arrow" type="button" id="monthPrev" aria-label="Mese precedente">‹</button>
+            <button class="month-arrow" type="button" id="monthNext" aria-label="Mese successivo">›</button>
+          </div>
+        </div>
+
+        <div class="month-grid" id="monthGrid"></div>
+      </div>
+
+      <!-- COMPLETO / ANNO -->
+      <div class="view" id="fullView">
+        <div class="year-head">
+          <h3 class="year-title" id="yearTitle">2026</h3>
+
+          <div class="year-nav">
+            <button class="year-arrow" type="button" id="yearPrev" aria-label="Anno precedente">‹</button>
+            <button class="year-arrow" type="button" id="yearNext" aria-label="Anno successivo">›</button>
+          </div>
+        </div>
+
+        <div class="year-grid" id="yearGrid"></div>
+      </div>
+
+      <div class="legend">
+        Tutti gli appuntamenti usano per ora lo stesso stile. I colori differenziati verranno definiti in seguito.
+      </div>
+    </div>
+
+    <aside class="side-stack">
+      <section class="panel">
+        <h3 class="panel-title">Gestisci agenda</h3>
+        <p class="panel-sub">Azioni principali del calendario START.</p>
+
+        <div class="quick-actions">
+          <button class="action primary" type="button">+ Aggiungi appuntamento</button>
+          <button class="action" type="button">Blocca un orario</button>
+          <button class="action" type="button">Imposta pausa</button>
+          <button class="action" type="button">Ferie / assenza</button>
+          <button class="action" type="button">Gestisci disponibilità</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h3 class="panel-title">Oggi</h3>
+        <p class="panel-sub">3 appuntamenti · 1 blocco agenda</p>
+
+        <div class="today-list">
+          <div class="today-item">
+            <div class="time-label">09:00</div>
+            <strong>Elisa Romano</strong>
+            <span>Taglio · 45 min</span>
+          </div>
+
+          <div class="today-item">
+            <div class="time-label">11:00</div>
+            <strong>Blocco agenda</strong>
+            <span>Pausa personale · 60 min</span>
+          </div>
+
+          <div class="today-item">
+            <div class="time-label">15:00</div>
+            <strong>Giulia Serra</strong>
+            <span>Colore completo · 90 min</span>
+          </div>
+        </div>
+      </section>
+    </aside>
+
+  </section>
+</main>
+
+<script>
+const MONTH_NAMES = [
+  "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+  "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"
+];
+
+const WEEKDAY_NAMES = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+
+const demoAppointments = {
+  "2026-09-07":[
+    {time:"09:00",title:"Elisa Romano",detail:"Taglio · 45 min · €25"},
+    {time:"11:00",title:"Blocco agenda",detail:"Pausa personale · 60 min",block:true},
+    {time:"15:00",title:"Giulia Serra",detail:"Colore completo · 90 min · €55"}
+  ],
+  "2026-09-08":[
+    {time:"11:00",title:"Sara Costa",detail:"Ricostruzione capelli · 60 min · €45"},
+    {time:"17:00",title:"Ilaria De Luca",detail:"Taglio · 45 min · €25"}
+  ],
+  "2026-09-09":[
+    {time:"09:00",title:"Marta Serra",detail:"Colore + Idratazione profonda"}
+  ],
+  "2026-09-10":[
+    {time:"11:00",title:"Blocco agenda",detail:"Impegno personale",block:true}
+  ],
+  "2026-09-11":[
+    {time:"09:15",title:"Chiara Greco",detail:"Taglio · 45 min"},
+    {time:"15:00",title:"Elisa Romano",detail:"Colore + Trattamento"}
+  ],
+  "2026-09-12":[
+    {time:"11:30",title:"Anna De Luca",detail:"Taglio · 45 min"}
+  ],
+  "2026-10-03":[
+    {time:"10:00",title:"Laura",detail:"Taglio · 45 min"}
+  ],
+  "2026-10-06":[
+    {time:"15:00",title:"Giulia",detail:"Colore · 90 min"}
+  ],
+  "2026-11-16":[
+    {time:"09:30",title:"Sara",detail:"Trattamento · 60 min"}
+  ]
+};
+
+const viewMeta = {
+  dayView:{
+    subtitle:"Vista giorno · dettaglio degli appuntamenti della giornata."
+  },
+  weekView:{
+    heading:"7–12 settembre 2026",
+    subtitle:"Vista settimana · appuntamenti e disponibilità della settimana."
+  },
+  monthView:{
+    heading:"Calendario mensile",
+    subtitle:"Clicca su un giorno per aprire direttamente quella giornata."
+  },
+  fullView:{
+    heading:"Calendario completo",
+    subtitle:"Vista annuale stile calendario iPhone. Clicca su un mese per aprirlo."
+  }
+};
+
+let selectedDate = new Date(2026,8,7);
+let monthCursor = new Date(2026,8,1);
+let fullYear = 2026;
+
+const headingEl = document.getElementById("viewHeading");
+const subtitleEl = document.getElementById("viewSubtitle");
+const dayColumn = document.getElementById("dayColumn");
+const monthTitle = document.getElementById("monthTitle");
+const monthGrid = document.getElementById("monthGrid");
+const yearTitle = document.getElementById("yearTitle");
+const yearGrid = document.getElementById("yearGrid");
+
+function dateKey(date){
+  const y=date.getFullYear();
+  const m=String(date.getMonth()+1).padStart(2,"0");
+  const d=String(date.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function formatLongDate(date){
+  return new Intl.DateTimeFormat("it-IT",{
+    weekday:"long",
+    day:"numeric",
+    month:"long",
+    year:"numeric"
+  }).format(date);
+}
+
+function formatCapitalizedLongDate(date){
+  const text=formatLongDate(date);
+  return text.charAt(0).toUpperCase()+text.slice(1);
+}
+
+function activateView(viewId){
+  document.querySelectorAll(".view").forEach(view=>{
+    view.classList.toggle("active",view.id===viewId);
+  });
+
+  document.querySelectorAll("[data-view-target]").forEach(button=>{
+    button.classList.toggle(
+      "active",
+      button.getAttribute("data-view-target")===viewId
+    );
+  });
+
+  if(viewId==="dayView"){
+    headingEl.textContent=formatCapitalizedLongDate(selectedDate);
+    subtitleEl.textContent=viewMeta.dayView.subtitle;
+    renderDay(selectedDate);
+    return;
+  }
+
+  headingEl.textContent=viewMeta[viewId].heading;
+  subtitleEl.textContent=viewMeta[viewId].subtitle;
+
+  if(viewId==="monthView"){
+    renderMonth();
+  }
+
+  if(viewId==="fullView"){
+    renderYear();
+  }
+}
+
+function renderDay(date){
+  const appointments=demoAppointments[dateKey(date)] || [];
+
+  if(!appointments.length){
+    dayColumn.innerHTML=`
+      <div class="empty-day">
+        Nessun appuntamento dimostrativo per questa giornata.
+        Nel calendario reale qui compariranno gli appuntamenti e gli eventuali blocchi.
+      </div>
+    `;
+    return;
+  }
+
+  const hours=["09:00","10:00","11:00","12:00","15:00","16:00","17:00","18:00"];
+
+  dayColumn.innerHTML=hours.map(hour=>{
+    const appointment=appointments.find(item=>item.time.startsWith(hour.slice(0,2)));
+
+    return `
+      <div class="day-row">
+        <div class="day-time">${hour}</div>
+        <div class="day-content">
+          ${appointment ? `
+            <div class="booking ${appointment.block?"block":""}">
+              <strong>${appointment.time} · ${appointment.title}</strong>
+              ${appointment.detail}
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function calendarCells(year,month){
+  const first=new Date(year,month,1);
+  const firstWeekday=(first.getDay()+6)%7;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const prevMonthDays=new Date(year,month,0).getDate();
+
+  const cells=[];
+
+  for(let i=firstWeekday-1;i>=0;i--){
+    cells.push({
+      day:prevMonthDays-i,
+      muted:true,
+      date:new Date(year,month-1,prevMonthDays-i)
+    });
+  }
+
+  for(let day=1;day<=daysInMonth;day++){
+    cells.push({
+      day,
+      muted:false,
+      date:new Date(year,month,day)
+    });
+  }
+
+  let nextDay=1;
+  while(cells.length<42){
+    cells.push({
+      day:nextDay,
+      muted:true,
+      date:new Date(year,month+1,nextDay)
+    });
+    nextDay++;
+  }
+
+  return cells;
+}
+
+function renderMonth(){
+  const year=monthCursor.getFullYear();
+  const month=monthCursor.getMonth();
+
+  monthTitle.textContent=`${MONTH_NAMES[month]} ${year}`;
+
+  const weekdayHtml=WEEKDAY_NAMES
+    .map(day=>`<div class="month-name">${day}</div>`)
+    .join("");
+
+  const cells=calendarCells(year,month);
+
+  const dayHtml=cells.map(cell=>{
+    const key=dateKey(cell.date);
+    const appointments=demoAppointments[key] || [];
+    const count=appointments.length;
+
+    return `
+      <div
+        class="month-day ${cell.muted?"muted":""}"
+        ${cell.muted ? "" : `data-day-key="${key}"`}
+      >
+        <div class="n">${cell.day}</div>
+
+        ${count ? `
+          <div class="month-pill">
+            ${count} ${count===1?"appunt.":"appunt."}
+          </div>
+        ` : ""}
+
+        ${count ? `
+          <div class="month-foot">
+            ${appointments.slice(0,2).map(item=>item.time+" "+item.title).join("<br>")}
+          </div>
+        ` : ""}
+      </div>
+    `;
+  }).join("");
+
+  monthGrid.innerHTML=weekdayHtml+dayHtml;
+
+  monthGrid.querySelectorAll("[data-day-key]").forEach(day=>{
+    day.addEventListener("click",()=>{
+      const [y,m,d]=day.dataset.dayKey.split("-").map(Number);
+      selectedDate=new Date(y,m-1,d);
+      activateView("dayView");
+    });
+  });
+}
+
+function miniMonthHtml(year,month){
+  const first=new Date(year,month,1);
+  const firstWeekday=(first.getDay()+6)%7;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+
+  let html=WEEKDAY_NAMES.map(day=>
+    `<div class="mini-weekday">${day.charAt(0)}</div>`
+  ).join("");
+
+  for(let i=0;i<firstWeekday;i++){
+    html+=`<div class="mini-day muted"></div>`;
+  }
+
+  for(let day=1;day<=daysInMonth;day++){
+    const date=new Date(year,month,day);
+    const hasEvent=(demoAppointments[dateKey(date)] || []).length>0;
+
+    html+=`
+      <div class="mini-day ${hasEvent?"has-event":""}">
+        ${day}
+      </div>
+    `;
+  }
+
+  return html;
+}
+
+function renderYear(){
+  yearTitle.textContent=fullYear;
+
+  yearGrid.innerHTML=MONTH_NAMES.map((name,month)=>`
+    <article class="mini-month" data-month="${month}">
+      <h4>${name}</h4>
+      <div class="mini-grid">
+        ${miniMonthHtml(fullYear,month)}
+      </div>
+    </article>
+  `).join("");
+
+  yearGrid.querySelectorAll(".mini-month").forEach(card=>{
+    card.addEventListener("click",()=>{
+      const month=Number(card.dataset.month);
+      monthCursor=new Date(fullYear,month,1);
+      activateView("monthView");
+    });
+  });
+}
+
+document.querySelectorAll("[data-view-target]").forEach(button=>{
+  button.addEventListener("click",()=>{
+    activateView(button.getAttribute("data-view-target"));
+  });
+});
+
+/* Frecce mese: nessun limite, avanti/indietro quanto si vuole */
+document.getElementById("monthPrev").addEventListener("click",()=>{
+  monthCursor=new Date(
+    monthCursor.getFullYear(),
+    monthCursor.getMonth()-1,
+    1
+  );
+  renderMonth();
+});
+
+document.getElementById("monthNext").addEventListener("click",()=>{
+  monthCursor=new Date(
+    monthCursor.getFullYear(),
+    monthCursor.getMonth()+1,
+    1
+  );
+  renderMonth();
+});
+
+/* Vista completa: anno precedente / successivo */
+document.getElementById("yearPrev").addEventListener("click",()=>{
+  fullYear-=1;
+  renderYear();
+});
+
+document.getElementById("yearNext").addEventListener("click",()=>{
+  fullYear+=1;
+  renderYear();
+});
+
+renderDay(selectedDate);
+renderMonth();
+renderYear();
+</script>
+
+</body>
+</html>

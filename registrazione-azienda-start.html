@@ -1,0 +1,2699 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beautyslot — Configura attività FREE</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --bg2:#ffffff;
+  --rose:#c97f91;
+  --rose-dark:#9f6271;
+  --blue:#85afd1;
+  --blue-dark:#5f88aa;
+  --text:#5f5d5a;
+  --muted:#84817d;
+  --line:rgba(100,96,90,.16);
+  --card:rgba(255,255,255,.78);
+  --soft:#fafafa;
+  --danger:#a85f67;
+  --success:#66816d;
+  --shadow:0 22px 65px rgba(70,68,64,.07);
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:"Helvetica Neue",Arial,sans-serif;color:var(--text)}
+body{background:#ffffff;padding:28px 16px 52px}
+button,input,select,textarea{font:inherit}
+.page{width:min(1100px,100%);margin:0 auto}
+.brand{
+  position:relative;
+  text-align:center;
+  margin-bottom:30px;
+  z-index:0;
+}
+.brand::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-20px;
+  transform:translateX(-50%);
+  width:min(440px,82vw);
+  height:58px;
+  background:
+    radial-gradient(circle at 32% 50%,rgba(201,127,145,.14),transparent 46%),
+    radial-gradient(circle at 68% 50%,rgba(133,175,209,.14),transparent 46%);
+  filter:blur(16px);
+  z-index:-1;
+  pointer-events:none;
+}
+.brand h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:36px;font-weight:400;color:var(--rose-dark)}
+.brand div{margin-top:7px;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.hero{
+  position:relative;
+  text-align:center;
+  max-width:760px;
+  margin:0 auto 24px;
+  z-index:0;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-25px;
+  transform:translateX(-50%);
+  width:min(560px,92vw);
+  height:68px;
+  background:
+    radial-gradient(circle at 34% 50%,rgba(201,127,145,.10),transparent 44%),
+    radial-gradient(circle at 66% 50%,rgba(133,175,209,.10),transparent 44%);
+  filter:blur(18px);
+  z-index:-1;
+  pointer-events:none;
+}
+.hero .kicker{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--rose)}
+.hero h1{margin:8px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(34px,6vw,50px);font-weight:400;color:var(--rose-dark)}
+.hero p{margin:0 auto;max-width:680px;font-size:13px;line-height:1.7;color:var(--muted)}
+.badge{
+  display:inline-flex;
+  margin-top:14px;
+  padding:9px 14px;
+  border:1px solid rgba(201,127,145,.24);
+  border-radius:999px;
+  background:
+    linear-gradient(90deg,rgba(201,127,145,.08),rgba(133,175,209,.08)),
+    #fff;
+  font-size:10px;
+  font-weight:700;
+  color:var(--rose-dark);
+}
+.note{max-width:800px;margin:0 auto 18px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:#fff;text-align:center;font-size:11px;line-height:1.6;color:var(--muted)}
+.note strong{color:var(--rose-dark)}
+form{display:grid;gap:15px}
+.section{
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:23px;
+  background:
+    linear-gradient(90deg,
+      rgba(201,127,145,.045) 0%,
+      rgba(255,255,255,0) 15%,
+      rgba(255,255,255,0) 85%,
+      rgba(133,175,209,.045) 100%),
+    #fff;
+  box-shadow:0 12px 34px rgba(70,68,64,.035);
+}
+.head{display:flex;gap:12px;margin-bottom:18px}
+.num{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:
+    linear-gradient(135deg,rgba(201,127,145,.16),rgba(133,175,209,.16)),
+    #fff;
+  color:var(--rose-dark);
+  font-size:12px;
+  font-weight:700;
+}
+.head h2{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:27px;font-weight:400;color:var(--rose-dark)}
+.head p{margin:5px 0 0;font-size:11px;color:var(--muted);line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.full{grid-column:1/-1}
+label,.legend{display:block;margin-bottom:7px;font-size:9px;font-weight:700;letter-spacing:1.25px;text-transform:uppercase;color:var(--muted)}
+.req:after{content:" *";color:var(--rose)}
+input[type=text],input[type=email],input[type=tel],select,textarea{
+  width:100%;min-height:49px;padding:0 14px;border:1px solid var(--line);
+  border-radius:14px;background:#fff;color:var(--text);outline:none
+}
+textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
+.choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.choice{position:relative}
+.choice input{position:absolute;opacity:0}
+.choice span{display:flex;align-items:center;justify-content:center;min-height:47px;padding:8px;border:1px solid var(--line);border-radius:14px;background:#fff;text-align:center;font-size:11px;cursor:pointer}
+.choice input:checked+span{
+  background:
+    linear-gradient(90deg,rgba(201,127,145,.10),rgba(133,175,209,.10)),
+    #fff;
+  border-color:rgba(159,98,113,.34);
+  color:var(--rose-dark);
+}
+.geo{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:11px}
+.secondary{min-height:42px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--rose-dark);font-size:10px;font-weight:700;cursor:pointer}
+.geo span{
+  flex:1 1 100%;
+  font-size:10px;
+  line-height:1.55;
+  color:var(--muted);
+}
+.days{display:grid;gap:10px}
+
+.day{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr);
+  gap:16px;
+  align-items:start;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:rgba(255,255,255,.82);
+  transition:.18s ease;
+}
+
+.day:hover{
+  border-color:rgba(95,136,170,.25);
+}
+
+.day-main{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-top:2px;
+}
+
+.day-name-wrap{min-width:0}
+
+.day-name{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:var(--text);
+}
+
+.day-status{
+  display:block;
+  margin-top:3px;
+  font-size:9px;
+  letter-spacing:.8px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.day-switch{
+  position:relative;
+  flex:0 0 auto;
+  width:38px;
+  height:22px;
+  margin:0;
+}
+
+.day-switch input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.day-switch-track{
+  position:absolute;
+  inset:0;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#edf2f6;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.day-switch-track::after{
+  content:"";
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(30,35,31,.14);
+  transition:.18s ease;
+}
+
+.day-switch input:checked + .day-switch-track{
+  background:linear-gradient(90deg,var(--rose-dark),var(--blue-dark));
+  border-color:rgba(95,136,170,.42);
+}
+
+.day-switch input:checked + .day-switch-track::after{
+  transform:translateX(16px);
+}
+
+.day-content{min-width:0}
+
+.continuous-row{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  margin-bottom:9px;
+}
+
+.continuous-toggle{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  margin:0;
+  font-size:9px;
+  font-weight:700;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  color:var(--muted);
+  cursor:pointer;
+}
+
+.continuous-toggle input{
+  width:14px;
+  height:14px;
+  accent-color:var(--rose-dark);
+}
+
+.day-periods{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+
+.day-period{
+  padding:10px 12px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#f7f7f4;
+}
+
+.period-label{
+  display:block;
+  margin-bottom:7px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.time-range{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr);
+  gap:6px;
+  align-items:center;
+}
+
+.time-separator{
+  text-align:center;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.time-picker{
+  position:relative;
+  min-width:0;
+}
+
+.time-display{
+  width:100%;
+  min-height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--text);
+  font-size:11px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+.time-display:hover,
+.time-display.active{
+  border-color:rgba(95,136,170,.38);
+  box-shadow:0 0 0 3px rgba(133,175,209,.08);
+}
+
+.time-popover{
+  position:absolute;
+  z-index:60;
+  left:50%;
+  top:calc(100% + 7px);
+  width:246px;
+  transform:translateX(-50%);
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 18px 42px rgba(25,30,26,.14);
+  display:none;
+}
+
+.time-popover.open{display:block}
+
+.time-popover-title{
+  margin-bottom:8px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+
+.hour-grid{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:5px;
+}
+
+.hour-chip,
+.minute-chip{
+  min-height:31px;
+  border:1px solid transparent;
+  border-radius:9px;
+  background:#f7f9fb;
+  color:var(--text);
+  font-size:10px;
+  font-weight:650;
+  cursor:pointer;
+}
+
+.hour-chip:hover,
+.minute-chip:hover{
+  background:#edf3f8;
+}
+
+.hour-chip.selected,
+.minute-chip.selected{
+  background:linear-gradient(135deg,var(--rose-dark),var(--blue-dark));
+  color:#fff;
+}
+
+.minute-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:5px;
+}
+
+.minute-divider{
+  height:1px;
+  margin:11px 0;
+  background:var(--line);
+}
+
+.continuous-period{
+  display:none;
+}
+
+.day.continuous .split-periods{
+  display:none;
+}
+
+.day.continuous .continuous-period{
+  display:block;
+}
+
+.day.continuous .continuous-period .day-period{
+  max-width:100%;
+}
+
+.day.closed{
+  background:rgba(255,255,255,.52);
+}
+
+.day.closed .day-content{
+  opacity:.28;
+  pointer-events:none;
+}
+
+.day.closed .day-status{color:var(--muted)}
+
+
+.upload-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+
+.upload{
+  position:relative;
+  min-height:330px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:20px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(70,68,64,.035);
+}
+
+.upload-cover{
+  border-top:3px solid rgba(201,127,145,.26);
+}
+
+.upload-gallery{
+  border-top:3px solid rgba(133,175,209,.30);
+}
+
+.upload strong{
+  display:block;
+  margin:0 0 6px;
+  color:var(--rose-dark);
+  font-size:12px;
+  font-weight:700;
+}
+
+.upload-gallery strong{
+  color:var(--blue-dark);
+}
+
+.upload small{
+  display:block;
+  min-height:18px;
+  margin-bottom:14px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.45;
+}
+
+.hidden-file-input{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+  pointer-events:none;
+}
+
+.upload-action{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:auto;
+  padding:0 18px;
+  border:1px solid rgba(201,127,145,.28);
+  border-radius:999px;
+  background:#fff;
+  color:var(--rose-dark);
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:.18s ease;
+}
+
+.upload-action:hover{
+  background:rgba(201,127,145,.06);
+  border-color:rgba(201,127,145,.42);
+}
+
+.blue-action{
+  border-color:rgba(133,175,209,.34);
+  color:var(--blue-dark);
+}
+
+.blue-action:hover{
+  background:rgba(133,175,209,.07);
+  border-color:rgba(133,175,209,.48);
+}
+
+.cover-preview-wrap{
+  position:relative;
+  width:min(100%,360px);
+  aspect-ratio:16/10;
+  margin:4px auto 18px;
+  overflow:hidden;
+  border:1px dashed rgba(201,127,145,.28);
+  border-radius:18px;
+  background:
+    linear-gradient(135deg,rgba(201,127,145,.05),rgba(133,175,209,.05)),
+    #fafafa;
+}
+
+.cover-preview{
+  width:100%;
+  height:100%;
+  display:none;
+  object-fit:cover;
+}
+
+.cover-placeholder{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:16px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.cover-placeholder-icon{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#fff;
+  border:1px solid var(--line);
+  color:var(--rose-dark);
+  font-size:22px;
+  font-weight:300;
+}
+
+.media-remove{
+  width:24px;
+  height:24px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.94);
+  color:#6a6764;
+  box-shadow:0 4px 12px rgba(40,40,40,.16);
+  cursor:pointer;
+  font-size:15px;
+  line-height:1;
+  z-index:4;
+}
+
+.media-remove:hover{
+  background:#fff;
+  color:var(--rose-dark);
+}
+
+.cover-remove{
+  position:absolute;
+  top:8px;
+  right:8px;
+}
+
+.gallery{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:9px;
+  margin:4px 0 18px;
+}
+
+.gallery:empty{
+  min-height:190px;
+  border:1px dashed rgba(133,175,209,.26);
+  border-radius:18px;
+  background:
+    linear-gradient(135deg,rgba(201,127,145,.035),rgba(133,175,209,.05)),
+    #fafafa;
+}
+
+.gallery:empty::before{
+  content:"Le foto selezionate appariranno qui";
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:190px;
+  padding:18px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+.gallery-item{
+  position:relative;
+  overflow:hidden;
+  aspect-ratio:1/1;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:#f7f7f7;
+}
+
+.gallery-item img{
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+
+.gallery-item .media-remove{
+  position:absolute;
+  top:6px;
+  right:6px;
+  width:24px;
+  height:24px;
+  min-width:24px;
+  min-height:24px;
+  display:grid;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.96);
+  color:#5f5d5a;
+  box-shadow:0 4px 12px rgba(40,40,40,.18);
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+  z-index:5;
+}
+
+
+.actions{
+  text-align:center;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(201,127,145,.045),
+      rgba(255,255,255,0) 42%,
+      rgba(133,175,209,.05)
+    ),
+    #fff;
+  box-shadow:0 12px 34px rgba(70,68,64,.035);
+}
+
+.publish{
+  width:min(520px,100%);
+  min-height:54px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 24px;
+  border:1px solid rgba(159,98,113,.20);
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--rose-dark),var(--blue-dark));
+  color:#fff;
+  box-shadow:0 10px 28px rgba(95,136,170,.12);
+  cursor:pointer;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+  transition:.18s ease;
+}
+
+.publish:hover{
+  transform:translateY(-1px);
+  box-shadow:0 13px 32px rgba(95,136,170,.17);
+}
+
+.publish:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.message{
+  min-height:18px;
+  margin-top:12px;
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.55;
+}
+
+.message.error{
+  color:var(--danger);
+}
+
+.success{
+  display:none;
+  max-width:760px;
+  margin:26px auto 0;
+  padding:36px 28px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 22% 18%,rgba(201,127,145,.08),transparent 34%),
+    radial-gradient(circle at 78% 18%,rgba(133,175,209,.08),transparent 34%),
+    #fff;
+  box-shadow:0 18px 48px rgba(70,68,64,.06);
+  text-align:center;
+}
+
+.success.show{
+  display:block;
+}
+
+.success h2{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:clamp(30px,5vw,42px);
+  line-height:1.1;
+  font-weight:400;
+  color:var(--rose-dark);
+}
+
+.success p{
+  max-width:610px;
+  margin:13px auto 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.7;
+}
+
+.success a{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-top:21px;
+  padding:0 24px;
+  border:1px solid rgba(159,98,113,.18);
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--rose-dark),var(--blue-dark));
+  color:#fff;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  transition:.18s ease;
+}
+
+.success a:hover{
+  transform:translateY(-1px);
+  box-shadow:0 10px 24px rgba(95,136,170,.13);
+}
+
+
+.start-services{
+  display:grid;
+  gap:16px;
+}
+.service-note{
+  margin:-2px 0 18px;
+  padding:13px 15px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,247,250,.95),rgba(247,251,255,.95));
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.65;
+}
+.service-group-editor{
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:rgba(255,255,255,.82);
+}
+.service-group-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 17px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(135deg,rgba(255,248,250,.8),rgba(248,251,255,.8));
+}
+.service-group-title-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.service-group-index{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:var(--soft);
+  color:var(--rose-dark);
+  font-size:11px;
+  font-weight:800;
+}
+.service-group-title{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:21px;
+  font-weight:400;
+  color:var(--rose-dark);
+}
+.group-remove{
+  border:0;
+  background:transparent;
+  color:#9a777f;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.service-rows{
+  display:grid;
+  gap:10px;
+  padding:15px;
+}
+.service-row{
+  display:grid;
+  grid-template-columns:minmax(0,1.6fr) 120px 120px 42px;
+  gap:9px;
+  align-items:end;
+  padding:13px;
+  border:1px solid rgba(226,216,219,.9);
+  border-radius:16px;
+  background:#fff;
+}
+.service-row.with-compat{
+  grid-template-columns:minmax(0,1.45fr) 105px 105px minmax(190px,.9fr) 42px;
+}
+.service-field label{
+  margin-bottom:6px;
+  font-size:8px;
+  letter-spacing:1px;
+}
+.service-field input,
+.service-field select{
+  width:100%;
+  min-height:43px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+.compat-box{
+  min-height:43px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:7px 10px 7px 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fbfcfe;
+}
+.compat-copy{
+  font-size:9px;
+  line-height:1.35;
+  color:var(--muted);
+}
+.compat-copy strong{
+  display:block;
+  color:var(--rose-dark);
+  font-size:9px;
+}
+.compat-toggle{
+  position:relative;
+  width:38px;
+  height:22px;
+  flex:0 0 auto;
+}
+.compat-toggle input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.compat-track{
+  position:absolute;
+  inset:0;
+  border-radius:999px;
+  background:#e9e5e7;
+  transition:.2s ease;
+  cursor:pointer;
+}
+.compat-track::after{
+  content:"";
+  position:absolute;
+  width:16px;
+  height:16px;
+  left:3px;
+  top:3px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 2px 6px rgba(80,70,75,.2);
+  transition:.2s ease;
+}
+.compat-toggle input:checked + .compat-track{
+  background:linear-gradient(90deg,#c58798,#91aaca);
+}
+.compat-toggle input:checked + .compat-track::after{
+  transform:translateX(16px);
+}
+.row-remove{
+  width:42px;
+  height:42px;
+  border:1px solid #eadcdf;
+  border-radius:12px;
+  background:#fff7f8;
+  color:#a96f7d;
+  font-size:19px;
+  cursor:pointer;
+}
+.group-actions{
+  display:flex;
+  justify-content:flex-start;
+  padding:0 15px 15px;
+}
+.add-service{
+  min-height:40px;
+  padding:0 14px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--rose-dark);
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.select-shell{
+  position:relative;
+}
+.select-shell::after{
+  content:"";
+  position:absolute;
+  right:14px;
+  top:50%;
+  width:9px;
+  height:9px;
+  border-right:1.8px solid #927a82;
+  border-bottom:1.8px solid #927a82;
+  transform:translateY(-68%) rotate(45deg);
+  pointer-events:none;
+}
+.service-field select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  padding-right:38px;
+  background:
+    linear-gradient(180deg,#fff 0%,#fdfafb 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.95);
+  font-weight:500;
+}
+.service-field input{
+  background:linear-gradient(180deg,#fff 0%,#fffdfe 100%);
+}
+.service-field select:focus,
+.service-field input:focus{
+  border-color:#d7c4ca;
+  box-shadow:0 0 0 4px rgba(233,221,226,.45);
+}
+
+.custom-section-area{
+  margin-top:18px;
+  padding-top:18px;
+  border-top:1px solid rgba(225,214,218,.8);
+}
+
+.add-section-button{
+  min-height:42px;
+  padding:0 17px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:linear-gradient(180deg,#fff,#fff8fa);
+  color:var(--rose-dark);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.05em;
+  cursor:pointer;
+}
+
+.custom-section-form{
+  margin-top:13px;
+  padding:15px;
+  border:1px solid var(--line);
+  border-radius:17px;
+  background:linear-gradient(135deg,rgba(255,249,251,.94),rgba(249,252,255,.94));
+}
+
+.custom-section-form label{
+  margin-bottom:8px;
+}
+
+.custom-section-form-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto auto;
+  gap:9px;
+}
+
+.custom-section-form-row input{
+  width:100%;
+  min-height:43px;
+  padding:0 13px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+  outline:none;
+}
+
+.custom-section-form-row input:focus{
+  border-color:#d7c4ca;
+  box-shadow:0 0 0 4px rgba(233,221,226,.45);
+}
+
+.confirm-section-button,
+.cancel-section-button{
+  min-height:43px;
+  padding:0 14px;
+  border-radius:12px;
+  font-size:10px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.confirm-section-button{
+  border:0;
+  background:linear-gradient(90deg,#c58798,#a18fb9,#8fa9c7);
+  color:#fff;
+}
+
+.cancel-section-button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:#8a7279;
+}
+
+.service-group-editor.custom-group .service-group-index{
+  font-size:14px;
+  font-weight:400;
+}
+
+@media(max-width:700px){
+  .custom-section-form-row{
+    grid-template-columns:1fr;
+  }
+}
+
+.removed-groups{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
+}
+.restore-group{
+  min-height:36px;
+  padding:0 13px;
+  border:1px dashed #d8c6cb;
+  border-radius:999px;
+  background:#fff;
+  color:#8b7078;
+  font-size:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+@media(max-width:900px){
+  .service-row,
+  .service-row.with-compat{
+    grid-template-columns:1fr 1fr;
+  }
+  .service-field:first-child,
+  .compat-box{
+    grid-column:1/-1;
+  }
+  .row-remove{
+    justify-self:end;
+  }
+}
+
+
+@media(max-width:760px){
+  .upload-grid{
+    grid-template-columns:1fr;
+  }
+
+  .upload{
+    min-height:300px;
+  }
+}
+
+@media(max-width:520px){
+  .gallery{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:760px){
+  .grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .choices{grid-template-columns:repeat(2,1fr)}
+  .day{grid-template-columns:1fr;gap:12px}
+  .day-periods{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){
+  .day-periods{grid-template-columns:1fr}
+  .time-popover{
+    left:0;
+    transform:none;
+    width:min(246px,82vw);
+  }
+}
+@media(max-width:520px){body{padding:20px 11px}.section{padding:19px 14px}.service{grid-template-columns:1fr 110px 36px}}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="brand"><h2>Beautyslot</h2><div>Book beauty. Your way.</div></header>
+
+  <section class="hero">
+    <div class="kicker">Registrazione attività</div>
+    <h1>Completa il tuo profilo START</h1>
+    <p>Inserisci le informazioni essenziali per creare la tua vetrina su Beautyslot e farti trovare dai clienti.</p>
+    <div class="badge">Piano START · €14,90 / mese</div>
+  </section>
+
+  <div class="note"><strong>Il piano START include calendario e prenotazioni online.</strong> Configura anche i servizi prenotabili, la loro durata, il prezzo e le compatibilità tra Colore e Trattamenti.</div>
+
+  <form id="businessForm">
+
+    <section class="section">
+      <div class="head"><div class="num">1</div><div><h2>Dati attività</h2><p>Informazioni principali della tua scheda pubblica.</p></div></div>
+      <div class="grid">
+        <div><label class="req" for="nomeAttivita">Nome attività</label><input id="nomeAttivita" type="text" required></div>
+        <div><label class="req" for="telefono">Telefono</label><input id="telefono" type="tel" required></div>
+        <div><label for="emailPubblica">Email pubblica</label><input id="emailPubblica" type="email"></div>
+        <div><label for="instagram">Instagram</label><input id="instagram" type="text" placeholder="@nomeprofilo"></div>
+        <div><label for="tiktok">TikTok</label><input id="tiktok" type="text" placeholder="@nomeprofilo"></div>
+        <div><label for="facebook">Facebook</label><input id="facebook" type="text"></div>
+        <div class="full"><label class="req" for="descrizione">Descrizione</label><textarea id="descrizione" required maxlength="800"></textarea></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">2</div><div><h2>Indirizzo e posizione</h2><p>Serve per comparire nelle ricerche vicine.</p></div></div>
+      <div class="grid">
+        <div class="full"><label class="req" for="indirizzo">Via e numero civico</label><input id="indirizzo" type="text" required></div>
+        <div><label class="req" for="comune">Comune</label><input id="comune" type="text" required></div>
+        <div><label for="provincia">Provincia</label><input id="provincia" type="text" maxlength="2"></div>
+        <div><label for="cap">CAP</label><input id="cap" type="text" maxlength="5"></div>
+        <div><label for="paese">Paese</label><input id="paese" type="text" value="Italia"></div>
+      </div>
+      <div class="geo">
+        <button type="button" class="secondary" id="verifyAddressButton">Verifica indirizzo</button>
+        <button type="button" class="secondary" id="geoButton">Usa GPS se sei nel salone</button>
+        <span id="geoStatus">Inserisci via e numero civico, comune, CAP e provincia: verificheremo l'indirizzo prima del salvataggio.</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">3</div><div><h2>Categoria e clientela</h2><p>Puoi scegliere più categorie.</p></div></div>
+      <span class="legend req">Categorie</span>
+      <div class="choices" id="categories">
+        <label class="choice"><input type="checkbox" value="Parrucchiere" id="categoryParrucchiere"><span>Parrucchiere</span></label>
+        <label class="choice"><input type="checkbox" value="Barbiere"><span>Barbiere</span></label>
+        <label class="choice"><input type="checkbox" value="Estetista"><span>Estetista</span></label>
+        <label class="choice"><input type="checkbox" value="Nail Artist"><span>Nail Artist</span></label>
+        <label class="choice"><input type="checkbox" value="Lash Maker"><span>Lash Maker</span></label>
+        <label class="choice"><input type="checkbox" value="Make-up"><span>Make-up</span></label>
+        <label class="choice"><input type="checkbox" value="Benessere"><span>Benessere</span></label>
+      </div>
+
+      <div id="clientelaBox" hidden>
+        <div style="height:17px"></div>
+        <span class="legend req" id="clientelaTitle">Clientela</span>
+        <div class="choices" style="grid-template-columns:repeat(3,1fr)">
+          <label class="choice"><input type="radio" name="pubblico" value="donna"><span>Donna</span></label>
+          <label class="choice"><input type="radio" name="pubblico" value="uomo"><span>Uomo</span></label>
+          <label class="choice"><input type="radio" name="pubblico" value="unisex"><span>Unisex</span></label>
+        </div>
+        <div id="clientelaHelp" style="font-size:10px;line-height:1.55;color:var(--muted);margin-top:8px">
+          Scegli dove deve essere mostrata l'attività.
+        </div>
+      </div>
+
+      <div style="height:17px"></div>
+      <label for="specializzazioni">Specializzazioni</label>
+      <input id="specializzazioni" type="text" placeholder="Es. balayage, nail art, curly hair — separate da virgola">
+    </section>
+
+    <section class="section" id="startServicesSection">
+      <div class="head">
+        <div class="num">4</div>
+        <div>
+          <h2>Servizi prenotabili</h2>
+          <p>Configura ciò che il cliente potrà scegliere dal calendario START.</p>
+        </div>
+      </div>
+
+      <div class="service-note">
+        Per ogni voce inserisci <strong>nome, durata e prezzo</strong>.
+        Nella sezione <strong>Trattamenti</strong> puoi decidere singolarmente se quel trattamento
+        può essere prenotato insieme a un servizio della sezione <strong>Colore</strong>.
+        Per sicurezza la compatibilità è disattivata finché non la autorizzi.
+      </div>
+
+      
+      <div class="start-services" id="startServices"></div>
+      <div class="removed-groups" id="removedGroups"></div>
+
+      <div class="custom-section-area">
+        <button class="add-section-button" type="button" id="addCustomSectionButton">
+          + Aggiungi sezione
+        </button>
+
+        <div class="custom-section-form" id="customSectionForm" hidden>
+          <label for="customSectionName">Nome sezione</label>
+
+          <div class="custom-section-form-row">
+            <input
+              id="customSectionName"
+              type="text"
+              maxlength="60"
+              placeholder="Es. Massaggio capillare"
+            >
+
+            <button class="confirm-section-button" type="button" id="confirmCustomSectionButton">
+              Crea sezione
+            </button>
+
+            <button class="cancel-section-button" type="button" id="cancelCustomSectionButton">
+              Annulla
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="section">
+      <div class="head"><div class="num">5</div><div><h2>Orari di apertura</h2><p>Imposta gli orari con intervalli di 15 minuti. Puoi scegliere anche l’orario continuato.</p></div></div>
+      <div class="days" id="days"></div>
+    </section>
+
+
+    <section class="section">
+      <div class="head">
+        <div class="num">6</div>
+        <div>
+          <h2>Foto attività</h2>
+          <p>Carica una foto copertina e fino a 5 foto della tua attività.</p>
+        </div>
+      </div>
+
+      <div class="upload-grid">
+        <div class="upload upload-cover">
+          <strong>Foto copertina</strong>
+          <small>JPG, PNG o WEBP · max 5 MB.</small>
+
+          <div class="cover-preview-wrap" id="coverPreviewWrap">
+            <img id="logoPreview" class="cover-preview" alt="Foto copertina">
+            <button
+              id="removeLogo"
+              class="media-remove cover-remove"
+              type="button"
+              hidden
+              aria-label="Elimina foto copertina"
+              title="Elimina foto copertina"
+            >×</button>
+
+            <div class="cover-placeholder" id="coverPlaceholder">
+              <span class="cover-placeholder-icon">＋</span>
+              <span>Nessuna foto copertina selezionata</span>
+            </div>
+          </div>
+
+          <label class="upload-action" for="logoFile">
+            Scegli foto copertina
+          </label>
+          <input
+            id="logoFile"
+            class="hidden-file-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+          >
+        </div>
+
+        <div class="upload upload-gallery">
+          <strong>Foto attività</strong>
+          <small id="galleryHelp">Fino a 5 immagini · max 5 MB ciascuna.</small>
+
+          <div class="gallery" id="galleryPreview"></div>
+
+          <label class="upload-action blue-action" for="galleryFiles">
+            Aggiungi foto
+          </label>
+          <input
+            id="galleryFiles"
+            class="hidden-file-input"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+          >
+        </div>
+      </div>
+    </section>
+
+    <section class="actions">
+      <button id="publishButton" class="publish" type="submit">Salva e pubblica la mia attività</button>
+      <div id="formMessage" class="message"></div>
+    </section>
+  </form>
+
+  <section id="successPanel" class="success">
+    <h2>Attività START configurata</h2>
+    <p>La tua scheda e i servizi START sono stati configurati. Il calendario è pronto per essere gestito.</p>
+    <a href="dashboard-professionista-start.html">Apri dashboard START</a>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const PREVIEW_MODE = true;
+const EDIT_MODE =
+  new URLSearchParams(window.location.search).get("modalita") === "modifica";
+
+const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+const BUCKET = "beautyslot-professionisti";
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+});
+
+let user = null, latitude = null, longitude = null;
+let locationSource = "";
+let verifiedAddressSignature = "";
+let selectedGalleryFiles = [];
+let galleryObjectUrls = [];
+let logoObjectUrl = "";
+let existingLogoUrl = "";
+let existingGalleryUrls = [];
+const form = document.getElementById("businessForm");
+const message = document.getElementById("formMessage");
+const publishButton = document.getElementById("publishButton");
+
+function msg(t, cls=""){message.textContent=t||"";message.className="message"+(cls?" "+cls:"")}
+
+const days = [
+ ["lunedi","Lunedì",1],["martedi","Martedì",1],["mercoledi","Mercoledì",1],
+ ["giovedi","Giovedì",1],["venerdi","Venerdì",1],["sabato","Sabato",1],["domenica","Domenica",0]
+];
+
+function parseTime(value){
+  const parts=String(value||"09:00").split(":");
+  return {
+    hour:String(parts[0]||"09").padStart(2,"0"),
+    minute:String(parts[1]||"00").padStart(2,"0")
+  };
+}
+
+function buildTimePicker(className,value,label){
+  const parsed=parseTime(value);
+
+  return `
+    <div class="time-picker">
+      <input class="${className}" type="hidden" value="${value}">
+      <button class="time-display" type="button" aria-label="${label}">
+        ${value}
+      </button>
+
+      <div class="time-popover">
+        <div class="time-popover-title">Ora</div>
+        <div class="hour-grid">
+          ${Array.from({length:24},(_,i)=>{
+            const hour=String(i).padStart(2,"0");
+            return `
+              <button
+                class="hour-chip ${hour===parsed.hour?"selected":""}"
+                type="button"
+                data-hour="${hour}"
+              >${hour}</button>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="minute-divider"></div>
+        <div class="time-popover-title">Minuti</div>
+        <div class="minute-grid">
+          ${["00","15","30","45"].map(minute=>`
+            <button
+              class="minute-chip ${minute===parsed.minute?"selected":""}"
+              type="button"
+              data-minute="${minute}"
+            >${minute}</button>
+          `).join("")}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function closeTimePickers(except=null){
+  document.querySelectorAll(".time-popover.open").forEach(popover=>{
+    if(popover!==except){
+      popover.classList.remove("open");
+      popover.parentElement
+        ?.querySelector(".time-display")
+        ?.classList.remove("active");
+    }
+  });
+}
+
+function bindTimePicker(picker){
+  const input=picker.querySelector('input[type="hidden"]');
+  const display=picker.querySelector(".time-display");
+  const popover=picker.querySelector(".time-popover");
+
+  function sync(){
+    const parsed=parseTime(input.value);
+
+    picker.querySelectorAll(".hour-chip").forEach(button=>{
+      button.classList.toggle(
+        "selected",
+        button.dataset.hour===parsed.hour
+      );
+    });
+
+    picker.querySelectorAll(".minute-chip").forEach(button=>{
+      button.classList.toggle(
+        "selected",
+        button.dataset.minute===parsed.minute
+      );
+    });
+
+    display.textContent=input.value;
+  }
+
+  display.addEventListener("click",event=>{
+    event.stopPropagation();
+
+    const opening=!popover.classList.contains("open");
+    closeTimePickers(opening ? popover : null);
+
+    popover.classList.toggle("open",opening);
+    display.classList.toggle("active",opening);
+  });
+
+  popover.addEventListener("click",event=>{
+    event.stopPropagation();
+  });
+
+  picker.querySelectorAll(".hour-chip").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const current=parseTime(input.value);
+      input.value=button.dataset.hour+":"+current.minute;
+      sync();
+    });
+  });
+
+  picker.querySelectorAll(".minute-chip").forEach(button=>{
+    button.addEventListener("click",()=>{
+      const current=parseTime(input.value);
+      input.value=current.hour+":"+button.dataset.minute;
+      sync();
+
+      popover.classList.remove("open");
+      display.classList.remove("active");
+    });
+  });
+
+  sync();
+}
+
+document.addEventListener("click",()=>closeTimePickers());
+
+function renderDays(){
+  const box=document.getElementById("days");
+  box.innerHTML="";
+
+  days.forEach(([key,label,open])=>{
+    const row=document.createElement("div");
+    row.className="day"+(open?"":" closed");
+    row.dataset.day=key;
+
+    row.innerHTML=`
+      <div class="day-main">
+        <div class="day-name-wrap">
+          <span class="day-name">${label}</span>
+          <span class="day-status">${open ? "Aperto" : "Chiuso"}</span>
+        </div>
+
+        <label class="day-switch" aria-label="Attiva o disattiva ${label}">
+          <input class="open" type="checkbox" ${open?"checked":""}>
+          <span class="day-switch-track"></span>
+        </label>
+      </div>
+
+      <div class="day-content">
+        <div class="continuous-row">
+          <label class="continuous-toggle">
+            <input class="continuous-check" type="checkbox">
+            Orario continuato
+          </label>
+        </div>
+
+        <div class="split-periods day-periods">
+          <div class="day-period">
+            <span class="period-label">Mattina</span>
+            <div class="time-range">
+              ${buildTimePicker("a1","09:00",`${label} apertura mattina`)}
+              <span class="time-separator">—</span>
+              ${buildTimePicker("a2","13:00",`${label} chiusura mattina`)}
+            </div>
+          </div>
+
+          <div class="day-period">
+            <span class="period-label">Pomeriggio</span>
+            <div class="time-range">
+              ${buildTimePicker("b1","15:00",`${label} apertura pomeriggio`)}
+              <span class="time-separator">—</span>
+              ${buildTimePicker("b2","19:00",`${label} chiusura pomeriggio`)}
+            </div>
+          </div>
+        </div>
+
+        <div class="continuous-period">
+          <div class="day-period">
+            <span class="period-label">Orario continuato</span>
+            <div class="time-range">
+              ${buildTimePicker("c1","09:00",`${label} apertura continuata`)}
+              <span class="time-separator">—</span>
+              ${buildTimePicker("c2","19:00",`${label} chiusura continuata`)}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const toggle=row.querySelector(".open");
+    const status=row.querySelector(".day-status");
+    const continuous=row.querySelector(".continuous-check");
+
+    toggle.addEventListener("change",e=>{
+      const isOpen=e.target.checked;
+      row.classList.toggle("closed",!isOpen);
+      status.textContent=isOpen ? "Aperto" : "Chiuso";
+      closeTimePickers();
+    });
+
+    continuous.addEventListener("change",()=>{
+      row.classList.toggle("continuous",continuous.checked);
+      closeTimePickers();
+    });
+
+    row.querySelectorAll(".time-picker").forEach(bindTimePicker);
+    box.appendChild(row);
+  });
+}
+
+function getCategories(){return [...document.querySelectorAll('#categories input:checked')].map(x=>x.value)}
+function getHours(){
+  const o={};
+
+  document.querySelectorAll(".day").forEach(r=>{
+    const open=r.querySelector(".open").checked;
+    const continuato=
+      r.querySelector(".continuous-check").checked;
+
+    if(!open){
+      o[r.dataset.day]={
+        open:false,
+        continuato:false,
+        mattina:null,
+        pomeriggio:null
+      };
+      return;
+    }
+
+    if(continuato){
+      o[r.dataset.day]={
+        open:true,
+        continuato:true,
+        mattina:[
+          r.querySelector(".c1").value,
+          r.querySelector(".c2").value
+        ],
+        pomeriggio:null
+      };
+      return;
+    }
+
+    o[r.dataset.day]={
+      open:true,
+      continuato:false,
+      mattina:[
+        r.querySelector(".a1").value,
+        r.querySelector(".a2").value
+      ],
+      pomeriggio:[
+        r.querySelector(".b1").value,
+        r.querySelector(".b2").value
+      ]
+    };
+  });
+
+  return o;
+}
+function validateImage(f){
+  if(!f)return;
+  if(!["image/jpeg","image/png","image/webp"].includes(f.type))throw new Error("Usa solo JPG, PNG o WEBP.");
+  if(f.size>5*1024*1024)throw new Error("Ogni immagine deve essere massimo 5 MB.");
+}
+function safeName(n){return String(n||"file").replace(/[^a-zA-Z0-9._-]+/g,"-").toLowerCase()}
+async function upload(f,folder){
+  validateImage(f);
+  if(PREVIEW_MODE)return URL.createObjectURL(f);
+  const path=`${user.id}/${folder}/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName(f.name)}`;
+  const {error}=await sb.storage.from(BUCKET).upload(path,f,{contentType:f.type});
+  if(error)throw error;
+  return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+}
+async function mediaUrls(){
+  let logo=existingLogoUrl || null;
+  let gallery=[...existingGalleryUrls];
+  const lf=document.getElementById("logoFile").files[0] || null;
+  const gf=[...selectedGalleryFiles];
+
+  if(gallery.length + gf.length > 5){
+    throw new Error("Puoi caricare al massimo 5 fotografie.");
+  }
+
+  if(lf){
+    logo=await upload(lf,"logo");
+  }
+
+  for(const f of gf){
+    gallery.push(await upload(f,"gallery"));
+  }
+
+  return {logo,gallery};
+}
+function prefill(){
+  const m=user?.user_metadata||{};
+  document.getElementById("nomeAttivita").value=m.azienda||"";
+  document.getElementById("indirizzo").value=m.indirizzo_azienda||"";
+  document.getElementById("telefono").value=m.telefono||"";
+  document.getElementById("instagram").value=m.instagram||"";
+  document.getElementById("tiktok").value=m.tiktok||"";
+  document.getElementById("emailPubblica").value=user?.email||"";
+}
+
+function setPickerValue(row,className,value){
+  if(!value)return;
+  const input=row.querySelector("." + className);
+  if(!input)return;
+  input.value=value;
+  const display=input.closest(".time-picker")?.querySelector(".time-display");
+  if(display)display.textContent=value;
+}
+
+function applyExistingProfile(profile){
+  if(!profile)return;
+
+  document.getElementById("nomeAttivita").value=profile.nome_attivita||"";
+  document.getElementById("descrizione").value=profile.descrizione||"";
+  document.getElementById("emailPubblica").value=profile.email||user?.email||"";
+  document.getElementById("telefono").value=profile.telefono||"";
+  document.getElementById("instagram").value=profile.instagram||"";
+  document.getElementById("tiktok").value=profile.tiktok||"";
+  document.getElementById("facebook").value=profile.facebook||"";
+  document.getElementById("indirizzo").value=profile.indirizzo||"";
+  document.getElementById("cap").value=profile.cap||"";
+  document.getElementById("comune").value=profile.comune||"";
+  document.getElementById("provincia").value=profile.provincia||"";
+  document.getElementById("paese").value=profile.paese||"Italia";
+  document.getElementById("specializzazioni").value=
+    Array.isArray(profile.specializzazioni)
+      ? profile.specializzazioni.join(", ")
+      : "";
+
+  latitude =
+    profile.latitude === null || profile.latitude === ""
+      ? null
+      : Number(profile.latitude);
+
+  longitude =
+    profile.longitude === null || profile.longitude === ""
+      ? null
+      : Number(profile.longitude);
+
+  if(Number.isFinite(latitude) && Number.isFinite(longitude)){
+    locationSource="saved";
+    verifiedAddressSignature=addressSignature();
+    geoStatus.textContent=
+      "Posizione salvata per questo indirizzo.";
+  }
+
+  const selectedCategories=
+    (Array.isArray(profile.categorie) ? profile.categorie : [])
+      .map(category=>{
+        if(category==="Unghie")return "Nail Artist";
+        if(category==="Ciglia e sopracciglia")return "Lash Maker";
+        return category;
+      });
+
+  categoryInputs.forEach(input=>{
+    input.checked=selectedCategories.includes(input.value);
+  });
+
+  updateClientela();
+
+  const pubblico=String(profile.pubblico||"unisex");
+  const pubblicoRadio=
+    document.querySelector(
+      `input[name="pubblico"][value="${pubblico}"]`
+    );
+  if(pubblicoRadio)pubblicoRadio.checked=true;
+
+  const orari=profile.orari || {};
+  Object.entries(orari).forEach(([dayKey,data])=>{
+    const row=document.querySelector(`.day[data-day="${dayKey}"]`);
+    if(!row || !data)return;
+
+    const openInput=row.querySelector(".open");
+    const continuous=row.querySelector(".continuous-check");
+    const isOpen=!!data.open;
+    const isContinuous=!!data.continuato;
+
+    openInput.checked=isOpen;
+    row.classList.toggle("closed",!isOpen);
+    row.querySelector(".day-status").textContent=
+      isOpen ? "Aperto" : "Chiuso";
+
+    continuous.checked=isContinuous;
+    row.classList.toggle("continuous",isContinuous);
+
+    if(isOpen && isContinuous && Array.isArray(data.mattina)){
+      setPickerValue(row,"c1",data.mattina[0]);
+      setPickerValue(row,"c2",data.mattina[1]);
+    }else if(isOpen){
+      if(Array.isArray(data.mattina)){
+        setPickerValue(row,"a1",data.mattina[0]);
+        setPickerValue(row,"a2",data.mattina[1]);
+      }
+      if(Array.isArray(data.pomeriggio)){
+        setPickerValue(row,"b1",data.pomeriggio[0]);
+        setPickerValue(row,"b2",data.pomeriggio[1]);
+      }
+    }
+  });
+
+  existingLogoUrl=profile.logo_url||"";
+  existingGalleryUrls=
+    Array.isArray(profile.gallery_urls)
+      ? profile.gallery_urls.filter(Boolean).slice(0,5)
+      : [];
+
+  if(existingLogoUrl){
+    logoPreview.src=existingLogoUrl;
+    logoPreview.style.display="block";
+    coverPlaceholder.style.display="none";
+    removeLogoButton.hidden=false;
+  }
+
+  renderGalleryPreview();
+
+  publishButton.textContent="Salva modifiche";
+  document.querySelector(".hero h1").textContent=
+    "Gestisci la tua attività";
+}
+
+const clientelaBox = document.getElementById("clientelaBox");
+const clientelaTitle = document.getElementById("clientelaTitle");
+const clientelaHelp = document.getElementById("clientelaHelp");
+const categoryInputs = [
+  ...document.querySelectorAll('#categories input[type="checkbox"]')
+];
+
+function clientelaMode(){
+  const categories = getCategories();
+
+  return categories.includes("Parrucchiere")
+    ? "parrucchiere"
+    : "";
+}
+
+function automaticAudience(categories){
+  const list=Array.isArray(categories) ? categories : [];
+
+  const showDonna =
+    list.includes("Estetista") ||
+    list.includes("Nail Artist") ||
+    list.includes("Lash Maker") ||
+    list.includes("Make-up") ||
+    list.includes("Benessere");
+
+  const showUomo =
+    list.includes("Barbiere") ||
+    list.includes("Estetista") ||
+    list.includes("Benessere");
+
+  if(showDonna && showUomo)return "unisex";
+  if(showDonna)return "donna";
+  if(showUomo)return "uomo";
+
+  return "unisex";
+}
+
+function updateClientela(){
+  const mode = clientelaMode();
+  const active = !!mode;
+  const radios =
+    clientelaBox.querySelectorAll('input[name="pubblico"]');
+
+  clientelaBox.hidden = !active;
+
+  if(mode === "parrucchiere"){
+    clientelaTitle.textContent = "Clientela parrucchiere";
+    clientelaHelp.textContent =
+      "Donna = pagina Donna, Uomo = pagina Uomo, Unisex = entrambe.";
+  }
+
+  if(active){
+    radios.forEach(radio => radio.required = true);
+  }else{
+    radios.forEach(radio => {
+      radio.checked = false;
+      radio.required = false;
+    });
+  }
+}
+
+categoryInputs.forEach(input => {
+  input.addEventListener("change", updateClientela);
+});
+
+updateClientela();
+
+const addressFields = [
+  document.getElementById("indirizzo"),
+  document.getElementById("comune"),
+  document.getElementById("provincia"),
+  document.getElementById("cap"),
+  document.getElementById("paese")
+];
+
+const verifyAddressButton =
+  document.getElementById("verifyAddressButton");
+
+const geoButton =
+  document.getElementById("geoButton");
+
+const geoStatus =
+  document.getElementById("geoStatus");
+
+function addressSignature(){
+  return addressFields
+    .map(field => field.value.trim().toLowerCase())
+    .join("|");
+}
+
+function fullAddressQuery(){
+  return [
+    document.getElementById("indirizzo").value.trim(),
+    document.getElementById("cap").value.trim(),
+    document.getElementById("comune").value.trim(),
+    document.getElementById("provincia").value.trim(),
+    document.getElementById("paese").value.trim() || "Italia"
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
+function resetVerifiedPosition(){
+  latitude = null;
+  longitude = null;
+  locationSource = "";
+  verifiedAddressSignature = "";
+
+  geoStatus.textContent =
+    "Indirizzo modificato: premi “Verifica indirizzo” oppure salva per verificarlo automaticamente.";
+}
+
+addressFields.forEach(field => {
+  field.addEventListener("input", () => {
+    if(
+      latitude !== null ||
+      longitude !== null ||
+      verifiedAddressSignature
+    ){
+      resetVerifiedPosition();
+    }
+  });
+});
+
+async function geocodeBusinessAddress(showSuccess=true){
+  const street =
+    document.getElementById("indirizzo").value.trim();
+
+  const city =
+    document.getElementById("comune").value.trim();
+
+  if(!street || !city){
+    throw new Error(
+      "Inserisci almeno via e numero civico e comune prima di verificare la posizione."
+    );
+  }
+
+  const query = fullAddressQuery();
+
+  verifyAddressButton.disabled = true;
+  geoStatus.textContent = "Verifica dell'indirizzo in corso…";
+
+  try{
+    if(PREVIEW_MODE){
+      latitude = 40.07331;
+      longitude = 18.09941;
+      locationSource = "address";
+      verifiedAddressSignature = addressSignature();
+
+      geoStatus.textContent =
+        "Indirizzo verificato · " + query;
+
+      return {
+        lat:latitude,
+        lon:longitude,
+        display_name:query
+      };
+    }
+
+    const endpoint =
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=jsonv2" +
+      "&limit=5" +
+      "&countrycodes=it" +
+      "&addressdetails=1" +
+      "&q=" +
+      encodeURIComponent(query);
+
+    const response = await fetch(endpoint, {
+      headers:{
+        "Accept":"application/json"
+      }
+    });
+
+    if(!response.ok){
+      throw new Error(
+        "Il servizio di verifica dell'indirizzo non è disponibile in questo momento."
+      );
+    }
+
+    const results = await response.json();
+
+    if(!Array.isArray(results) || !results.length){
+      throw new Error(
+        "Indirizzo non trovato. Controlla via, numero civico, comune, CAP e provincia."
+      );
+    }
+
+    const normalizedCity = city.toLowerCase();
+
+    const bestMatch =
+      results.find(result => {
+        const address = result.address || {};
+
+        const resultCity =
+          address.city ||
+          address.town ||
+          address.village ||
+          address.municipality ||
+          address.hamlet ||
+          "";
+
+        return String(resultCity)
+          .toLowerCase()
+          .includes(normalizedCity);
+      }) ||
+      results[0];
+
+    const lat = Number(bestMatch.lat);
+    const lon = Number(bestMatch.lon);
+
+    if(!Number.isFinite(lat) || !Number.isFinite(lon)){
+      throw new Error(
+        "Coordinate dell'indirizzo non valide."
+      );
+    }
+
+    latitude = lat;
+    longitude = lon;
+    locationSource = "address";
+    verifiedAddressSignature = addressSignature();
+
+    if(showSuccess){
+      geoStatus.textContent =
+        "Indirizzo verificato · " +
+        (bestMatch.display_name || query);
+    }
+
+    return bestMatch;
+  }finally{
+    verifyAddressButton.disabled = false;
+  }
+}
+
+verifyAddressButton.addEventListener("click", async () => {
+  try{
+    await geocodeBusinessAddress(true);
+    msg("");
+  }catch(error){
+    latitude = null;
+    longitude = null;
+    locationSource = "";
+    verifiedAddressSignature = "";
+    geoStatus.textContent = error.message;
+    msg(error.message,"error");
+  }
+});
+
+geoButton.addEventListener("click", () => {
+  if(!navigator.geolocation){
+    geoStatus.textContent =
+      "Geolocalizzazione GPS non disponibile su questo dispositivo.";
+    return;
+  }
+
+  geoButton.disabled = true;
+  geoStatus.textContent =
+    "Rilevamento GPS in corso… Usa questa opzione solo se sei fisicamente nel salone.";
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      latitude = position.coords.latitude;
+      longitude = position.coords.longitude;
+      locationSource = "gps";
+      verifiedAddressSignature = addressSignature();
+
+      geoStatus.textContent =
+        "Posizione GPS acquisita · " +
+        latitude.toFixed(6) +
+        ", " +
+        longitude.toFixed(6) +
+        ". Verrà usata questa posizione.";
+
+      geoButton.disabled = false;
+      msg("");
+    },
+    () => {
+      geoStatus.textContent =
+        "Posizione GPS non acquisita. Usa “Verifica indirizzo”.";
+      geoButton.disabled = false;
+    },
+    {
+      enableHighAccuracy:true,
+      timeout:12000,
+      maximumAge:0
+    }
+  );
+});
+
+async function ensureBusinessPosition(){
+  const currentSignature = addressSignature();
+
+  /*
+    Per impostazione predefinita usiamo l'indirizzo scritto.
+    Il GPS viene mantenuto solo se l'utente lo ha scelto esplicitamente
+    e l'indirizzo non è stato modificato dopo.
+  */
+  if(
+    locationSource === "gps" &&
+    verifiedAddressSignature === currentSignature &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ){
+    return;
+  }
+
+  if(
+    locationSource === "address" &&
+    verifiedAddressSignature === currentSignature &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude)
+  ){
+    return;
+  }
+
+  await geocodeBusinessAddress(false);
+
+  geoStatus.textContent =
+    "Indirizzo verificato e posizione salvata correttamente.";
+}
+
+
+const logoInput=document.getElementById("logoFile");
+const logoPreview=document.getElementById("logoPreview");
+const removeLogoButton=document.getElementById("removeLogo");
+const coverPlaceholder=document.getElementById("coverPlaceholder");
+const galleryInput=document.getElementById("galleryFiles");
+const galleryPreview=document.getElementById("galleryPreview");
+const galleryHelp=document.getElementById("galleryHelp");
+
+function fileKey(file){
+  return [
+    file.name,
+    file.size,
+    file.lastModified
+  ].join("::");
+}
+
+function updateGalleryHelp(){
+  const count=existingGalleryUrls.length + selectedGalleryFiles.length;
+
+  galleryHelp.textContent =
+    count
+      ? `${count} di 5 immagini presenti · max 5 MB ciascuna.`
+      : "Fino a 5 immagini · max 5 MB ciascuna.";
+}
+
+function clearGalleryObjectUrls(){
+  galleryObjectUrls.forEach(url=>URL.revokeObjectURL(url));
+  galleryObjectUrls=[];
+}
+
+function renderGalleryPreview(){
+  clearGalleryObjectUrls();
+  galleryPreview.innerHTML="";
+
+  existingGalleryUrls.forEach((url,index)=>{
+    const item=document.createElement("div");
+    item.className="gallery-item";
+
+    const img=document.createElement("img");
+    img.src=url;
+    img.alt=`Foto attività ${index+1}`;
+
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="media-remove";
+    remove.setAttribute("aria-label",`Elimina foto ${index+1}`);
+    remove.setAttribute("title",`Elimina foto ${index+1}`);
+    remove.textContent="×";
+
+    remove.addEventListener("click",(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      existingGalleryUrls.splice(index,1);
+      renderGalleryPreview();
+      msg("");
+    });
+
+    item.appendChild(img);
+    item.appendChild(remove);
+    galleryPreview.appendChild(item);
+  });
+
+  selectedGalleryFiles.forEach((file,index)=>{
+    const item=document.createElement("div");
+    item.className="gallery-item";
+
+    const img=document.createElement("img");
+    const url=URL.createObjectURL(file);
+    galleryObjectUrls.push(url);
+    img.src=url;
+    img.alt=`Nuova foto attività ${index+1}`;
+
+    const remove=document.createElement("button");
+    remove.type="button";
+    remove.className="media-remove";
+    remove.setAttribute("aria-label",`Elimina nuova foto ${index+1}`);
+    remove.setAttribute("title",`Elimina nuova foto ${index+1}`);
+    remove.textContent="×";
+
+    remove.addEventListener("click",(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      selectedGalleryFiles.splice(index,1);
+      renderGalleryPreview();
+      msg("");
+    });
+
+    item.appendChild(img);
+    item.appendChild(remove);
+    galleryPreview.appendChild(item);
+  });
+
+  updateGalleryHelp();
+}
+
+logoInput.addEventListener("change",event=>{
+  const file=event.target.files[0];
+
+  if(!file) return;
+
+  try{
+    validateImage(file);
+
+    if(logoObjectUrl){
+      URL.revokeObjectURL(logoObjectUrl);
+    }
+
+    logoObjectUrl=URL.createObjectURL(file);
+    logoPreview.src=logoObjectUrl;
+    logoPreview.style.display="block";
+    coverPlaceholder.style.display="none";
+    removeLogoButton.hidden=false;
+    msg("");
+  }catch(error){
+    event.target.value="";
+    logoPreview.removeAttribute("src");
+    logoPreview.style.display="none";
+    coverPlaceholder.style.display="flex";
+    removeLogoButton.hidden=true;
+    msg(error.message,"error");
+  }
+});
+
+removeLogoButton.addEventListener("click",()=>{
+  logoInput.value="";
+  existingLogoUrl="";
+
+  if(logoObjectUrl){
+    URL.revokeObjectURL(logoObjectUrl);
+    logoObjectUrl="";
+  }
+
+  logoPreview.removeAttribute("src");
+  logoPreview.style.display="none";
+  coverPlaceholder.style.display="flex";
+  removeLogoButton.hidden=true;
+  msg("");
+});
+
+galleryInput.addEventListener("change",event=>{
+  const incoming=[...event.target.files];
+
+  try{
+    incoming.forEach(validateImage);
+
+    const existingKeys=new Set(
+      selectedGalleryFiles.map(fileKey)
+    );
+
+    const uniqueIncoming=incoming.filter(
+      file=>!existingKeys.has(fileKey(file))
+    );
+
+    const alreadyPresent =
+      existingGalleryUrls.length + selectedGalleryFiles.length;
+
+    if(alreadyPresent + uniqueIncoming.length > 5){
+      throw new Error(
+        `Puoi caricare al massimo 5 fotografie. Ne hai già ${alreadyPresent}.`
+      );
+    }
+
+    selectedGalleryFiles=[
+      ...selectedGalleryFiles,
+      ...uniqueIncoming
+    ];
+
+    renderGalleryPreview();
+    msg("");
+  }catch(error){
+    msg(error.message,"error");
+  }finally{
+    // Così puoi aggiungere una o più foto in una seconda selezione,
+    // mantenendo quelle già scelte.
+    event.target.value="";
+  }
+});
+
+updateGalleryHelp();
+
+
+const START_GROUPS = [
+  {
+    id:"taglio",
+    title:"Taglio",
+    rows:[
+      {name:"Taglio",duration:45,price:"25",colorCompatible:null}
+    ]
+  },
+  {
+    id:"colore",
+    title:"Colore",
+    rows:[
+      {name:"Colore completo",duration:90,price:"55",colorCompatible:null}
+    ]
+  },
+  {
+    id:"trattamenti",
+    title:"Trattamenti",
+    rows:[
+      {name:"Ricostruzione capelli",duration:60,price:"45",colorCompatible:false},
+      {name:"Idratazione profonda",duration:45,price:"35",colorCompatible:true}
+    ]
+  }
+];
+
+
+const removedStartGroups = new Map();
+
+function escStart(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function startRowTemplate(groupId,row={}){
+  const withCompat = groupId === "trattamenti";
+  const checked = row.colorCompatible === true ? "checked" : "";
+  return `
+    <div class="service-row ${withCompat ? "with-compat" : ""}" data-service-row>
+      <div class="service-field">
+        <label>Nome</label>
+        <input class="start-name" type="text" value="${escStart(row.name||"")}" placeholder="Nome servizio" required>
+      </div>
+      <div class="service-field">
+        <label>Durata</label>
+        <div class="select-shell"><select class="start-duration" required>
+          ${[15,30,45,60,75,90,105,120,150,180].map(v=>
+            `<option value="${v}" ${Number(row.duration||45)===v?"selected":""}>${v} min</option>`
+          ).join("")}
+        </select></div>
+      </div>
+      <div class="service-field">
+        <label>Prezzo</label>
+        <input class="start-price" type="number" min="0" step="0.50" value="${escStart(row.price||"")}" placeholder="€" required>
+      </div>
+      ${withCompat ? `
+        <div class="compat-box">
+          <div class="compat-copy">
+            <strong>Insieme al Colore?</strong>
+            Il cliente può prenotarli nello stesso appuntamento.
+          </div>
+          <label class="compat-toggle" title="Compatibilità Colore + Trattamento">
+            <input class="start-color-compatible" type="checkbox" ${checked}>
+            <span class="compat-track"></span>
+          </label>
+        </div>
+      ` : ""}
+      <button class="row-remove" type="button" aria-label="Elimina trattamento" title="Elimina trattamento">×</button>
+    </div>
+  `;
+}
+
+function renderStartGroup(group){
+  const el=document.createElement("div");
+  el.className="service-group-editor" + (group.custom ? " custom-group" : "");
+  el.dataset.groupId=group.id;
+  el.innerHTML=`
+    <div class="service-group-head">
+      <div class="service-group-title-wrap">
+        <span class="service-group-index">${group.id==="taglio"?"T":group.id==="colore"?"C":group.id==="trattamenti"?"TR":"+"}</span>
+        <h3 class="service-group-title">${escStart(group.title)}</h3>
+      </div>
+      <button class="group-remove" type="button">Elimina sezione</button>
+    </div>
+    <div class="service-rows">
+      ${(group.rows||[]).map(row=>startRowTemplate(group.id,row)).join("")}
+    </div>
+    <div class="group-actions">
+      <button class="add-service" type="button">+ Aggiungi servizio</button>
+    </div>
+  `;
+
+  el.querySelector(".group-remove").addEventListener("click",()=>{
+    removedStartGroups.set(group.id,{
+      id:group.id,
+      title:group.title,
+      custom:group.custom === true,
+      rows:getRowsFromGroup(el)
+    });
+    el.remove();
+    renderRemovedStartGroups();
+  });
+
+  el.querySelector(".add-service").addEventListener("click",()=>{
+    el.querySelector(".service-rows")
+      .insertAdjacentHTML("beforeend",startRowTemplate(group.id,{
+        name:"",
+        duration:45,
+        price:"",
+        colorCompatible:false
+      }));
+  });
+
+  el.addEventListener("click",event=>{
+    const remove=event.target.closest(".row-remove");
+    if(!remove)return;
+    const rows=el.querySelectorAll("[data-service-row]");
+    if(rows.length===1){
+      rows[0].querySelector(".start-name").value="";
+      rows[0].querySelector(".start-price").value="";
+      const compat=rows[0].querySelector(".start-color-compatible");
+      if(compat)compat.checked=false;
+      return;
+    }
+    remove.closest("[data-service-row]").remove();
+  });
+
+  return el;
+}
+
+function getRowsFromGroup(groupEl){
+  return [...groupEl.querySelectorAll("[data-service-row]")].map(row=>({
+    name:row.querySelector(".start-name")?.value.trim()||"",
+    duration:Number(row.querySelector(".start-duration")?.value||0),
+    price:row.querySelector(".start-price")?.value||"",
+    colorCompatible:
+      row.querySelector(".start-color-compatible")
+        ? row.querySelector(".start-color-compatible").checked
+        : null
+  }));
+}
+
+function renderRemovedStartGroups(){
+  const box=document.getElementById("removedGroups");
+  box.innerHTML="";
+  [...removedStartGroups.values()].forEach(group=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.className="restore-group";
+    button.textContent="+ Ripristina "+group.title;
+    button.addEventListener("click",()=>{
+      document.getElementById("startServices").appendChild(renderStartGroup(group));
+      removedStartGroups.delete(group.id);
+      renderRemovedStartGroups();
+    });
+    box.appendChild(button);
+  });
+}
+
+
+function getStartServices(){
+  return [...document.querySelectorAll(".service-group-editor")].map(group=>({
+    group:group.dataset.groupId,
+    title:group.querySelector(".service-group-title")?.textContent.trim()||"",
+    services:getRowsFromGroup(group).filter(row=>row.name)
+  }));
+}
+
+function getColorCompatibility(){
+  const treatments=getStartServices()
+    .find(group=>group.group==="trattamenti")?.services || [];
+
+  return treatments
+    .filter(service=>service.colorCompatible===true)
+    .map(service=>service.name);
+}
+
+const startServicesBox=document.getElementById("startServices");
+START_GROUPS.forEach(group=>startServicesBox.appendChild(renderStartGroup(group)));
+
+let customGroupCounter=0;
+
+const addCustomSectionButton=
+  document.getElementById("addCustomSectionButton");
+
+const customSectionForm=
+  document.getElementById("customSectionForm");
+
+const customSectionName=
+  document.getElementById("customSectionName");
+
+const confirmCustomSectionButton=
+  document.getElementById("confirmCustomSectionButton");
+
+const cancelCustomSectionButton=
+  document.getElementById("cancelCustomSectionButton");
+
+function openCustomSectionForm(){
+  customSectionForm.removeAttribute("hidden");
+  addCustomSectionButton.setAttribute("hidden","");
+  customSectionName.value="";
+  setTimeout(()=>customSectionName.focus(),0);
+}
+
+function closeCustomSectionForm(){
+  customSectionForm.setAttribute("hidden","");
+  addCustomSectionButton.removeAttribute("hidden");
+  customSectionName.value="";
+}
+
+function createCustomSection(){
+  const title=customSectionName.value.trim();
+
+  if(!title){
+    customSectionName.focus();
+    return;
+  }
+
+  customGroupCounter+=1;
+
+  const group={
+    id:"custom-"+customGroupCounter,
+    title,
+    custom:true,
+    rows:[
+      {
+        name:"",
+        duration:45,
+        price:"",
+        colorCompatible:null
+      }
+    ]
+  };
+
+  startServicesBox.appendChild(renderStartGroup(group));
+  closeCustomSectionForm();
+
+  startServicesBox.lastElementChild?.scrollIntoView({
+    behavior:"smooth",
+    block:"center"
+  });
+}
+
+addCustomSectionButton.addEventListener(
+  "click",
+  openCustomSectionForm
+);
+
+cancelCustomSectionButton.addEventListener(
+  "click",
+  closeCustomSectionForm
+);
+
+confirmCustomSectionButton.addEventListener(
+  "click",
+  createCustomSection
+);
+
+customSectionName.addEventListener("keydown",event=>{
+  if(event.key==="Enter"){
+    event.preventDefault();
+    createCustomSection();
+  }
+});
+
+form.onsubmit=async e=>{
+  e.preventDefault();msg("");
+  if(!form.checkValidity()){form.reportValidity();return}
+  const categories=getCategories();
+  if(!categories.length){msg("Seleziona almeno una categoria.","error");return}
+
+  const mode = clientelaMode();
+
+  if(
+    mode &&
+    !document.querySelector('input[name="pubblico"]:checked')
+  ){
+    msg(
+      "Se hai scelto Parrucchiere, indica se la clientela è Donna, Uomo o Unisex.",
+      "error"
+    );
+    clientelaBox.scrollIntoView({behavior:"smooth",block:"center"});
+    return;
+  }
+  publishButton.disabled=true;publishButton.textContent="Salvataggio…";
+  try{
+    await ensureBusinessPosition();
+
+    const media=await mediaUrls();
+    const payload={
+      user_id:user?.id||"preview-user",piano:"start",
+      nome_attivita:document.getElementById("nomeAttivita").value.trim(),
+      descrizione:document.getElementById("descrizione").value.trim(),
+      email:document.getElementById("emailPubblica").value.trim(),
+      telefono:document.getElementById("telefono").value.trim(),
+      instagram:document.getElementById("instagram").value.trim(),
+      tiktok:document.getElementById("tiktok").value.trim(),
+      facebook:document.getElementById("facebook").value.trim(),
+      indirizzo:document.getElementById("indirizzo").value.trim(),
+      cap:document.getElementById("cap").value.trim(),
+      comune:document.getElementById("comune").value.trim(),
+      provincia:document.getElementById("provincia").value.trim().toUpperCase(),
+      paese:document.getElementById("paese").value.trim()||"Italia",
+      latitude,longitude,
+      pubblico:clientelaMode()
+        ? (document.querySelector('input[name="pubblico"]:checked')?.value || "unisex")
+        : automaticAudience(categories),
+      categorie:categories,
+      specializzazioni:document.getElementById("specializzazioni").value.split(",").map(x=>x.trim()).filter(Boolean),
+      servizi_start:getStartServices(),
+      compatibilita_colore:getColorCompatibility(),
+      orari:getHours(),
+      logo_url:media.logo,gallery_urls:media.gallery,
+      calendario_attivo:true,pubblicato:true,updated_at:new Date().toISOString()
+    };
+    if(!PREVIEW_MODE){
+      const {error}=await sb.from("beautyslot_professionisti").upsert(payload,{onConflict:"user_id"});
+      if(error)throw error;
+      const {error:uerr}=await sb.auth.updateUser({data:{onboarding_azienda_completato:true,piano_attivo:"start",nome_attivita:payload.nome_attivita}});
+      if(uerr)throw uerr;
+    }
+    if(!PREVIEW_MODE){
+      window.location.href="dashboard-professionista-start.html";
+      return;
+    }
+
+    form.style.display="none";
+    const successPanel=document.getElementById("successPanel");
+    successPanel.classList.add("show");
+    successPanel.scrollIntoView({behavior:"smooth",block:"center"});
+  }catch(err){
+    console.error(err);
+
+    const errorText =
+      err?.message || "Errore durante il salvataggio.";
+
+    const isLocationError =
+      /indirizzo|coordinate|posizione|verifica/i.test(errorText);
+
+    msg(
+      isLocationError
+        ? errorText
+        : "Errore durante il salvataggio: " + errorText,
+      "error"
+    );
+  }finally{
+    publishButton.disabled=false;publishButton.textContent="Salva e pubblica la mia attività";
+  }
+};
+
+async function init(){
+  renderDays();
+  if(PREVIEW_MODE){
+    user={id:"preview",email:"titolare@azienda.it",user_metadata:{tipo_utente:"professionista",piano_scelto:"start",azienda:"Aura Beauty Studio",indirizzo_azienda:"Via Roma 24",telefono:"+39 333 123 4567",instagram:"@aurabeautystudio"}};
+    prefill();return;
+  }
+  const {data:{user:u},error}=await sb.auth.getUser();
+  if(error||!u){msg("Sessione non disponibile. Accedi nuovamente al tuo account professionista.","error");publishButton.disabled=true;return}
+  user=u;
+  const m=u.user_metadata||{};
+  if(m.tipo_utente!=="professionista"){location.href="index.html";return}
+
+  const plan=String(
+    m.piano_attivo || m.piano_scelto || "free"
+  ).toLowerCase();
+
+  if(plan!=="start"){location.href="login.html";return}
+
+  prefill();
+
+  if(EDIT_MODE){
+    const {data:profile,error:profileError}=await sb
+      .from("beautyslot_professionisti")
+      .select("*")
+      .eq("user_id",u.id)
+      .maybeSingle();
+
+    if(profileError){
+      msg("Non è stato possibile caricare i dati della tua attività. " + profileError.message,"error");
+      return;
+    }
+
+    if(profile){
+      applyExistingProfile(profile);
+    }
+  }
+}
+init();
+</script>
+</body>
+</html>
