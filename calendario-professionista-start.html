@@ -13,14 +13,12 @@
   --muted:#90878a;
   --line:#eadfe2;
   --text:#655d60;
-  --panel:#ffffff;
   --appointment:#f7eef2;
   --appointment-border:#ead7de;
   --shadow:0 22px 60px rgba(107,96,107,.09);
 }
 
 *{box-sizing:border-box}
-
 body{
   margin:0;
   min-height:100vh;
@@ -31,15 +29,9 @@ body{
     radial-gradient(circle at 91% 12%,rgba(216,232,248,.52),transparent 25%),
     #fbfcfd;
 }
-
-a{
-  text-decoration:none;
-  color:inherit;
-}
-
-button{
-  font:inherit;
-}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
 
 .page{
   width:min(1180px,calc(100% - 30px));
@@ -54,7 +46,6 @@ button{
   gap:16px;
   margin-bottom:24px;
 }
-
 .brand h1{
   margin:0;
   font-family:Georgia,"Times New Roman",serif;
@@ -62,7 +53,6 @@ button{
   font-weight:400;
   color:#685a5f;
 }
-
 .brand div{
   margin-top:4px;
   font-size:10px;
@@ -70,7 +60,6 @@ button{
   text-transform:uppercase;
   color:var(--muted);
 }
-
 .back{
   min-height:42px;
   padding:0 16px;
@@ -95,31 +84,28 @@ button{
   border-radius:30px;
   background:rgba(255,255,255,.88);
   box-shadow:var(--shadow);
-  margin-bottom:18px;
+  margin-bottom:18px
 }
-
 .eyebrow{
   font-size:10px;
   font-weight:800;
   letter-spacing:.16em;
   text-transform:uppercase;
   color:#a36c7c;
-  margin-bottom:8px;
+  margin-bottom:8px
 }
-
 .hero h2{
   margin:0;
   font-family:Georgia,"Times New Roman",serif;
   font-size:40px;
   font-weight:400;
-  color:#66585d;
+  color:#66585d
 }
-
 .hero p{
   margin:8px 0 0;
   font-size:13px;
   line-height:1.6;
-  color:var(--muted);
+  color:var(--muted)
 }
 
 .view-switch{
@@ -129,9 +115,8 @@ button{
   border:1px solid var(--line);
   border-radius:999px;
   background:#fff;
-  flex-wrap:wrap;
+  flex-wrap:wrap
 }
-
 .view-switch button{
   border:0;
   border-radius:999px;
@@ -139,165 +124,148 @@ button{
   padding:10px 15px;
   font-size:10px;
   font-weight:800;
-  color:#8a7d81;
-  cursor:pointer;
+  color:#8a7d81
 }
-
 .view-switch button.active{
   background:linear-gradient(90deg,#f6e6ec,#eef2f7);
-  color:#765e67;
+  color:#765e67
 }
 
 .layout{
   display:grid;
   grid-template-columns:minmax(0,1.55fr) minmax(300px,.7fr);
-  gap:18px;
+  gap:18px
 }
-
 .panel{
   padding:22px;
   border:1px solid var(--line);
   border-radius:27px;
   background:rgba(255,255,255,.9);
-  box-shadow:0 16px 45px rgba(111,101,112,.06);
+  box-shadow:0 16px 45px rgba(111,101,112,.06)
 }
-
 .panel-title{
   margin:0;
   font-family:Georgia,"Times New Roman",serif;
   font-size:26px;
   font-weight:400;
-  color:#665a5e;
+  color:#665a5e
 }
-
 .panel-sub{
   margin:5px 0 0;
   font-size:11px;
   color:var(--muted);
-  line-height:1.5;
+  line-height:1.5
 }
+.view{display:none;margin-top:20px}
+.view.active{display:block}
 
-.view{
-  display:none;
-  margin-top:20px;
-}
-
-.view.active{
-  display:block;
-}
-
-/* ---------- APPOINTMENT STYLE: UN SOLO COLORE ---------- */
-
+/* eventi uniformi */
 .booking{
+  position:relative;
   border-radius:12px;
-  padding:8px 9px;
+  padding:8px 31px 8px 9px;
   font-size:9px;
   line-height:1.35;
   background:var(--appointment);
   border:1px solid var(--appointment-border);
-  color:#6d6065;
+  color:#6d6065
 }
-
 .booking strong{
   display:block;
   font-size:10px;
-  margin-bottom:2px;
+  margin-bottom:2px
 }
-
-.booking.block{
-  border-style:dashed;
-}
-
-/* ---------- GIORNO ---------- */
-
-.day-column{
+.booking.block{border-style:dashed}
+.event-delete{
+  position:absolute;
+  top:7px;
+  right:7px;
+  width:19px;
+  height:19px;
   display:grid;
-  gap:10px;
+  place-items:center;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:#fff;
+  color:#9c7782;
+  font-size:12px;
+  line-height:1
 }
 
+/* giorno */
+.day-column{display:grid;gap:10px}
 .day-row{
   display:grid;
   grid-template-columns:70px 1fr;
   gap:12px;
-  align-items:stretch;
+  align-items:stretch
 }
-
 .day-time{
   padding-top:13px;
   font-size:10px;
   font-weight:800;
-  color:#9a9094;
+  color:#9a9094
 }
-
 .day-content{
   min-height:58px;
   padding:9px;
   border:1px solid var(--line);
   border-radius:14px;
-  background:#fff;
+  background:#fff
 }
-
-.empty-day{
-  padding:22px;
+.closed-hour{opacity:.45;background:#faf8f8}
+.empty-note{
+  padding:20px;
   border:1px dashed var(--line);
   border-radius:17px;
   text-align:center;
   font-size:11px;
   line-height:1.6;
-  color:var(--muted);
+  color:var(--muted)
 }
 
-/* ---------- SETTIMANA ---------- */
-
+/* settimana */
+.week-wrap{overflow:auto}
 .week{
+  min-width:760px;
   display:grid;
-  grid-template-columns:70px repeat(6,1fr);
+  grid-template-columns:70px repeat(7,1fr);
   gap:0;
   border:1px solid var(--line);
   border-radius:20px;
-  overflow:hidden;
+  overflow:hidden
 }
-
 .week>div{
   min-height:76px;
   border-right:1px solid #efe7e9;
   border-bottom:1px solid #efe7e9;
-  padding:10px;
+  padding:10px
 }
-
-.week>div:nth-child(7n){
-  border-right:0;
-}
-
+.week>div:nth-child(8n){border-right:0}
 .time{
   font-size:10px;
   font-weight:700;
   color:#9b9295;
-  background:#fcfbfb;
+  background:#fcfbfb
 }
-
 .day-head{
   min-height:58px!important;
   text-align:center;
   background:#fcfbfc;
   font-size:10px;
   color:#8c8286;
+  cursor:pointer
 }
-
 .day-head strong{
   display:block;
   margin-top:4px;
   font-size:18px;
-  color:#685d61;
+  color:#685d61
 }
+.slot{position:relative;background:#fff}
 
-.slot{
-  position:relative;
-  background:#fff;
-}
-
-/* ---------- MESE ---------- */
-
+/* mese */
 .month-head{
   display:flex;
   align-items:center;
@@ -305,22 +273,15 @@ button{
   gap:10px;
   margin-bottom:14px;
   padding-bottom:12px;
-  border-bottom:1px solid #efe6e8;
+  border-bottom:1px solid #efe6e8
 }
-
 .month-title{
   font-family:Georgia,"Times New Roman",serif;
   font-size:28px;
-  color:#695b60;
+  color:#695b60
 }
-
-.month-nav{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.month-arrow{
+.month-nav,.year-nav{display:flex;align-items:center;gap:8px}
+.month-arrow,.year-arrow{
   width:38px;
   height:38px;
   display:grid;
@@ -328,17 +289,14 @@ button{
   border-radius:50%;
   border:1px solid var(--line);
   background:#fff;
-  cursor:pointer;
   color:#816971;
-  font-size:18px;
+  font-size:18px
 }
-
 .month-grid{
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
-  gap:8px;
+  gap:8px
 }
-
 .month-name{
   padding:6px 2px;
   text-align:center;
@@ -346,9 +304,8 @@ button{
   font-weight:800;
   letter-spacing:.08em;
   color:#998e92;
-  text-transform:uppercase;
+  text-transform:uppercase
 }
-
 .month-day{
   min-height:90px;
   padding:10px;
@@ -358,28 +315,21 @@ button{
   display:flex;
   flex-direction:column;
   gap:8px;
-  cursor:pointer;
-  transition:.16s ease;
+  cursor:pointer
 }
-
-.month-day:not(.muted):hover{
+.month-day:hover{
   border-color:#dcc8cf;
-  transform:translateY(-1px);
-  box-shadow:0 8px 18px rgba(113,103,114,.07);
+  transform:translateY(-1px)
 }
-
 .month-day.muted{
   opacity:.35;
-  cursor:default;
-  background:#fcfbfb;
+  background:#fcfbfb
 }
-
 .month-day .n{
   font-size:12px;
   font-weight:800;
-  color:#6d5f65;
+  color:#6d5f65
 }
-
 .month-pill{
   display:inline-flex;
   align-self:flex-start;
@@ -389,127 +339,86 @@ button{
   font-weight:700;
   background:var(--appointment);
   border:1px solid var(--appointment-border);
-  color:#7f6670;
+  color:#7f6670
 }
-
 .month-foot{
   margin-top:auto;
   font-size:9px;
   color:#948b8f;
-  line-height:1.4;
+  line-height:1.4
 }
 
-/* ---------- COMPLETO: STILE CALENDARIO ANNUALE ---------- */
-
+/* anno completo */
 .year-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
   gap:14px;
-  margin-bottom:20px;
+  margin-bottom:20px
 }
-
 .year-title{
   margin:0;
   font-family:Georgia,"Times New Roman",serif;
   font-size:42px;
   font-weight:400;
-  color:#695b60;
+  color:#695b60
 }
-
-.year-nav{
-  display:flex;
-  gap:8px;
-}
-
-.year-arrow{
-  width:38px;
-  height:38px;
-  display:grid;
-  place-items:center;
-  border:1px solid var(--line);
-  border-radius:50%;
-  background:#fff;
-  color:#816971;
-  cursor:pointer;
-  font-size:18px;
-}
-
 .year-grid{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:17px;
+  gap:17px
 }
-
 .mini-month{
   padding:16px;
   border:1px solid var(--line);
   border-radius:22px;
   background:#fff;
-  cursor:pointer;
-  transition:.16s ease;
+  cursor:pointer
 }
-
 .mini-month:hover{
   border-color:#dcc8cf;
-  transform:translateY(-2px);
-  box-shadow:0 12px 26px rgba(113,103,114,.08);
+  transform:translateY(-2px)
 }
-
 .mini-month h4{
   margin:0 0 12px;
   font-family:Georgia,"Times New Roman",serif;
   font-size:21px;
   font-weight:400;
-  color:#705e65;
+  color:#705e65
 }
-
 .mini-grid{
   display:grid;
   grid-template-columns:repeat(7,1fr);
-  gap:4px;
+  gap:4px
 }
-
 .mini-weekday{
   text-align:center;
   font-size:7px;
   font-weight:800;
   color:#aaa0a3;
-  text-transform:uppercase;
+  text-transform:uppercase
 }
-
 .mini-day{
   min-height:24px;
   display:grid;
   place-items:center;
   border-radius:7px;
   font-size:8px;
-  color:#72676b;
+  color:#72676b
 }
-
-.mini-day.muted{
-  opacity:.22;
-}
-
 .mini-day.has-event{
   background:var(--appointment);
   border:1px solid var(--appointment-border);
-  font-weight:800;
+  font-weight:800
 }
 
-/* ---------- SIDEBAR ---------- */
-
-.side-stack{
-  display:grid;
-  gap:18px;
-}
-
+/* sidebar */
+.side-stack{display:grid;gap:18px}
 .quick-actions{
   display:grid;
   gap:9px;
-  margin-top:18px;
+  margin-top:18px
 }
-
 .action{
   min-height:44px;
   border:1px solid var(--line);
@@ -519,122 +428,169 @@ button{
   padding:0 14px;
   font-size:11px;
   font-weight:700;
-  color:#75666c;
-  cursor:pointer;
+  color:#75666c
 }
-
 .action.primary{
   border:0;
   color:#fff;
-  background:linear-gradient(90deg,#c17e92,#ae8dbb,#9fa6b8);
+  background:linear-gradient(90deg,#c17e92,#ae8dbb,#9fa6b8)
 }
-
-.today-list{
-  display:grid;
-  gap:10px;
-  margin-top:17px;
-}
-
+.today-list{display:grid;gap:10px;margin-top:17px}
 .today-item{
   padding:13px;
   border:1px solid var(--line);
   border-radius:15px;
-  background:#fff;
+  background:#fff
 }
-
 .today-item .time-label{
   font-size:10px;
   font-weight:800;
-  color:#a36f7f;
+  color:#a36f7f
 }
-
 .today-item strong{
   display:block;
   margin-top:5px;
   font-size:12px;
-  color:#665b5f;
+  color:#665b5f
 }
-
 .today-item span{
   display:block;
   margin-top:3px;
   font-size:10px;
-  color:var(--muted);
+  color:var(--muted)
 }
 
-.legend{
-  margin-top:15px;
+/* dialog */
+dialog{
+  width:min(560px,calc(100% - 24px));
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:0;
+  box-shadow:0 28px 80px rgba(92,81,89,.2)
+}
+dialog::backdrop{background:rgba(74,67,71,.22)}
+.modal{
+  padding:24px;
+  background:#fff
+}
+.modal h3{
+  margin:0;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:28px;
+  font-weight:400;
+  color:#6c5d62
+}
+.modal p{
+  margin:6px 0 20px;
+  font-size:11px;
+  color:var(--muted)
+}
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px
+}
+.field{display:grid;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{
   font-size:9px;
-  color:var(--muted);
+  font-weight:800;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:#8a7b80
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  min-height:43px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:var(--text);
+  outline:none
+}
+.field textarea{min-height:80px;padding:12px;resize:vertical}
+.modal-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:9px;
+  margin-top:20px
+}
+.modal-btn{
+  min-height:42px;
+  padding:0 15px;
+  border-radius:12px;
+  font-size:10px;
+  font-weight:800
+}
+.modal-btn.cancel{
+  border:1px solid var(--line);
+  background:#fff;
+  color:#846f76
+}
+.modal-btn.save{
+  border:0;
+  background:linear-gradient(90deg,#c17e92,#9aa5bd);
+  color:#fff
+}
+
+.availability-list{display:grid;gap:8px}
+.availability-row{
+  display:grid;
+  grid-template-columns:90px 1fr 1fr;
+  gap:8px;
+  align-items:center;
+  padding:9px;
+  border:1px solid var(--line);
+  border-radius:13px
+}
+.availability-row label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:10px;
+  font-weight:800
+}
+.availability-row input[type="time"]{
+  min-height:38px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:0 8px
 }
 
 @media(max-width:900px){
-  .layout{
-    grid-template-columns:1fr;
-  }
-
-  .week{
-    min-width:760px;
-  }
-
-  .panel.calendar-panel{
-    overflow:auto;
-  }
-
-  .month-grid{
-    min-width:760px;
-  }
-
-  .year-grid{
-    grid-template-columns:repeat(2,minmax(0,1fr));
-  }
+  .layout{grid-template-columns:1fr}
+  .month-grid{min-width:760px}
+  .calendar-panel{overflow:auto}
+  .year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
-
 @media(max-width:600px){
-  .page{
-    width:min(100% - 18px,1180px);
-  }
-
-  .hero{
-    padding:22px;
-  }
-
-  .hero h2{
-    font-size:33px;
-  }
-
-  .topbar{
-    align-items:flex-start;
-  }
-
-  .view-switch{
-    width:100%;
-  }
-
-  .year-grid{
-    grid-template-columns:1fr;
-  }
+  .page{width:min(100% - 18px,1180px)}
+  .hero{padding:22px}
+  .hero h2{font-size:33px}
+  .topbar{align-items:flex-start}
+  .view-switch{width:100%}
+  .year-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .availability-row{grid-template-columns:1fr}
 }
 </style>
 </head>
 
 <body>
 <main class="page">
-
   <div class="topbar">
     <div class="brand">
       <h1>Beautyslot</h1>
       <div>Calendario professionista · START</div>
     </div>
-
-    <a class="back" href="dashboard-professionista-start.html">
-      Torna alla dashboard
-    </a>
+    <a class="back" href="dashboard-professionista-start.html">Torna alla dashboard</a>
   </div>
 
   <section class="hero">
     <div>
-      <div class="eyebrow">Atelier Blend · Piano START</div>
+      <div class="eyebrow">Piano START</div>
       <h2>Il tuo calendario</h2>
       <p>Gestisci appuntamenti, disponibilità, pause, ferie e blocchi dell'agenda.</p>
     </div>
@@ -648,472 +604,737 @@ button{
   </section>
 
   <section class="layout">
-
     <div class="panel calendar-panel">
-      <h3 class="panel-title" id="viewHeading">Lunedì 7 settembre 2026</h3>
-      <p class="panel-sub" id="viewSubtitle">
-        Vista giorno · dettaglio degli appuntamenti della giornata.
-      </p>
+      <h3 class="panel-title" id="viewHeading"></h3>
+      <p class="panel-sub" id="viewSubtitle"></p>
 
-      <!-- GIORNO -->
       <div class="view active" id="dayView">
         <div class="day-column" id="dayColumn"></div>
       </div>
 
-      <!-- SETTIMANA -->
       <div class="view" id="weekView">
-        <div class="week">
-          <div class="day-head"></div>
-          <div class="day-head">Lun<strong>7</strong></div>
-          <div class="day-head">Mar<strong>8</strong></div>
-          <div class="day-head">Mer<strong>9</strong></div>
-          <div class="day-head">Gio<strong>10</strong></div>
-          <div class="day-head">Ven<strong>11</strong></div>
-          <div class="day-head">Sab<strong>12</strong></div>
-
-          <div class="time">09:00</div>
-          <div class="slot"><div class="booking"><strong>09:00 · Elisa</strong>Taglio · 45 min</div></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>09:00 · Marta</strong>Colore + Idratazione</div></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>09:15 · Chiara</strong>Taglio · 45 min</div></div>
-          <div class="slot"></div>
-
-          <div class="time">11:00</div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>11:00 · Sara</strong>Ricostruzione · 60 min</div></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking block"><strong>11:00–12:00</strong>Blocco personale</div></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>11:30 · Anna</strong>Taglio · 45 min</div></div>
-
-          <div class="time">15:00</div>
-          <div class="slot"><div class="booking"><strong>15:00 · Giulia</strong>Colore · 90 min</div></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>15:15 · Laura</strong>Taglio · 45 min</div></div>
-          <div class="slot"><div class="booking"><strong>15:00 · Elisa</strong>Colore + Trattamento</div></div>
-          <div class="slot"></div>
-
-          <div class="time">17:00</div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking"><strong>17:00 · Ilaria</strong>Taglio · 45 min</div></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
-          <div class="slot"></div>
-          <div class="slot"><div class="booking block"><strong>17:00–18:00</strong>Pausa / chiusura</div></div>
+        <div class="week-wrap">
+          <div class="week" id="weekGrid"></div>
         </div>
       </div>
 
-      <!-- MESE -->
       <div class="view" id="monthView">
         <div class="month-head">
-          <div class="month-title" id="monthTitle">Settembre 2026</div>
-
+          <div class="month-title" id="monthTitle"></div>
           <div class="month-nav">
-            <button class="month-arrow" type="button" id="monthPrev" aria-label="Mese precedente">‹</button>
-            <button class="month-arrow" type="button" id="monthNext" aria-label="Mese successivo">›</button>
+            <button class="month-arrow" type="button" id="monthPrev">‹</button>
+            <button class="month-arrow" type="button" id="monthNext">›</button>
           </div>
         </div>
-
         <div class="month-grid" id="monthGrid"></div>
       </div>
 
-      <!-- COMPLETO / ANNO -->
       <div class="view" id="fullView">
         <div class="year-head">
-          <h3 class="year-title" id="yearTitle">2026</h3>
-
+          <h3 class="year-title" id="yearTitle"></h3>
           <div class="year-nav">
-            <button class="year-arrow" type="button" id="yearPrev" aria-label="Anno precedente">‹</button>
-            <button class="year-arrow" type="button" id="yearNext" aria-label="Anno successivo">›</button>
+            <button class="year-arrow" type="button" id="yearPrev">‹</button>
+            <button class="year-arrow" type="button" id="yearNext">›</button>
           </div>
         </div>
-
         <div class="year-grid" id="yearGrid"></div>
-      </div>
-
-      <div class="legend">
-        Tutti gli appuntamenti usano per ora lo stesso stile. I colori differenziati verranno definiti in seguito.
       </div>
     </div>
 
     <aside class="side-stack">
       <section class="panel">
         <h3 class="panel-title">Gestisci agenda</h3>
-        <p class="panel-sub">Azioni principali del calendario START.</p>
+        <p class="panel-sub">Tutte le funzioni operative del calendario START.</p>
 
         <div class="quick-actions">
-          <button class="action primary" type="button">+ Aggiungi appuntamento</button>
-          <button class="action" type="button">Blocca un orario</button>
-          <button class="action" type="button">Imposta pausa</button>
-          <button class="action" type="button">Ferie / assenza</button>
-          <button class="action" type="button">Gestisci disponibilità</button>
+          <button class="action primary" type="button" id="addAppointmentBtn">+ Aggiungi appuntamento</button>
+          <button class="action" type="button" id="blockTimeBtn">Blocca un orario</button>
+          <button class="action" type="button" id="pauseBtn">Imposta pausa</button>
+          <button class="action" type="button" id="absenceBtn">Ferie / assenza</button>
+          <button class="action" type="button" id="availabilityBtn">Gestisci disponibilità</button>
         </div>
       </section>
 
       <section class="panel">
-        <h3 class="panel-title">Oggi</h3>
-        <p class="panel-sub">3 appuntamenti · 1 blocco agenda</p>
-
-        <div class="today-list">
-          <div class="today-item">
-            <div class="time-label">09:00</div>
-            <strong>Elisa Romano</strong>
-            <span>Taglio · 45 min</span>
-          </div>
-
-          <div class="today-item">
-            <div class="time-label">11:00</div>
-            <strong>Blocco agenda</strong>
-            <span>Pausa personale · 60 min</span>
-          </div>
-
-          <div class="today-item">
-            <div class="time-label">15:00</div>
-            <strong>Giulia Serra</strong>
-            <span>Colore completo · 90 min</span>
-          </div>
-        </div>
+        <h3 class="panel-title">Giornata selezionata</h3>
+        <p class="panel-sub" id="selectedDayLabel"></p>
+        <div class="today-list" id="selectedDayList"></div>
       </section>
     </aside>
-
   </section>
 </main>
 
+<dialog id="appointmentDialog">
+  <form method="dialog" class="modal" id="appointmentForm">
+    <h3>Aggiungi appuntamento</h3>
+    <p>Inserisci i dati dell'appuntamento.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="appointmentDate" required>
+      </div>
+      <div class="field">
+        <label>Ora</label>
+        <input type="time" id="appointmentTime" required>
+      </div>
+      <div class="field">
+        <label>Durata</label>
+        <select id="appointmentDuration">
+          <option value="15">15 min</option>
+          <option value="30">30 min</option>
+          <option value="45" selected>45 min</option>
+          <option value="60">60 min</option>
+          <option value="75">75 min</option>
+          <option value="90">90 min</option>
+          <option value="120">120 min</option>
+          <option value="180">180 min</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Cliente</label>
+        <input type="text" id="appointmentClient" placeholder="Nome cliente" required>
+      </div>
+      <div class="field full">
+        <label>Servizio</label>
+        <input type="text" id="appointmentService" placeholder="Es. Taglio" required>
+      </div>
+      <div class="field full">
+        <label>Note</label>
+        <textarea id="appointmentNotes" placeholder="Note facoltative"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" type="button" data-close="appointmentDialog">Annulla</button>
+      <button class="modal-btn save" type="submit">Salva appuntamento</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="blockDialog">
+  <form method="dialog" class="modal" id="blockForm">
+    <h3>Blocca un orario</h3>
+    <p>Lo spazio resterà non prenotabile.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="blockDate" required>
+      </div>
+      <div class="field">
+        <label>Motivo</label>
+        <input type="text" id="blockReason" placeholder="Es. impegno personale">
+      </div>
+      <div class="field">
+        <label>Dalle</label>
+        <input type="time" id="blockStart" required>
+      </div>
+      <div class="field">
+        <label>Alle</label>
+        <input type="time" id="blockEnd" required>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" type="button" data-close="blockDialog">Annulla</button>
+      <button class="modal-btn save" type="submit">Blocca orario</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="pauseDialog">
+  <form method="dialog" class="modal" id="pauseForm">
+    <h3>Imposta pausa</h3>
+    <p>Aggiunge una pausa alla giornata selezionata.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="pauseDate" required>
+      </div>
+      <div class="field">
+        <label>Nome pausa</label>
+        <input type="text" id="pauseReason" value="Pausa" required>
+      </div>
+      <div class="field">
+        <label>Dalle</label>
+        <input type="time" id="pauseStart" value="13:00" required>
+      </div>
+      <div class="field">
+        <label>Alle</label>
+        <input type="time" id="pauseEnd" value="14:00" required>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" type="button" data-close="pauseDialog">Annulla</button>
+      <button class="modal-btn save" type="submit">Salva pausa</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="absenceDialog">
+  <form method="dialog" class="modal" id="absenceForm">
+    <h3>Ferie / assenza</h3>
+    <p>Blocca uno o più giorni completi.</p>
+    <div class="form-grid">
+      <div class="field">
+        <label>Dal</label>
+        <input type="date" id="absenceFrom" required>
+      </div>
+      <div class="field">
+        <label>Al</label>
+        <input type="date" id="absenceTo" required>
+      </div>
+      <div class="field full">
+        <label>Motivo</label>
+        <input type="text" id="absenceReason" value="Ferie / assenza" required>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" type="button" data-close="absenceDialog">Annulla</button>
+      <button class="modal-btn save" type="submit">Salva assenza</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="availabilityDialog">
+  <form method="dialog" class="modal" id="availabilityForm">
+    <h3>Gestisci disponibilità</h3>
+    <p>Imposta i giorni e gli orari in cui il calendario accetta appuntamenti.</p>
+    <div class="availability-list" id="availabilityList"></div>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" type="button" data-close="availabilityDialog">Annulla</button>
+      <button class="modal-btn save" type="submit">Salva disponibilità</button>
+    </div>
+  </form>
+</dialog>
+
 <script>
-const MONTH_NAMES = [
+const STORAGE_EVENTS = "beautyslot_start_calendar_events_v1";
+const STORAGE_AVAILABILITY = "beautyslot_start_calendar_availability_v1";
+
+const MONTH_NAMES=[
   "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
   "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"
 ];
+const WEEKDAY_NAMES=["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
+const WEEKDAY_LONG=["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
 
-const WEEKDAY_NAMES = ["Lun","Mar","Mer","Gio","Ven","Sab","Dom"];
-
-const demoAppointments = {
-  "2026-09-07":[
-    {time:"09:00",title:"Elisa Romano",detail:"Taglio · 45 min · €25"},
-    {time:"11:00",title:"Blocco agenda",detail:"Pausa personale · 60 min",block:true},
-    {time:"15:00",title:"Giulia Serra",detail:"Colore completo · 90 min · €55"}
-  ],
-  "2026-09-08":[
-    {time:"11:00",title:"Sara Costa",detail:"Ricostruzione capelli · 60 min · €45"},
-    {time:"17:00",title:"Ilaria De Luca",detail:"Taglio · 45 min · €25"}
-  ],
-  "2026-09-09":[
-    {time:"09:00",title:"Marta Serra",detail:"Colore + Idratazione profonda"}
-  ],
-  "2026-09-10":[
-    {time:"11:00",title:"Blocco agenda",detail:"Impegno personale",block:true}
-  ],
-  "2026-09-11":[
-    {time:"09:15",title:"Chiara Greco",detail:"Taglio · 45 min"},
-    {time:"15:00",title:"Elisa Romano",detail:"Colore + Trattamento"}
-  ],
-  "2026-09-12":[
-    {time:"11:30",title:"Anna De Luca",detail:"Taglio · 45 min"}
-  ],
-  "2026-10-03":[
-    {time:"10:00",title:"Laura",detail:"Taglio · 45 min"}
-  ],
-  "2026-10-06":[
-    {time:"15:00",title:"Giulia",detail:"Colore · 90 min"}
-  ],
-  "2026-11-16":[
-    {time:"09:30",title:"Sara",detail:"Trattamento · 60 min"}
-  ]
+const defaultAvailability={
+  0:{enabled:false,start:"09:00",end:"19:00"},
+  1:{enabled:true,start:"09:00",end:"19:00"},
+  2:{enabled:true,start:"09:00",end:"19:00"},
+  3:{enabled:true,start:"09:00",end:"19:00"},
+  4:{enabled:true,start:"09:00",end:"19:00"},
+  5:{enabled:true,start:"09:00",end:"19:00"},
+  6:{enabled:true,start:"09:00",end:"19:00"}
 };
 
-const viewMeta = {
-  dayView:{
-    subtitle:"Vista giorno · dettaglio degli appuntamenti della giornata."
-  },
-  weekView:{
-    heading:"7–12 settembre 2026",
-    subtitle:"Vista settimana · appuntamenti e disponibilità della settimana."
-  },
-  monthView:{
-    heading:"Calendario mensile",
-    subtitle:"Clicca su un giorno per aprire direttamente quella giornata."
-  },
-  fullView:{
-    heading:"Calendario completo",
-    subtitle:"Vista annuale stile calendario iPhone. Clicca su un mese per aprirlo."
+let events=loadJSON(STORAGE_EVENTS,[]);
+let availability=loadJSON(STORAGE_AVAILABILITY,defaultAvailability);
+
+let selectedDate=new Date();
+selectedDate.setHours(0,0,0,0);
+let monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+let fullYear=selectedDate.getFullYear();
+
+const headingEl=document.getElementById("viewHeading");
+const subtitleEl=document.getElementById("viewSubtitle");
+const dayColumn=document.getElementById("dayColumn");
+const weekGrid=document.getElementById("weekGrid");
+const monthGrid=document.getElementById("monthGrid");
+const monthTitle=document.getElementById("monthTitle");
+const yearGrid=document.getElementById("yearGrid");
+const yearTitle=document.getElementById("yearTitle");
+const selectedDayLabel=document.getElementById("selectedDayLabel");
+const selectedDayList=document.getElementById("selectedDayList");
+
+function loadJSON(key,fallback){
+  try{
+    const raw=localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : structuredClone(fallback);
+  }catch{
+    return structuredClone(fallback);
   }
-};
-
-let selectedDate = new Date(2026,8,7);
-let monthCursor = new Date(2026,8,1);
-let fullYear = 2026;
-
-const headingEl = document.getElementById("viewHeading");
-const subtitleEl = document.getElementById("viewSubtitle");
-const dayColumn = document.getElementById("dayColumn");
-const monthTitle = document.getElementById("monthTitle");
-const monthGrid = document.getElementById("monthGrid");
-const yearTitle = document.getElementById("yearTitle");
-const yearGrid = document.getElementById("yearGrid");
-
+}
+function saveState(){
+  localStorage.setItem(STORAGE_EVENTS,JSON.stringify(events));
+  localStorage.setItem(STORAGE_AVAILABILITY,JSON.stringify(availability));
+}
+function uid(){
+  return (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random());
+}
+function pad(n){return String(n).padStart(2,"0")}
 function dateKey(date){
-  const y=date.getFullYear();
-  const m=String(date.getMonth()+1).padStart(2,"0");
-  const d=String(date.getDate()).padStart(2,"0");
-  return `${y}-${m}-${d}`;
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`;
 }
-
-function formatLongDate(date){
+function parseDateKey(key){
+  const [y,m,d]=key.split("-").map(Number);
+  return new Date(y,m-1,d);
+}
+function longDate(date){
   return new Intl.DateTimeFormat("it-IT",{
-    weekday:"long",
-    day:"numeric",
-    month:"long",
-    year:"numeric"
-  }).format(date);
+    weekday:"long",day:"numeric",month:"long",year:"numeric"
+  }).format(date).replace(/^./,c=>c.toUpperCase());
 }
-
-function formatCapitalizedLongDate(date){
-  const text=formatLongDate(date);
-  return text.charAt(0).toUpperCase()+text.slice(1);
+function eventLabel(event){
+  if(event.type==="appointment") return `${event.client} · ${event.service}`;
+  if(event.type==="block") return event.reason || "Orario bloccato";
+  if(event.type==="pause") return event.reason || "Pausa";
+  return event.reason || "Ferie / assenza";
 }
-
-function activateView(viewId){
-  document.querySelectorAll(".view").forEach(view=>{
-    view.classList.toggle("active",view.id===viewId);
+function eventsForDate(date){
+  const key=dateKey(date);
+  return events
+    .filter(e=>e.date===key)
+    .sort((a,b)=>(a.start||"00:00").localeCompare(b.start||"00:00"));
+}
+function isAvailableAt(date,hour){
+  const day=availability[date.getDay()];
+  if(!day?.enabled) return false;
+  const h=`${pad(hour)}:00`;
+  return h>=day.start && h<day.end;
+}
+function currentViewId(){
+  return document.querySelector(".view.active")?.id || "dayView";
+}
+function activateView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
+  document.querySelectorAll("[data-view-target]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.viewTarget===id);
   });
+  renderAll();
+}
+function renderAll(){
+  const view=currentViewId();
 
-  document.querySelectorAll("[data-view-target]").forEach(button=>{
-    button.classList.toggle(
-      "active",
-      button.getAttribute("data-view-target")===viewId
-    );
-  });
-
-  if(viewId==="dayView"){
-    headingEl.textContent=formatCapitalizedLongDate(selectedDate);
-    subtitleEl.textContent=viewMeta.dayView.subtitle;
-    renderDay(selectedDate);
-    return;
-  }
-
-  headingEl.textContent=viewMeta[viewId].heading;
-  subtitleEl.textContent=viewMeta[viewId].subtitle;
-
-  if(viewId==="monthView"){
+  if(view==="dayView"){
+    headingEl.textContent=longDate(selectedDate);
+    subtitleEl.textContent="Vista giorno · appuntamenti, blocchi, pause e assenze.";
+    renderDay();
+  }else if(view==="weekView"){
+    const start=getWeekStart(selectedDate);
+    const end=new Date(start); end.setDate(end.getDate()+6);
+    headingEl.textContent=`${start.getDate()} ${MONTH_NAMES[start.getMonth()].toLowerCase()} – ${end.getDate()} ${MONTH_NAMES[end.getMonth()].toLowerCase()} ${end.getFullYear()}`;
+    subtitleEl.textContent="Vista settimana · clicca su un giorno per aprirlo.";
+    renderWeek();
+  }else if(view==="monthView"){
+    headingEl.textContent="Calendario mensile";
+    subtitleEl.textContent="Clicca su un giorno per aprire direttamente quella giornata.";
     renderMonth();
-  }
-
-  if(viewId==="fullView"){
+  }else{
+    headingEl.textContent="Calendario completo";
+    subtitleEl.textContent="Vista annuale · clicca su un mese per aprirlo.";
     renderYear();
   }
+
+  renderSelectedDayPanel();
 }
-
-function renderDay(date){
-  const appointments=demoAppointments[dateKey(date)] || [];
-
-  if(!appointments.length){
-    dayColumn.innerHTML=`
-      <div class="empty-day">
-        Nessun appuntamento dimostrativo per questa giornata.
-        Nel calendario reale qui compariranno gli appuntamenti e gli eventuali blocchi.
-      </div>
-    `;
-    return;
-  }
-
-  const hours=["09:00","10:00","11:00","12:00","15:00","16:00","17:00","18:00"];
+function renderDay(){
+  const dayEvents=eventsForDate(selectedDate);
+  const hours=[];
+  for(let h=7;h<=21;h++) hours.push(h);
 
   dayColumn.innerHTML=hours.map(hour=>{
-    const appointment=appointments.find(item=>item.time.startsWith(hour.slice(0,2)));
+    const matching=dayEvents.filter(e=>{
+      const sh=Number((e.start||"00:00").slice(0,2));
+      return sh===hour || (e.type==="absence" && hour===9);
+    });
+
+    const classes=isAvailableAt(selectedDate,hour) ? "" : " closed-hour";
 
     return `
       <div class="day-row">
-        <div class="day-time">${hour}</div>
-        <div class="day-content">
-          ${appointment ? `
-            <div class="booking ${appointment.block?"block":""}">
-              <strong>${appointment.time} · ${appointment.title}</strong>
-              ${appointment.detail}
-            </div>
-          ` : ""}
+        <div class="day-time">${pad(hour)}:00</div>
+        <div class="day-content${classes}">
+          ${matching.map(renderBooking).join("")}
         </div>
       </div>
     `;
   }).join("");
-}
 
+  if(!dayEvents.length){
+    dayColumn.insertAdjacentHTML("afterbegin",`
+      <div class="empty-note">
+        Nessun appuntamento, blocco o pausa per questa giornata.
+      </div>
+    `);
+  }
+}
+function renderBooking(event){
+  const timeText=event.type==="absence"
+    ? "Tutto il giorno"
+    : `${event.start}${event.end ? "–"+event.end : ""}`;
+
+  const detail=event.type==="appointment"
+    ? `${event.service}${event.duration ? " · "+event.duration+" min" : ""}`
+    : eventLabel(event);
+
+  return `
+    <div class="booking ${event.type!=="appointment" ? "block" : ""}">
+      <strong>${timeText}${event.type==="appointment" ? " · "+event.client : ""}</strong>
+      ${detail}
+      <button class="event-delete" type="button" data-delete-event="${event.id}" title="Elimina">×</button>
+    </div>
+  `;
+}
+function getWeekStart(date){
+  const d=new Date(date);
+  const diff=(d.getDay()+6)%7;
+  d.setDate(d.getDate()-diff);
+  d.setHours(0,0,0,0);
+  return d;
+}
+function renderWeek(){
+  const start=getWeekStart(selectedDate);
+  let html=`<div class="day-head"></div>`;
+
+  const days=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(start); d.setDate(start.getDate()+i); days.push(d);
+    html+=`<div class="day-head" data-open-day="${dateKey(d)}">${WEEKDAY_NAMES[i]}<strong>${d.getDate()}</strong></div>`;
+  }
+
+  const hours=[9,11,13,15,17,19];
+  hours.forEach(hour=>{
+    html+=`<div class="time">${pad(hour)}:00</div>`;
+    days.forEach(d=>{
+      const list=eventsForDate(d).filter(e=>{
+        const sh=Number((e.start||"09:00").slice(0,2));
+        return sh>=hour && sh<hour+2 || (e.type==="absence" && hour===9);
+      });
+
+      html+=`<div class="slot ${isAvailableAt(d,hour)?"":"closed-hour"}">${list.map(renderBooking).join("")}</div>`;
+    });
+  });
+
+  weekGrid.innerHTML=html;
+}
 function calendarCells(year,month){
   const first=new Date(year,month,1);
   const firstWeekday=(first.getDay()+6)%7;
   const daysInMonth=new Date(year,month+1,0).getDate();
   const prevMonthDays=new Date(year,month,0).getDate();
-
   const cells=[];
 
   for(let i=firstWeekday-1;i>=0;i--){
-    cells.push({
-      day:prevMonthDays-i,
-      muted:true,
-      date:new Date(year,month-1,prevMonthDays-i)
-    });
+    cells.push({day:prevMonthDays-i,muted:true,date:new Date(year,month-1,prevMonthDays-i)});
   }
-
-  for(let day=1;day<=daysInMonth;day++){
-    cells.push({
-      day,
-      muted:false,
-      date:new Date(year,month,day)
-    });
+  for(let d=1;d<=daysInMonth;d++){
+    cells.push({day:d,muted:false,date:new Date(year,month,d)});
   }
-
-  let nextDay=1;
+  let next=1;
   while(cells.length<42){
-    cells.push({
-      day:nextDay,
-      muted:true,
-      date:new Date(year,month+1,nextDay)
-    });
-    nextDay++;
+    cells.push({day:next,muted:true,date:new Date(year,month+1,next)});
+    next++;
   }
-
   return cells;
 }
-
 function renderMonth(){
-  const year=monthCursor.getFullYear();
-  const month=monthCursor.getMonth();
+  const y=monthCursor.getFullYear();
+  const m=monthCursor.getMonth();
+  monthTitle.textContent=`${MONTH_NAMES[m]} ${y}`;
 
-  monthTitle.textContent=`${MONTH_NAMES[month]} ${year}`;
+  const weekdays=WEEKDAY_NAMES.map(x=>`<div class="month-name">${x}</div>`).join("");
 
-  const weekdayHtml=WEEKDAY_NAMES
-    .map(day=>`<div class="month-name">${day}</div>`)
-    .join("");
-
-  const cells=calendarCells(year,month);
-
-  const dayHtml=cells.map(cell=>{
-    const key=dateKey(cell.date);
-    const appointments=demoAppointments[key] || [];
-    const count=appointments.length;
-
+  const cells=calendarCells(y,m).map(cell=>{
+    const count=eventsForDate(cell.date).length;
     return `
-      <div
-        class="month-day ${cell.muted?"muted":""}"
-        ${cell.muted ? "" : `data-day-key="${key}"`}
-      >
+      <div class="month-day ${cell.muted?"muted":""}" data-month-day="${dateKey(cell.date)}">
         <div class="n">${cell.day}</div>
-
-        ${count ? `
-          <div class="month-pill">
-            ${count} ${count===1?"appunt.":"appunt."}
-          </div>
-        ` : ""}
-
-        ${count ? `
-          <div class="month-foot">
-            ${appointments.slice(0,2).map(item=>item.time+" "+item.title).join("<br>")}
-          </div>
-        ` : ""}
+        ${count ? `<div class="month-pill">${count} ${count===1?"voce":"voci"}</div>` : ""}
+        ${count ? `<div class="month-foot">${eventsForDate(cell.date).slice(0,2).map(e=>eventLabel(e)).join("<br>")}</div>` : ""}
       </div>
     `;
   }).join("");
 
-  monthGrid.innerHTML=weekdayHtml+dayHtml;
-
-  monthGrid.querySelectorAll("[data-day-key]").forEach(day=>{
-    day.addEventListener("click",()=>{
-      const [y,m,d]=day.dataset.dayKey.split("-").map(Number);
-      selectedDate=new Date(y,m-1,d);
-      activateView("dayView");
-    });
-  });
+  monthGrid.innerHTML=weekdays+cells;
 }
-
 function miniMonthHtml(year,month){
   const first=new Date(year,month,1);
-  const firstWeekday=(first.getDay()+6)%7;
-  const daysInMonth=new Date(year,month+1,0).getDate();
+  const start=(first.getDay()+6)%7;
+  const days=new Date(year,month+1,0).getDate();
 
-  let html=WEEKDAY_NAMES.map(day=>
-    `<div class="mini-weekday">${day.charAt(0)}</div>`
-  ).join("");
-
-  for(let i=0;i<firstWeekday;i++){
-    html+=`<div class="mini-day muted"></div>`;
+  let out=WEEKDAY_NAMES.map(x=>`<div class="mini-weekday">${x[0]}</div>`).join("");
+  for(let i=0;i<start;i++) out+=`<div class="mini-day"></div>`;
+  for(let d=1;d<=days;d++){
+    const date=new Date(year,month,d);
+    out+=`<div class="mini-day ${eventsForDate(date).length?"has-event":""}">${d}</div>`;
   }
-
-  for(let day=1;day<=daysInMonth;day++){
-    const date=new Date(year,month,day);
-    const hasEvent=(demoAppointments[dateKey(date)] || []).length>0;
-
-    html+=`
-      <div class="mini-day ${hasEvent?"has-event":""}">
-        ${day}
-      </div>
-    `;
-  }
-
-  return html;
+  return out;
 }
-
 function renderYear(){
   yearTitle.textContent=fullYear;
-
-  yearGrid.innerHTML=MONTH_NAMES.map((name,month)=>`
-    <article class="mini-month" data-month="${month}">
+  yearGrid.innerHTML=MONTH_NAMES.map((name,m)=>`
+    <article class="mini-month" data-open-month="${m}">
       <h4>${name}</h4>
-      <div class="mini-grid">
-        ${miniMonthHtml(fullYear,month)}
-      </div>
+      <div class="mini-grid">${miniMonthHtml(fullYear,m)}</div>
     </article>
   `).join("");
+}
+function renderSelectedDayPanel(){
+  selectedDayLabel.textContent=longDate(selectedDate);
+  const list=eventsForDate(selectedDate);
 
-  yearGrid.querySelectorAll(".mini-month").forEach(card=>{
-    card.addEventListener("click",()=>{
-      const month=Number(card.dataset.month);
-      monthCursor=new Date(fullYear,month,1);
-      activateView("monthView");
-    });
-  });
+  if(!list.length){
+    selectedDayList.innerHTML=`<div class="empty-note">Nessuna voce inserita.</div>`;
+    return;
+  }
+
+  selectedDayList.innerHTML=list.map(e=>`
+    <div class="today-item">
+      <div class="time-label">${e.type==="absence" ? "Tutto il giorno" : e.start}</div>
+      <strong>${eventLabel(e)}</strong>
+      <span>${e.type==="appointment" ? `${e.service} · ${e.duration} min` : (e.end ? `Fino alle ${e.end}` : "")}</span>
+    </div>
+  `).join("");
 }
 
-document.querySelectorAll("[data-view-target]").forEach(button=>{
-  button.addEventListener("click",()=>{
-    activateView(button.getAttribute("data-view-target"));
-  });
+/* navigazione viste */
+document.querySelectorAll("[data-view-target]").forEach(btn=>{
+  btn.addEventListener("click",()=>activateView(btn.dataset.viewTarget));
 });
-
-/* Frecce mese: nessun limite, avanti/indietro quanto si vuole */
 document.getElementById("monthPrev").addEventListener("click",()=>{
-  monthCursor=new Date(
-    monthCursor.getFullYear(),
-    monthCursor.getMonth()-1,
-    1
-  );
-  renderMonth();
+  monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()-1,1);
+  renderAll();
 });
-
 document.getElementById("monthNext").addEventListener("click",()=>{
-  monthCursor=new Date(
-    monthCursor.getFullYear(),
-    monthCursor.getMonth()+1,
-    1
-  );
-  renderMonth();
+  monthCursor=new Date(monthCursor.getFullYear(),monthCursor.getMonth()+1,1);
+  renderAll();
 });
-
-/* Vista completa: anno precedente / successivo */
 document.getElementById("yearPrev").addEventListener("click",()=>{
-  fullYear-=1;
-  renderYear();
+  fullYear--; renderAll();
 });
-
 document.getElementById("yearNext").addEventListener("click",()=>{
-  fullYear+=1;
-  renderYear();
+  fullYear++; renderAll();
 });
 
-renderDay(selectedDate);
-renderMonth();
-renderYear();
-</script>
+document.addEventListener("click",event=>{
+  const day=event.target.closest("[data-open-day]");
+  if(day){
+    selectedDate=parseDateKey(day.dataset.openDay);
+    monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+    activateView("dayView");
+    return;
+  }
 
+  const monthDay=event.target.closest("[data-month-day]");
+  if(monthDay){
+    selectedDate=parseDateKey(monthDay.dataset.monthDay);
+    monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+    activateView("dayView");
+    return;
+  }
+
+  const month=event.target.closest("[data-open-month]");
+  if(month){
+    monthCursor=new Date(fullYear,Number(month.dataset.openMonth),1);
+    activateView("monthView");
+    return;
+  }
+
+  const del=event.target.closest("[data-delete-event]");
+  if(del){
+    if(confirm("Eliminare questa voce dal calendario?")){
+      events=events.filter(e=>e.id!==del.dataset.deleteEvent);
+      saveState();
+      renderAll();
+    }
+  }
+});
+
+/* modal helpers */
+function openDialog(id){
+  document.getElementById(id).showModal();
+}
+function closeDialog(id){
+  document.getElementById(id).close();
+}
+document.querySelectorAll("[data-close]").forEach(btn=>{
+  btn.addEventListener("click",()=>closeDialog(btn.dataset.close));
+});
+function setSelectedDateInput(id){
+  document.getElementById(id).value=dateKey(selectedDate);
+}
+
+/* appuntamento */
+document.getElementById("addAppointmentBtn").addEventListener("click",()=>{
+  setSelectedDateInput("appointmentDate");
+  document.getElementById("appointmentTime").value="09:00";
+  openDialog("appointmentDialog");
+});
+document.getElementById("appointmentForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  const date=document.getElementById("appointmentDate").value;
+  const start=document.getElementById("appointmentTime").value;
+  const duration=Number(document.getElementById("appointmentDuration").value);
+  const client=document.getElementById("appointmentClient").value.trim();
+  const service=document.getElementById("appointmentService").value.trim();
+  const notes=document.getElementById("appointmentNotes").value.trim();
+
+  if(!date || !start || !client || !service) return;
+
+  const [h,m]=start.split(":").map(Number);
+  const endDate=new Date(2000,0,1,h,m+duration);
+  const end=`${pad(endDate.getHours())}:${pad(endDate.getMinutes())}`;
+
+  events.push({
+    id:uid(),type:"appointment",date,start,end,duration,client,service,notes
+  });
+
+  selectedDate=parseDateKey(date);
+  monthCursor=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1);
+  saveState();
+  closeDialog("appointmentDialog");
+  event.target.reset();
+  renderAll();
+});
+
+/* blocco */
+document.getElementById("blockTimeBtn").addEventListener("click",()=>{
+  setSelectedDateInput("blockDate");
+  document.getElementById("blockStart").value="10:00";
+  document.getElementById("blockEnd").value="11:00";
+  openDialog("blockDialog");
+});
+document.getElementById("blockForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  const date=document.getElementById("blockDate").value;
+  const start=document.getElementById("blockStart").value;
+  const end=document.getElementById("blockEnd").value;
+  const reason=document.getElementById("blockReason").value.trim() || "Orario bloccato";
+
+  if(!date || !start || !end || end<=start){
+    alert("Controlla l'orario del blocco.");
+    return;
+  }
+
+  events.push({id:uid(),type:"block",date,start,end,reason});
+  selectedDate=parseDateKey(date);
+  saveState();
+  closeDialog("blockDialog");
+  event.target.reset();
+  renderAll();
+});
+
+/* pausa */
+document.getElementById("pauseBtn").addEventListener("click",()=>{
+  setSelectedDateInput("pauseDate");
+  document.getElementById("pauseStart").value="13:00";
+  document.getElementById("pauseEnd").value="14:00";
+  document.getElementById("pauseReason").value="Pausa";
+  openDialog("pauseDialog");
+});
+document.getElementById("pauseForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  const date=document.getElementById("pauseDate").value;
+  const start=document.getElementById("pauseStart").value;
+  const end=document.getElementById("pauseEnd").value;
+  const reason=document.getElementById("pauseReason").value.trim() || "Pausa";
+
+  if(!date || !start || !end || end<=start){
+    alert("Controlla l'orario della pausa.");
+    return;
+  }
+
+  events.push({id:uid(),type:"pause",date,start,end,reason});
+  selectedDate=parseDateKey(date);
+  saveState();
+  closeDialog("pauseDialog");
+  renderAll();
+});
+
+/* ferie / assenza */
+document.getElementById("absenceBtn").addEventListener("click",()=>{
+  const key=dateKey(selectedDate);
+  document.getElementById("absenceFrom").value=key;
+  document.getElementById("absenceTo").value=key;
+  document.getElementById("absenceReason").value="Ferie / assenza";
+  openDialog("absenceDialog");
+});
+document.getElementById("absenceForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  const from=document.getElementById("absenceFrom").value;
+  const to=document.getElementById("absenceTo").value;
+  const reason=document.getElementById("absenceReason").value.trim() || "Ferie / assenza";
+
+  if(!from || !to || to<from){
+    alert("Controlla le date dell'assenza.");
+    return;
+  }
+
+  const start=parseDateKey(from);
+  const end=parseDateKey(to);
+
+  for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+    const key=dateKey(d);
+
+    if(!events.some(e=>e.type==="absence" && e.date===key)){
+      events.push({
+        id:uid(),type:"absence",date:key,start:"00:00",end:"23:59",reason
+      });
+    }
+  }
+
+  selectedDate=start;
+  monthCursor=new Date(start.getFullYear(),start.getMonth(),1);
+  saveState();
+  closeDialog("absenceDialog");
+  renderAll();
+});
+
+/* disponibilità */
+function renderAvailabilityForm(){
+  const order=[
+    {day:1,label:"Lunedì"},
+    {day:2,label:"Martedì"},
+    {day:3,label:"Mercoledì"},
+    {day:4,label:"Giovedì"},
+    {day:5,label:"Venerdì"},
+    {day:6,label:"Sabato"},
+    {day:0,label:"Domenica"}
+  ];
+
+  document.getElementById("availabilityList").innerHTML=order.map(item=>{
+    const data=availability[item.day] || defaultAvailability[item.day];
+    return `
+      <div class="availability-row">
+        <label>
+          <input type="checkbox" data-av-enabled="${item.day}" ${data.enabled?"checked":""}>
+          ${item.label}
+        </label>
+        <input type="time" data-av-start="${item.day}" value="${data.start}">
+        <input type="time" data-av-end="${item.day}" value="${data.end}">
+      </div>
+    `;
+  }).join("");
+}
+document.getElementById("availabilityBtn").addEventListener("click",()=>{
+  renderAvailabilityForm();
+  openDialog("availabilityDialog");
+});
+document.getElementById("availabilityForm").addEventListener("submit",event=>{
+  event.preventDefault();
+
+  for(let day=0;day<=6;day++){
+    const enabled=document.querySelector(`[data-av-enabled="${day}"]`).checked;
+    const start=document.querySelector(`[data-av-start="${day}"]`).value;
+    const end=document.querySelector(`[data-av-end="${day}"]`).value;
+
+    if(enabled && (!start || !end || end<=start)){
+      alert("Controlla gli orari di disponibilità.");
+      return;
+    }
+
+    availability[day]={enabled,start,end};
+  }
+
+  saveState();
+  closeDialog("availabilityDialog");
+  renderAll();
+});
+
+renderAll();
+</script>
 </body>
 </html>
