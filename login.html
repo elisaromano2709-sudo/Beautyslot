@@ -330,6 +330,71 @@
       message.classList.add("show");
     }
 
+    function dashboardProfessionistaPerPiano(plan) {
+      const normalized = String(plan || "").toLowerCase();
+
+      if (normalized === "free") return "dashboard-professionista-free.html";
+      if (normalized === "start") return "dashboard-professionista-start.html";
+      if (normalized === "pro" || normalized === "trial-pro") return "dashboard-professionista-pro.html";
+      if (normalized === "business") return "dashboard-professionista-business.html";
+      if (normalized === "enterprise") return "dashboard-professionista-enterprise.html";
+
+      return "";
+    }
+
+    async function bloccaRitornoLoginProfessionista() {
+      const { data:{ user }, error:userError } =
+        await supabaseClient.auth.getUser();
+
+      if (userError || !user) return false;
+
+      const metadata = user.user_metadata || {};
+
+      if (metadata.tipo_utente !== "professionista") {
+        return false;
+      }
+
+      const { data:profile, error:profileError } =
+        await supabaseClient
+          .from("beautyslot_professionisti")
+          .select("user_id,piano")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+      if (profileError || !profile) {
+        return false;
+      }
+
+      const piano = String(
+        profile.piano ||
+        metadata.piano_attivo ||
+        metadata.piano_scelto ||
+        metadata.piano_base ||
+        ""
+      ).toLowerCase();
+
+      const dashboard =
+        dashboardProfessionistaPerPiano(piano);
+
+      if (!dashboard) return false;
+
+      window.location.replace(
+        new URL(dashboard, window.location.href).href
+      );
+
+      return true;
+    }
+
+    // Se il professionista è già autenticato e ha completato
+    // la propria attività, il login non è più una pagina accessibile.
+    bloccaRitornoLoginProfessionista();
+
+    // Protezione anche quando il browser ripristina login.html
+    // tramite il tasto Indietro / cache di navigazione.
+    window.addEventListener("pageshow", () => {
+      bloccaRitornoLoginProfessionista();
+    });
+
 
     form.addEventListener("submit", async function (event) {
       event.preventDefault();
