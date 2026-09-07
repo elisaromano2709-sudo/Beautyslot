@@ -2307,11 +2307,39 @@
       message.textContent="";
 
       try{
+        const { data: sessionData, error: sessionError } = await sb.auth.getSession();
+
+        if(sessionError || !sessionData?.session?.access_token){
+          throw new Error("Sessione non disponibile. Esci e accedi di nuovo prima di cancellare l'account.");
+        }
+
         const { data, error } = await sb.functions.invoke("delete-account", {
-          body:{ confirmation:"CANCELLA" }
+          body:{ confirmation:"CANCELLA" },
+          headers:{
+            Authorization:"Bearer " + sessionData.session.access_token
+          }
         });
 
-        if(error)throw error;
+        if(error){
+          let detail=error?.message || "Errore durante la cancellazione.";
+
+          try{
+            if(error?.context){
+              const payload=await error.context.json();
+              detail=
+                payload?.error ||
+                payload?.detail ||
+                payload?.message ||
+                detail;
+
+              if(payload?.step){
+                detail += " [fase: " + payload.step + "]";
+              }
+            }
+          }catch(_parseError){}
+
+          throw new Error(detail);
+        }
         if(!data || data.deleted!==true){
           throw new Error(data?.error || "La cancellazione non è stata completata.");
         }
