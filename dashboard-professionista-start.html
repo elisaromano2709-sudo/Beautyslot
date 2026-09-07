@@ -1572,66 +1572,109 @@
     const worksPhotoCounter=document.getElementById("worksPhotoCounter");
     const photoMessage=document.getElementById("photoMessage");
 
-    const DASHBOARD_HISTORY_LOCK_KEY =
-      "beautyslot_dashboard_history_lock_disabled";
+    // =========================================================
+    // BLOCCO FORTE DEL TASTO "INDIETRO" NELLA DASHBOARD
+    // =========================================================
+    // Finché il professionista resta autenticato nella sua area,
+    // il normale ritorno del browser non deve riaprire login,
+    // index o pagine di registrazione.
+    // Solo il pulsante Esci imposta allowDashboardExit = true.
+    let allowDashboardExit = false;
 
-    function dashboardHistoryLockEnabled(){
-      return sessionStorage.getItem(
-        DASHBOARD_HISTORY_LOCK_KEY
-      ) !== "1";
-    }
+    const DASHBOARD_LOCK_URL =
+      window.location.pathname +
+      window.location.search +
+      window.location.hash;
 
-    function armDashboardHistoryLock(){
-      if(!dashboardHistoryLockEnabled()) return;
+    const DASHBOARD_GUARD_DEPTH = 12;
 
-      const currentUrl =
-        window.location.pathname +
-        window.location.search +
-        window.location.hash;
+    function armHardDashboardHistoryLock(){
+      if(allowDashboardExit) return;
 
+      // Trasforma l'entry corrente nella prima barriera.
       history.replaceState(
-        {beautyslotDashboardBase:true},
-        "",
-        currentUrl
+        {beautyslotDashboardGuard:0},
+        document.title,
+        DASHBOARD_LOCK_URL
       );
 
+      // Aggiunge più barriere identiche: anche pressioni rapide
+      // del tasto Indietro restano all'interno della dashboard.
+      for(let i=1;i<=DASHBOARD_GUARD_DEPTH;i++){
+        history.pushState(
+          {beautyslotDashboardGuard:i},
+          document.title,
+          DASHBOARD_LOCK_URL
+        );
+      }
+    }
+
+    function restoreDashboardHistoryGuard(){
+      if(allowDashboardExit) return;
+
+      const state=history.state || {};
+      const level=Number(state.beautyslotDashboardGuard);
+
+      if(Number.isFinite(level) && level < DASHBOARD_GUARD_DEPTH){
+        const steps=DASHBOARD_GUARD_DEPTH-level;
+
+        // Torna immediatamente alla barriera più avanzata.
+        history.go(steps);
+        return;
+      }
+
+      // Fallback: se lo stato non è riconoscibile,
+      // crea immediatamente una nuova barriera.
       history.pushState(
-        {beautyslotDashboardGuard:true},
-        "",
-        currentUrl
+        {beautyslotDashboardGuard:DASHBOARD_GUARD_DEPTH},
+        document.title,
+        DASHBOARD_LOCK_URL
       );
     }
 
-    function keepUserInsideDashboard(){
-      if(!dashboardHistoryLockEnabled()) return;
-
-      const currentUrl =
-        window.location.pathname +
-        window.location.search +
-        window.location.hash;
-
-      history.pushState(
-        {beautyslotDashboardGuard:true},
-        "",
-        currentUrl
-      );
-    }
-
-    // Impedisce al normale tasto Indietro del browser di lasciare
-    // la dashboard mentre il professionista è ancora autenticato.
     window.addEventListener("popstate",()=>{
-      keepUserInsideDashboard();
+      restoreDashboardHistoryGuard();
     });
 
-    // Riattiva il blocco anche se il browser ripristina la dashboard
-    // dalla cache di navigazione.
-    window.addEventListener("pageshow",()=>{
-      if(dashboardHistoryLockEnabled()){
-        armDashboardHistoryLock();
+    // Chrome/Safari possono ripristinare la pagina dalla bfcache.
+    // In quel caso la barriera viene ricostruita.
+    window.addEventListener("pageshow",(event)=>{
+      if(allowDashboardExit) return;
+
+      if(event.persisted){
+        armHardDashboardHistoryLock();
       }
     });
 
-    armDashboardHistoryLock();
+    // Blocca anche le scorciatoie più comuni per "Indietro".
+    document.addEventListener("keydown",(event)=>{
+      if(allowDashboardExit) return;
+
+      const target=event.target;
+      const editing=
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target?.isContentEditable;
+
+      const altBack=
+        event.altKey &&
+        event.key==="ArrowLeft";
+
+      const macBack=
+        event.metaKey &&
+        event.key==="[";
+
+      const backspaceNavigation=
+        event.key==="Backspace" &&
+        !editing;
+
+      if(altBack || macBack || backspaceNavigation){
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },true);
+
+    armHardDashboardHistoryLock();
 
     let currentUser=null;
     let business=null;
@@ -2384,10 +2427,8 @@
     });
 
     async function logout(){
-      sessionStorage.setItem(
-        DASHBOARD_HISTORY_LOCK_KEY,
-        "1"
-      );
+      // Solo un logout esplicito permette di lasciare la dashboard.
+      allowDashboardExit=true;
 
       if(!PREVIEW_MODE){
         await sb.auth.signOut();
@@ -2399,7 +2440,7 @@
       localStorage.removeItem("beautyslot_user_id");
       localStorage.removeItem("beautyslot_email");
 
-      window.location.href="login.html";
+      window.location.replace("login.html");
     }
 
     document.getElementById("logoutButton").addEventListener("click",logout);
@@ -2529,19 +2570,15 @@
       const {data:{user},error}=await sb.auth.getUser();
 
       if(error || !user){
-        window.location.href="login.html";
+        window.location.replace("login.html");
         return;
       }
 
       currentUser=user;
-      sessionStorage.removeItem(
-        DASHBOARD_HISTORY_LOCK_KEY
-      );
-      armDashboardHistoryLock();
       const metadata=user.user_metadata || {};
 
       if(metadata.tipo_utente!=="professionista"){
-        window.location.href="index.html";
+        window.location.replace("index.html");
         return;
       }
 
@@ -2559,12 +2596,12 @@
       }
 
       if(!profile){
-        window.location.href="registrazione-azienda-start.html";
+        window.location.replace("registrazione-azienda-start.html");
         return;
       }
 
       if(String(profile.piano||"start").toLowerCase()!=="start"){
-        window.location.href="login.html";
+        window.location.replace("login.html");
         return;
       }
 
