@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offerte Beautyslot</title>
+
+  <style>
+    :root{
+      --rose:#b87587;
+      --rose-dark:#765d64;
+      --rose-soft:#fff1f5;
+      --blue:#7f9fbe;
+      --blue-soft:#f2f7fc;
+      --ink:#5e5659;
+      --muted:#938a8d;
+      --line:#eadfe2;
+      --white:#ffffff;
+      --shadow:0 24px 70px rgba(110,100,110,.10);
+    }
+
+    *{box-sizing:border-box}
+
+    html{scroll-behavior:smooth}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%,rgba(244,221,230,.55),transparent 24%),
+        radial-gradient(circle at 92% 16%,rgba(218,233,248,.58),transparent 26%),
+        linear-gradient(180deg,#fbfcfd 0%,#ffffff 100%);
+    }
+
+    button,a{font:inherit}
+
+    .page{
+      width:min(1120px,calc(100% - 32px));
+      margin:0 auto;
+      padding:34px 0 70px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:34px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .brand-mark{
+      width:46px;
+      height:46px;
+      display:grid;
+      place-items:center;
+      border-radius:16px;
+      background:linear-gradient(145deg,#f8e7ed,#edf4fb);
+      color:#946d7a;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .brand-mark svg{
+      width:23px;
+      height:23px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:1.6;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    .brand-copy strong{
+      display:block;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:24px;
+      font-weight:400;
+      color:#675b60;
+    }
+
+    .brand-copy span{
+      display:block;
+      margin-top:2px;
+      font-size:10px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:var(--muted);
+    }
+
+    .back-button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:44px;
+      padding:0 17px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      background:rgba(255,255,255,.85);
+      color:#765f66;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:46px 46px 42px;
+      border:1px solid rgba(225,211,217,.95);
+      border-radius:36px;
+      background:
+        radial-gradient(circle at 84% 14%,rgba(244,206,220,.36),transparent 27%),
+        radial-gradient(circle at 14% 92%,rgba(207,229,248,.40),transparent 30%),
+        rgba(255,255,255,.86);
+      box-shadow:var(--shadow);
+      margin-bottom:26px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      padding:9px 14px;
+      border:1px solid rgba(216,162,181,.38);
+      border-radius:999px;
+      background:rgba(255,243,247,.82);
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:#9c6072;
+      margin-bottom:20px;
+    }
+
+    .hero h1{
+      margin:0;
+      max-width:690px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:clamp(40px,6vw,66px);
+      line-height:1.02;
+      font-weight:400;
+      color:#695a60;
+    }
+
+    .hero p{
+      margin:20px 0 0;
+      max-width:700px;
+      font-size:15px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+
+    .offers-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:18px;
+    }
+
+    .offer-card{
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      min-height:390px;
+      padding:25px;
+      border:1px solid rgba(218,222,230,.94);
+      border-radius:30px;
+      background:rgba(255,255,255,.9);
+      box-shadow:0 18px 48px rgba(113,103,114,.08);
+      overflow:hidden;
+    }
+
+    .offer-card.featured{
+      background:
+        radial-gradient(circle at top right,rgba(246,211,224,.34),transparent 35%),
+        radial-gradient(circle at bottom left,rgba(215,232,248,.34),transparent 35%),
+        linear-gradient(145deg,#fffafa,#f9fbff);
+      border-color:rgba(219,183,197,.65);
+    }
+
+    .offer-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:22px;
+    }
+
+    .offer-tag{
+      display:inline-flex;
+      align-items:center;
+      min-height:32px;
+      padding:0 12px;
+      border-radius:999px;
+      background:#f5f8fc;
+      color:#6f819a;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+
+    .offer-value{
+      font-size:22px;
+      font-weight:800;
+      color:#ad5973;
+    }
+
+    .offer-card h2{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:31px;
+      line-height:1.12;
+      font-weight:400;
+      color:#66595e;
+    }
+
+    .offer-card p{
+      margin:16px 0 0;
+      font-size:14px;
+      line-height:1.75;
+      color:var(--muted);
+    }
+
+    .offer-points{
+      display:grid;
+      gap:10px;
+      margin:20px 0 0;
+      padding:0;
+      list-style:none;
+    }
+
+    .offer-points li{
+      position:relative;
+      padding-left:19px;
+      font-size:13px;
+      line-height:1.55;
+      color:#756c70;
+    }
+
+    .offer-points li::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.55em;
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#c67f94,#8ea8c6);
+    }
+
+    .offer-bottom{
+      margin-top:auto;
+      padding-top:25px;
+    }
+
+    .cta{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      min-height:49px;
+      padding:0 16px;
+      border:0;
+      border-radius:999px;
+      background:linear-gradient(90deg,#c37f92 0%,#b48bb7 50%,#8da9c8 100%);
+      color:#fff;
+      text-decoration:none;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.03em;
+    }
+
+    .cta.secondary{
+      background:#fff;
+      color:#886d75;
+      border:1px solid #e7d9dd;
+    }
+
+    .fineprint{
+      margin-top:26px;
+      padding:18px 20px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:rgba(255,255,255,.78);
+      font-size:12px;
+      line-height:1.65;
+      color:#8d8387;
+      text-align:center;
+    }
+
+    @media(max-width:900px){
+      .offers-grid{grid-template-columns:1fr}
+      .offer-card{min-height:0}
+    }
+
+    @media(max-width:620px){
+      .page{width:min(100% - 20px,1120px);padding-top:18px}
+      .topbar{align-items:flex-start}
+      .hero{padding:32px 24px;border-radius:28px}
+      .offer-card{padding:21px;border-radius:26px}
+      .back-button{min-height:40px;padding:0 14px}
+      .brand-copy strong{font-size:21px}
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 12v8H4v-8"></path>
+            <path d="M2.5 8h19v4h-19z"></path>
+            <path d="M12 8v12"></path>
+            <path d="M12 8H8.8a2.3 2.3 0 1 1 2.3-2.3C11.1 7 12 8 12 8Z"></path>
+            <path d="M12 8h3.2a2.3 2.3 0 1 0-2.3-2.3C12.9 7 12 8 12 8Z"></path>
+          </svg>
+        </div>
+
+        <div class="brand-copy">
+          <strong>Beautyslot</strong>
+          <span>Offerte professionisti</span>
+        </div>
+      </div>
+
+      <a class="back-button" href="dashboard-professionista-free.html">
+        Torna alla dashboard
+      </a>
+    </div>
+
+    <section class="hero">
+      <div class="eyebrow">Offerte Beautyslot</div>
+      <h1>Promozioni pensate per far crescere la tua attività.</h1>
+      <p>
+        Qui trovi le offerte Beautyslot dedicate ai professionisti: sconti sugli abbonamenti,
+        vantaggi di visibilità e promozioni speciali disponibili per periodi limitati.
+      </p>
+    </section>
+
+    <section class="offers-grid">
+
+      <article class="offer-card featured">
+        <div class="offer-top">
+          <span class="offer-tag">Abbonamenti</span>
+          <span class="offer-value">-20%</span>
+        </div>
+
+        <h2>Piano PRO scontato per i primi 2 mesi</h2>
+
+        <p>
+          Passa al PRO e attiva subito il calendario Beautyslot con una promozione lancio
+          dedicata ai professionisti che scelgono di fare l'upgrade.
+        </p>
+
+        <ul class="offer-points">
+          <li>Calendario Beautyslot e prenotazioni online.</li>
+          <li>Conferme e promemoria automatici.</li>
+          <li>Storico clienti e richiesta recensioni.</li>
+        </ul>
+
+        <div class="offer-bottom">
+          <a class="cta" href="piani-abbonamenti.html">Scopri il piano PRO</a>
+        </div>
+      </article>
+
+      <article class="offer-card">
+        <div class="offer-top">
+          <span class="offer-tag">Visibilità</span>
+          <span class="offer-value">Bonus</span>
+        </div>
+
+        <h2>Business in evidenza nella tua zona</h2>
+
+        <p>
+          Per un periodo limitato, chi passa al Business ottiene maggiore visibilità locale
+          all'interno di Beautyslot e più occasioni per essere scoperto da nuovi clienti.
+        </p>
+
+        <ul class="offer-points">
+          <li>Priorità nei risultati della tua area geografica.</li>
+          <li>Promozione dopo prenotazioni di servizi complementari.</li>
+          <li>Maggiore esposizione nelle pagine Donna e Uomo.</li>
+        </ul>
+
+        <div class="offer-bottom">
+          <a class="cta secondary" href="piani-abbonamenti.html">Scopri il Business</a>
+        </div>
+      </article>
+
+      <article class="offer-card">
+        <div class="offer-top">
+          <span class="offer-tag">Speciale</span>
+          <span class="offer-value">Novità</span>
+        </div>
+
+        <h2>Offerte esclusive Beautyslot</h2>
+
+        <p>
+          In questa sezione potranno comparire codici sconto, iniziative stagionali,
+          promozioni dedicate e vantaggi riservati ai professionisti Beautyslot.
+        </p>
+
+        <ul class="offer-points">
+          <li>Promozioni aggiornate direttamente da Beautyslot.</li>
+          <li>Iniziative dedicate a specifiche città o categorie.</li>
+          <li>Offerte temporanee sugli abbonamenti.</li>
+        </ul>
+
+        <div class="offer-bottom">
+          <a class="cta secondary" href="piani-abbonamenti.html">Vedi tutti i piani</a>
+        </div>
+      </article>
+
+    </section>
+
+    <div class="fineprint">
+      Pagina dimostrativa. Le offerte mostrate sono esempi grafici e potranno essere sostituite
+      con promozioni reali gestite da Beautyslot.
+    </div>
+
+  </main>
+
+
+</body>
+</html>
