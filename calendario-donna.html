@@ -583,6 +583,7 @@
     // Agenda reale condivisa con il professionista.
     let serverBookings = [];
     let remoteAvailability = {};
+    let remoteMonthlyAvailability = {};
 
     const todayBase = new Date();
     let shownYear = todayBase.getFullYear();
@@ -672,7 +673,8 @@
 
       const [
         { data:busyRows, error:busyError },
-        { data:availabilityRows, error:availabilityError }
+        { data:availabilityRows, error:availabilityError },
+        { data:monthlyRows, error:monthlyError }
       ] = await Promise.all([
         authClient.rpc(
           "beautyslot_slot_occupati",
@@ -685,6 +687,10 @@
         authClient
           .from("beautyslot_disponibilita")
           .select("giorno_settimana,attivo,ora_inizio,ora_fine")
+          .eq("professionista_user_id",professionalUserId),
+        authClient
+          .from("beautyslot_disponibilita_mensile")
+          .select("anno,mese,giorno_settimana,attivo,ora_inizio,ora_fine")
           .eq("professionista_user_id",professionalUserId)
       ]);
 
@@ -706,6 +712,26 @@
 
         (availabilityRows || []).forEach(row=>{
           remoteAvailability[String(row.giorno_settimana)]={
+            enabled:row.attivo === true,
+            start:timeShort(row.ora_inizio),
+            end:timeShort(row.ora_fine)
+          };
+        });
+      }
+
+      remoteMonthlyAvailability={};
+
+      if(monthlyError){
+        console.warn(
+          "Disponibilità mensili non caricate:",
+          monthlyError.message
+        );
+      }else{
+        (monthlyRows || []).forEach(row=>{
+          const key=
+            `${row.anno}-${String(row.mese).padStart(2,"0")}-${row.giorno_settimana}`;
+
+          remoteMonthlyAvailability[key]={
             enabled:row.attivo === true,
             start:timeShort(row.ora_inizio),
             end:timeShort(row.ora_fine)
@@ -1130,21 +1156,27 @@
 
       const day = selectedDate.getDay();
 
-      if(
-        professionalUserId &&
-        Object.keys(remoteAvailability).length
-      ){
-        const remote =
+      if(professionalUserId){
+        const monthlyKey=
+          `${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,"0")}-${day}`;
+
+        const monthly=
+          remoteMonthlyAvailability[monthlyKey];
+
+        const remote=
+          monthly ||
           remoteAvailability[String(day)];
 
-        if(!remote || !remote.enabled){
-          return [];
-        }
+        if(remote){
+          if(!remote.enabled){
+            return [];
+          }
 
-        return [{
-          start:timeToMinutes(remote.start),
-          end:timeToMinutes(remote.end)
-        }];
+          return [{
+            start:timeToMinutes(remote.start),
+            end:timeToMinutes(remote.end)
+          }];
+        }
       }
 
       // Domenica chiuso nel calendario demo.

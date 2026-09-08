@@ -243,6 +243,17 @@ button{cursor:pointer}
   padding:10px
 }
 .week>div:nth-child(8n){border-right:0}
+
+.week .slot{
+  min-height:62px;
+}
+.week .time{
+  min-height:62px;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding-top:12px;
+}
 .time{
   font-size:10px;
   font-weight:700;
@@ -419,6 +430,70 @@ button{cursor:pointer}
   gap:9px;
   margin-top:18px
 }
+
+.agenda-legend{
+  margin-top:28px;
+  padding-top:22px;
+  border-top:1px solid var(--line);
+}
+
+.agenda-legend h4{
+  margin:0 0 14px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:24px;
+  font-weight:400;
+  color:#665a5e;
+}
+
+.agenda-legend-list{
+  display:grid;
+  gap:10px;
+}
+
+.legend-service-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:11px;
+  color:#786c70;
+}
+
+.legend-service-color{
+  display:block;
+  width:15px;
+  height:15px;
+  border-radius:5px;
+  border:1px solid rgba(120,101,109,.08);
+  box-shadow:none;
+  overflow:hidden;
+  flex:0 0 auto;
+}
+
+.booking.service-colored{
+  border-color:rgba(128,111,118,.06);
+  color:#5d5357;
+  box-shadow:0 6px 14px rgba(182,162,170,.03);
+  overflow:hidden;
+}
+
+.booking.service-colored strong{
+  color:#564c50;
+}
+
+.month-event-mini{
+  display:block;
+  padding:4px 7px;
+  border-radius:8px;
+  font-size:8px;
+  line-height:1.3;
+  color:#655b5f;
+  border:1px solid rgba(128,111,118,.06);
+  box-shadow:0 4px 10px rgba(182,162,170,.028);
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+
 .action{
   min-height:44px;
   border:1px solid var(--line);
@@ -534,6 +609,120 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
   color:#fff
 }
 
+
+.weekday-picker{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+  margin-top:3px;
+}
+
+.weekday-chip{
+  min-height:62px;
+  padding:9px 5px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  color:#887b80;
+  transition:.18s ease;
+}
+
+.weekday-chip span{
+  font-size:11px;
+  font-weight:800;
+}
+
+.weekday-chip small{
+  font-size:7px;
+  color:#aaa0a4;
+}
+
+.weekday-chip:hover{
+  border-color:#d8c3cb;
+  transform:translateY(-1px);
+}
+
+.weekday-chip.selected{
+  border-color:#d7b3c0;
+  background:linear-gradient(145deg,#faedf2,#f3f5fa);
+  color:#765f67;
+  box-shadow:0 7px 18px rgba(130,107,117,.08);
+}
+
+.weekday-chip.selected small{
+  color:#927782;
+}
+
+.weekday-help{
+  margin-top:8px;
+  font-size:9px;
+  color:#a2999c;
+}
+
+.availability-toggle{
+  min-height:46px;
+  padding:0 13px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  font-size:10px!important;
+  font-weight:700!important;
+  letter-spacing:0!important;
+  text-transform:none!important;
+  color:#786a6f!important;
+}
+
+.availability-toggle input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+
+.toggle-ui{
+  width:37px;
+  height:21px;
+  border-radius:999px;
+  background:#e7dfe2;
+  position:relative;
+  transition:.18s ease;
+  flex:0 0 auto;
+}
+
+.toggle-ui::after{
+  content:"";
+  position:absolute;
+  width:15px;
+  height:15px;
+  top:3px;
+  left:3px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+  transition:.18s ease;
+}
+
+.availability-toggle input:checked + .toggle-ui{
+  background:linear-gradient(90deg,#c78aa0,#9ea9be);
+}
+
+.availability-toggle input:checked + .toggle-ui::after{
+  transform:translateX(16px);
+}
+
+@media(max-width:650px){
+  .weekday-picker{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+}
+
 .availability-list{display:grid;gap:8px}
 .availability-row{
   display:grid;
@@ -592,7 +781,7 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
     <div>
       <div class="eyebrow">Piano START</div>
       <h2>Il tuo calendario</h2>
-      <p>Gestisci appuntamenti, disponibilità, pause, ferie e blocchi dell'agenda.</p>
+      <p>Gestisci appuntamenti, disponibilità, ferie e blocchi dell'agenda.</p>
     </div>
 
     <div class="view-switch">
@@ -649,9 +838,13 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
         <div class="quick-actions">
           <button class="action primary" type="button" id="addAppointmentBtn">+ Aggiungi appuntamento</button>
           <button class="action" type="button" id="blockTimeBtn">Blocca un orario</button>
-          <button class="action" type="button" id="pauseBtn">Imposta pausa</button>
           <button class="action" type="button" id="absenceBtn">Ferie / assenza</button>
           <button class="action" type="button" id="availabilityBtn">Gestisci disponibilità</button>
+        </div>
+
+        <div class="agenda-legend">
+          <h4>Legenda</h4>
+          <div class="agenda-legend-list" id="serviceLegend"></div>
         </div>
       </section>
 
@@ -739,34 +932,6 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
   </form>
 </dialog>
 
-<dialog id="pauseDialog">
-  <form method="dialog" class="modal" id="pauseForm">
-    <h3>Imposta pausa</h3>
-    <p>Aggiunge una pausa alla giornata selezionata.</p>
-    <div class="form-grid">
-      <div class="field">
-        <label>Data</label>
-        <input type="date" id="pauseDate" required>
-      </div>
-      <div class="field">
-        <label>Nome pausa</label>
-        <input type="text" id="pauseReason" value="Pausa" required>
-      </div>
-      <div class="field">
-        <label>Dalle</label>
-        <input type="time" id="pauseStart" value="13:00" required>
-      </div>
-      <div class="field">
-        <label>Alle</label>
-        <input type="time" id="pauseEnd" value="14:00" required>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" type="button" data-close="pauseDialog">Annulla</button>
-      <button class="modal-btn save" type="submit">Salva pausa</button>
-    </div>
-  </form>
-</dialog>
 
 <dialog id="absenceDialog">
   <form method="dialog" class="modal" id="absenceForm">
@@ -795,12 +960,95 @@ dialog::backdrop{background:rgba(74,67,71,.22)}
 
 <dialog id="availabilityDialog">
   <form method="dialog" class="modal" id="availabilityForm">
-    <h3>Gestisci disponibilità</h3>
-    <p>Imposta i giorni e gli orari in cui il calendario accetta appuntamenti.</p>
-    <div class="availability-list" id="availabilityList"></div>
-    <div class="modal-actions">
-      <button class="modal-btn cancel" type="button" data-close="availabilityDialog">Annulla</button>
-      <button class="modal-btn save" type="submit">Salva disponibilità</button>
+    <h3>Gestisci disponibilità mensile</h3>
+    <p>
+      Modifica un giorno della settimana solo per il mese scelto.
+      Gli altri giorni e gli altri mesi restano invariati.
+    </p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Mese</label>
+        <input type="month" id="availabilityMonth" required>
+      </div>
+
+      <div class="field full">
+        <label>Giorni della settimana</label>
+
+        <div class="weekday-picker" id="availabilityWeekdays">
+          <button type="button" class="weekday-chip" data-weekday="1">
+            <span>Lun</span>
+            <small>Lunedì</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="2">
+            <span>Mar</span>
+            <small>Martedì</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="3">
+            <span>Mer</span>
+            <small>Mercoledì</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="4">
+            <span>Gio</span>
+            <small>Giovedì</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="5">
+            <span>Ven</span>
+            <small>Venerdì</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="6">
+            <span>Sab</span>
+            <small>Sabato</small>
+          </button>
+
+          <button type="button" class="weekday-chip" data-weekday="0">
+            <span>Dom</span>
+            <small>Domenica</small>
+          </button>
+        </div>
+
+        <div class="weekday-help">
+          Seleziona uno o più giorni.
+        </div>
+      </div>
+
+      <div class="field full">
+        <label class="availability-toggle">
+          <input type="checkbox" id="availabilityEnabled">
+          <span class="toggle-ui"></span>
+          <span>Disponibile per le prenotazioni</span>
+        </label>
+      </div>
+
+      <div class="field">
+        <label>Dalle</label>
+        <input type="time" id="availabilityStart" required>
+      </div>
+
+      <div class="field">
+        <label>Alle</label>
+        <input type="time" id="availabilityEnd" required>
+      </div>
+
+      <div class="field full">
+        <div class="empty-note" id="availabilityInfo" style="text-align:left;padding:13px;"></div>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="justify-content:space-between;flex-wrap:wrap;">
+      <button class="modal-btn cancel" type="button" id="resetAvailabilityBtn">
+        Ripristina orario base
+      </button>
+
+      <div style="display:flex;gap:9px;">
+        <button class="modal-btn cancel" type="button" data-close="availabilityDialog">Annulla</button>
+        <button class="modal-btn save" type="submit">Salva per questo mese</button>
+      </div>
     </div>
   </form>
 </dialog>
@@ -842,6 +1090,11 @@ let currentUser=null;
 let business=null;
 let events=[];
 let availability=structuredClone(defaultAvailability);
+
+// Eccezioni mensili: non modificano mai l'orario base.
+// Chiave: "YYYY-MM-giornoSettimana"
+let monthlyAvailability={};
+
 let agendaChannel=null;
 
 let selectedDate=new Date();
@@ -894,6 +1147,9 @@ function normalizeAgendaRow(row){
     duration:row.durata_minuti,
     client:row.cliente_nome || "",
     service:row.servizio_nome || "",
+    services:Array.isArray(row.servizi)
+      ? row.servizi
+      : [],
     reason:row.motivo || row.note || "",
     source:row.origine || "professionista"
   };
@@ -904,12 +1160,478 @@ function eventsForDate(date){
     .filter(e=>e.date===key)
     .sort((a,b)=>(a.start||"00:00").localeCompare(b.start||"00:00"));
 }
+function monthlyAvailabilityKey(year,month,weekday){
+  return `${year}-${pad(month)}-${weekday}`;
+}
+
+function normalizeSalonHoursKey(date){
+  const keys=[
+    "domenica",
+    "lunedi",
+    "martedi",
+    "mercoledi",
+    "giovedi",
+    "venerdi",
+    "sabato"
+  ];
+
+  return keys[date.getDay()];
+}
+
+function salonBaseAvailabilityForDate(date){
+  const key=normalizeSalonHoursKey(date);
+  const day=business?.orari?.[key];
+
+  if(!day || day.open === false){
+    return {
+      enabled:false,
+      start:"09:00",
+      end:"19:00"
+    };
+  }
+
+  const ranges=[];
+
+  if(
+    Array.isArray(day.mattina) &&
+    day.mattina[0] &&
+    day.mattina[1]
+  ){
+    ranges.push(day.mattina);
+  }
+
+  if(
+    Array.isArray(day.pomeriggio) &&
+    day.pomeriggio[0] &&
+    day.pomeriggio[1]
+  ){
+    ranges.push(day.pomeriggio);
+  }
+
+  if(!ranges.length){
+    const legacy=
+      availability[date.getDay()] ||
+      defaultAvailability[date.getDay()];
+
+    return legacy;
+  }
+
+  return {
+    enabled:true,
+    start:ranges[0][0],
+    end:ranges[ranges.length-1][1]
+  };
+}
+
+function getAvailabilityForDate(date){
+  const key=monthlyAvailabilityKey(
+    date.getFullYear(),
+    date.getMonth()+1,
+    date.getDay()
+  );
+
+  return (
+    monthlyAvailability[key] ||
+    salonBaseAvailabilityForDate(date)
+  );
+}
+
 function isAvailableAt(date,hour){
-  const day=availability[date.getDay()];
+  const day=getAvailabilityForDate(date);
+
   if(!day?.enabled) return false;
+
   const h=`${pad(hour)}:00`;
+
   return h>=day.start && h<day.end;
 }
+
+function hourNumber(value,fallback){
+  const raw=String(value || "");
+  const [h,m]=raw.split(":").map(Number);
+
+  if(!Number.isFinite(h)){
+    return fallback;
+  }
+
+  return {
+    hour:h,
+    minute:Number.isFinite(m) ? m : 0
+  };
+}
+
+function displayHourRangeForDates(dates){
+  const active=dates
+    .map(date=>getAvailabilityForDate(date))
+    .filter(item=>item?.enabled);
+
+  if(!active.length){
+    return {
+      start:9,
+      end:19
+    };
+  }
+
+  let minStart=24;
+  let maxEnd=0;
+
+  active.forEach(item=>{
+    const start=hourNumber(item.start,9);
+    const end=hourNumber(item.end,19);
+
+    minStart=Math.min(
+      minStart,
+      start.hour
+    );
+
+    maxEnd=Math.max(
+      maxEnd,
+      end.hour + (end.minute>0 ? 1 : 0)
+    );
+  });
+
+  return {
+    start:Math.max(0,minStart),
+    end:Math.min(23,maxEnd)
+  };
+}
+
+function buildDisplayHours(dates){
+  const range=
+    displayHourRangeForDates(dates);
+
+  const hours=[];
+
+  // Ogni riga rappresenta l'ora che inizia a "hour".
+  // Se il salone chiude alle 19:00, l'ultima casella è 18:00–19:00.
+  for(
+    let hour=range.start;
+    hour<range.end;
+    hour++
+  ){
+    hours.push(hour);
+  }
+
+  return hours;
+}
+const SERVICE_GROUP_COLORS={
+  "TAGLIO":"#e2d9ef",
+  "CAPELLI":"#e2d9ef",
+  "COLORE":"#f1d8e0",
+  "TRATTAMENTI":"#d9e7ea",
+  "COLORE E TRATTAMENTI":"#efe0e7",
+  "BARBA":"#dce2ef",
+  "MANI":"#efe0e6",
+  "PIEDI":"#dde8e4",
+  "CORPO":"#e4e0ef"
+};
+
+const SERVICE_EXTRA_COLORS=[
+  "#efe4da",
+  "#e1ebe6",
+  "#e8e0dc",
+  "#dde8eb",
+  "#efe7db",
+  "#e6e1ee"
+];
+
+const dynamicServiceColors={};
+
+function normalizeServiceGroup(value){
+  return String(value || "")
+    .trim()
+    .replace(/\s+/g," ")
+    .toUpperCase();
+}
+
+function prettyServiceGroup(value){
+  const normalized=
+    normalizeServiceGroup(value);
+
+  if(!normalized){
+    return "Altro";
+  }
+
+  return normalized
+    .toLowerCase()
+    .replace(/(^|\s)\S/g,char=>char.toUpperCase());
+}
+
+function serviceGroupColor(group){
+  const normalized=
+    normalizeServiceGroup(group);
+
+  if(SERVICE_GROUP_COLORS[normalized]){
+    return SERVICE_GROUP_COLORS[normalized];
+  }
+
+  if(!dynamicServiceColors[normalized]){
+    const used=
+      Object.keys(dynamicServiceColors).length;
+
+    dynamicServiceColors[normalized]=
+      SERVICE_EXTRA_COLORS[
+        used % SERVICE_EXTRA_COLORS.length
+      ];
+  }
+
+  return dynamicServiceColors[normalized];
+}
+
+function inferGroupFromServiceName(name){
+  const text=
+    String(name || "").toLowerCase();
+
+  if(
+    text.includes("taglio") ||
+    text.includes("piega") ||
+    text.includes("shampoo")
+  ){
+    return "TAGLIO";
+  }
+
+  if(
+    text.includes("colore") ||
+    text.includes("balayage") ||
+    text.includes("tonalizz") ||
+    text.includes("schiaritur")
+  ){
+    return "COLORE";
+  }
+
+  if(
+    text.includes("tratt") ||
+    text.includes("keratina") ||
+    text.includes("ricostru") ||
+    text.includes("idrata") ||
+    text.includes("detox")
+  ){
+    return "TRATTAMENTI";
+  }
+
+  if(text.includes("barba")){
+    return "BARBA";
+  }
+
+  return "";
+}
+
+function eventServiceGroups(event){
+  const groups=[];
+
+  (event.services || []).forEach(service=>{
+    const group=
+      normalizeServiceGroup(service.group);
+
+    if(
+      group &&
+      !groups.includes(group)
+    ){
+      groups.push(group);
+    }
+  });
+
+  if(!groups.length){
+    const inferred=
+      inferGroupFromServiceName(event.service);
+
+    if(inferred){
+      groups.push(inferred);
+    }
+  }
+
+  return groups;
+}
+
+function hexToRgb(hex){
+  const cleaned=
+    String(hex || "")
+      .replace("#","")
+      .trim();
+
+  const value=
+    cleaned.length===3
+      ? cleaned.split("").map(char=>char+char).join("")
+      : cleaned;
+
+  const int=parseInt(value,16);
+
+  return {
+    r:(int >> 16) & 255,
+    g:(int >> 8) & 255,
+    b:int & 255
+  };
+}
+
+function rgbToHex({r,g,b}){
+  return "#" + [r,g,b]
+    .map(value=>
+      Math.max(0,Math.min(255,Math.round(value)))
+        .toString(16)
+        .padStart(2,"0")
+    )
+    .join("");
+}
+
+function mixHex(colorA,colorB,weight=0.5){
+  const a=hexToRgb(colorA);
+  const b=hexToRgb(colorB);
+
+  return rgbToHex({
+    r:a.r + (b.r-a.r)*weight,
+    g:a.g + (b.g-a.g)*weight,
+    b:a.b + (b.b-a.b)*weight
+  });
+}
+
+function gradientForGroups(groups){
+  if(!groups.length){
+    return "";
+  }
+
+  const unique=[...new Set(groups)];
+  const colors=
+    unique.map(group=>serviceGroupColor(group));
+
+  if(colors.length===1){
+    const base=colors[0];
+    const soft=mixHex(base,"#ffffff",0.48);
+    const end=mixHex(base,"#ffffff",0.22);
+
+    return `linear-gradient(135deg,${soft} 0%,${end} 100%)`;
+  }
+
+  if(colors.length===2){
+    const [a,b]=colors;
+    const left=mixHex(a,"#ffffff",0.26);
+    const center=mixHex(mixHex(a,b,0.5),"#ffffff",0.38);
+    const right=mixHex(b,"#ffffff",0.26);
+
+    return `linear-gradient(90deg,
+      ${left} 0%,
+      ${mixHex(a,"#ffffff",0.40)} 34%,
+      ${center} 50%,
+      ${mixHex(b,"#ffffff",0.40)} 66%,
+      ${right} 100%
+    )`;
+  }
+
+  const stop=100/(colors.length-1);
+  const pieces=[];
+
+  colors.forEach((color,index)=>{
+    const position=(index*stop).toFixed(2);
+    pieces.push(`${color} ${position}%`);
+
+    if(index<colors.length-1){
+      const next=colors[index+1];
+      const mid=((index+0.5)*stop).toFixed(2);
+      pieces.push(`${mixHex(color,next,0.5)} ${mid}%`);
+    }
+  });
+
+  return `linear-gradient(90deg,${pieces.join(",")})`;
+}
+
+function bookingStyle(event){
+  if(
+    event.type!=="prenotazione" &&
+    event.type!=="appuntamento"
+  ){
+    return "";
+  }
+
+  const background=
+    gradientForGroups(
+      eventServiceGroups(event)
+    );
+
+  if(!background){
+    return "";
+  }
+
+  return `background:${background};`;
+}
+
+function defaultLegendGroups(){
+  const categories=
+    Array.isArray(business?.categorie)
+      ? business.categorie
+      : [];
+
+  if(
+    categories.includes("Parrucchiere")
+  ){
+    return [
+      "TAGLIO",
+      "COLORE",
+      "TRATTAMENTI"
+    ];
+  }
+
+  if(categories.includes("Barbiere")){
+    return [
+      "CAPELLI",
+      "BARBA",
+      "COLORE E TRATTAMENTI"
+    ];
+  }
+
+  if(
+    categories.includes("Estetista") ||
+    categories.includes("Nail Artist") ||
+    categories.includes("Unghie")
+  ){
+    return [
+      "MANI",
+      "PIEDI",
+      "CORPO",
+      "TRATTAMENTI"
+    ];
+  }
+
+  return [];
+}
+
+function renderServiceLegend(){
+  const target=
+    document.getElementById("serviceLegend");
+
+  if(!target){
+    return;
+  }
+
+  const groups=[
+    ...defaultLegendGroups()
+  ];
+
+  events.forEach(event=>{
+    eventServiceGroups(event)
+      .forEach(group=>{
+        if(!groups.includes(group)){
+          groups.push(group);
+        }
+      });
+  });
+
+  if(!groups.length){
+    target.innerHTML=
+      `<div class="panel-sub">I colori compariranno quando saranno presenti servizi nel calendario.</div>`;
+    return;
+  }
+
+  target.innerHTML=
+    groups.map(group=>`
+      <div class="legend-service-item">
+        <span
+          class="legend-service-color"
+          style="background:${serviceGroupColor(group)}"
+        ></span>
+        <span>${prettyServiceGroup(group)}</span>
+      </div>
+    `).join("");
+}
+
 function currentViewId(){
   return document.querySelector(".view.active")?.id || "dayView";
 }
@@ -926,7 +1648,7 @@ async function loadBusiness(){
 
   const { data:profile, error }=await sb
     .from("beautyslot_professionisti")
-    .select("user_id,nome_attivita,piano,calendario_attivo,pubblicato")
+    .select("user_id,nome_attivita,piano,calendario_attivo,pubblicato,categorie,orari")
     .eq("user_id",user.id)
     .maybeSingle();
 
@@ -959,7 +1681,7 @@ async function loadAgenda(){
 
   const { data, error }=await sb
     .from("beautyslot_agenda")
-    .select("id,tipo,data,ora_inizio,ora_fine,durata_minuti,cliente_nome,servizio_nome,motivo,note,origine,stato")
+    .select("id,tipo,data,ora_inizio,ora_fine,durata_minuti,cliente_nome,servizio_nome,servizi,motivo,note,origine,stato")
     .eq("professionista_user_id",currentUser.id)
     .neq("stato","annullata")
     .order("data",{ascending:true})
@@ -977,21 +1699,57 @@ async function loadAgenda(){
 async function loadAvailability(){
   if(!currentUser) return;
 
-  const { data, error }=await sb
-    .from("beautyslot_disponibilita")
-    .select("giorno_settimana,attivo,ora_inizio,ora_fine")
-    .eq("professionista_user_id",currentUser.id);
+  const [
+    {data:baseRows,error:baseError},
+    {data:monthRows,error:monthError}
+  ]=await Promise.all([
+    sb
+      .from("beautyslot_disponibilita")
+      .select("giorno_settimana,attivo,ora_inizio,ora_fine")
+      .eq("professionista_user_id",currentUser.id),
 
-  if(error){
-    console.warn("Disponibilità non caricate:",error.message);
+    sb
+      .from("beautyslot_disponibilita_mensile")
+      .select("anno,mese,giorno_settimana,attivo,ora_inizio,ora_fine")
+      .eq("professionista_user_id",currentUser.id)
+  ]);
+
+  if(baseError){
+    console.warn(
+      "Disponibilità base non caricate:",
+      baseError.message
+    );
     availability=structuredClone(defaultAvailability);
+  }else{
+    availability=structuredClone(defaultAvailability);
+
+    (baseRows || []).forEach(row=>{
+      availability[row.giorno_settimana]={
+        enabled:row.attivo === true,
+        start:timeShort(row.ora_inizio),
+        end:timeShort(row.ora_fine)
+      };
+    });
+  }
+
+  monthlyAvailability={};
+
+  if(monthError){
+    console.warn(
+      "Disponibilità mensili non caricate:",
+      monthError.message
+    );
     return;
   }
 
-  availability=structuredClone(defaultAvailability);
+  (monthRows || []).forEach(row=>{
+    const key=monthlyAvailabilityKey(
+      row.anno,
+      row.mese,
+      row.giorno_settimana
+    );
 
-  (data || []).forEach(row=>{
-    availability[row.giorno_settimana]={
+    monthlyAvailability[key]={
       enabled:row.attivo === true,
       start:timeShort(row.ora_inizio),
       end:timeShort(row.ora_fine)
@@ -1037,7 +1795,7 @@ function renderAll(){
 
   if(view==="dayView"){
     headingEl.textContent=longDate(selectedDate);
-    subtitleEl.textContent="Vista giorno · appuntamenti, prenotazioni clienti, blocchi, pause e assenze.";
+    subtitleEl.textContent="Vista giorno · appuntamenti, prenotazioni clienti, blocchi e assenze.";
     renderDay();
   }else if(view==="weekView"){
     const start=getWeekStart(selectedDate);
@@ -1057,12 +1815,13 @@ function renderAll(){
   }
 
   renderSelectedDayPanel();
+  renderServiceLegend();
 }
 
 function renderDay(){
   const dayEvents=eventsForDate(selectedDate);
-  const hours=[];
-  for(let h=7;h<=21;h++) hours.push(h);
+  const hours=
+    buildDisplayHours([selectedDate]);
 
   dayColumn.innerHTML=hours.map(hour=>{
     const matching=dayEvents.filter(e=>{
@@ -1083,7 +1842,7 @@ function renderDay(){
   if(!dayEvents.length){
     dayColumn.insertAdjacentHTML("afterbegin",`
       <div class="empty-note">
-        Nessun appuntamento, prenotazione, blocco o pausa per questa giornata.
+        Nessun appuntamento, prenotazione, blocco o assenza per questa giornata.
       </div>
     `);
   }
@@ -1104,8 +1863,21 @@ function renderBooking(event){
     detail=event.reason || eventLabel(event);
   }
 
+  const serviceGroups=
+    eventServiceGroups(event);
+
+  const colored=
+    serviceGroups.length &&
+    (
+      event.type==="prenotazione" ||
+      event.type==="appuntamento"
+    );
+
   return `
-    <div class="booking ${event.type!=="prenotazione" && event.type!=="appuntamento" ? "block" : ""}">
+    <div
+      class="booking ${event.type!=="prenotazione" && event.type!=="appuntamento" ? "block" : ""} ${colored ? "service-colored" : ""}"
+      style="${bookingStyle(event)}"
+    >
       <strong>${timeText}${event.client ? " · "+event.client : ""}</strong>
       ${detail}
       <button class="event-delete" type="button" data-delete-event="${event.id}" title="Elimina">×</button>
@@ -1133,13 +1905,20 @@ function renderWeek(){
     html+=`<div class="day-head" data-open-day="${dateKey(d)}">${WEEKDAY_NAMES[i]}<strong>${d.getDate()}</strong></div>`;
   }
 
-  [9,11,13,15,17,19].forEach(hour=>{
+  const weekHours=
+    buildDisplayHours(days);
+
+  weekHours.forEach(hour=>{
     html+=`<div class="time">${pad(hour)}:00</div>`;
 
     days.forEach(d=>{
       const list=eventsForDate(d).filter(e=>{
         const sh=Number((e.start||"09:00").slice(0,2));
-        return (sh>=hour && sh<hour+2) || (e.type==="assenza" && hour===9);
+
+        return (
+          sh===hour ||
+          (e.type==="assenza" && hour===9)
+        );
       });
 
       html+=`<div class="slot ${isAvailableAt(d,hour)?"":"closed-hour"}">${list.map(renderBooking).join("")}</div>`;
@@ -1190,7 +1969,14 @@ function renderMonth(){
       <div class="month-day ${cell.muted?"muted":""}" data-month-day="${dateKey(cell.date)}">
         <div class="n">${cell.day}</div>
         ${count ? `<div class="month-pill">${count} ${count===1?"voce":"voci"}</div>` : ""}
-        ${count ? `<div class="month-foot">${dayEvents.slice(0,2).map(e=>eventLabel(e)).join("<br>")}</div>` : ""}
+        ${count ? `<div class="month-foot">${
+          dayEvents.slice(0,2).map(e=>`
+            <span
+              class="month-event-mini"
+              style="${bookingStyle(e)}"
+            >${eventLabel(e)}</span>
+          `).join("")
+        }</div>` : ""}
       </div>
     `;
   }).join("");
@@ -1449,44 +2235,6 @@ document.getElementById("blockForm").addEventListener("submit",async event=>{
   }
 });
 
-/* pausa */
-document.getElementById("pauseBtn").addEventListener("click",()=>{
-  setSelectedDateInput("pauseDate");
-  document.getElementById("pauseStart").value="13:00";
-  document.getElementById("pauseEnd").value="14:00";
-  document.getElementById("pauseReason").value="Pausa";
-  openDialog("pauseDialog");
-});
-
-document.getElementById("pauseForm").addEventListener("submit",async event=>{
-  event.preventDefault();
-
-  const date=document.getElementById("pauseDate").value;
-  const start=document.getElementById("pauseStart").value;
-  const end=document.getElementById("pauseEnd").value;
-  const reason=document.getElementById("pauseReason").value.trim() || "Pausa";
-
-  if(!date || !start || !end || end<=start){
-    alert("Controlla l'orario della pausa.");
-    return;
-  }
-
-  const ok=await insertAgenda({
-    tipo:"pausa",
-    data:date,
-    ora_inizio:start,
-    ora_fine:end,
-    durata_minuti:minutesBetween(start,end),
-    motivo:reason,
-    servizi:[]
-  });
-
-  if(ok){
-    selectedDate=parseDateKey(date);
-    closeDialog("pauseDialog");
-  }
-});
-
 /* ferie / assenza */
 document.getElementById("absenceBtn").addEventListener("click",()=>{
   const key=dateKey(selectedDate);
@@ -1547,79 +2295,302 @@ document.getElementById("absenceForm").addEventListener("submit",async event=>{
   renderAll();
 });
 
-/* disponibilità */
-function renderAvailabilityForm(){
-  const order=[
-    {day:1,label:"Lunedì"},
-    {day:2,label:"Martedì"},
-    {day:3,label:"Mercoledì"},
-    {day:4,label:"Giovedì"},
-    {day:5,label:"Venerdì"},
-    {day:6,label:"Sabato"},
-    {day:0,label:"Domenica"}
-  ];
+/* disponibilità mensile */
+const availabilityMonthInput=
+  document.getElementById("availabilityMonth");
 
-  document.getElementById("availabilityList").innerHTML=order.map(item=>{
-    const data=availability[item.day] || defaultAvailability[item.day];
+const availabilityWeekdayButtons=
+  Array.from(
+    document.querySelectorAll(
+      "#availabilityWeekdays [data-weekday]"
+    )
+  );
 
-    return `
-      <div class="availability-row">
-        <label>
-          <input type="checkbox" data-av-enabled="${item.day}" ${data.enabled?"checked":""}>
-          ${item.label}
-        </label>
-        <input type="time" data-av-start="${item.day}" value="${data.start}">
-        <input type="time" data-av-end="${item.day}" value="${data.end}">
-      </div>
-    `;
-  }).join("");
-}
+const availabilityEnabledInput=
+  document.getElementById("availabilityEnabled");
 
-document.getElementById("availabilityBtn").addEventListener("click",()=>{
-  renderAvailabilityForm();
-  openDialog("availabilityDialog");
-});
+const availabilityStartInput=
+  document.getElementById("availabilityStart");
 
-document.getElementById("availabilityForm").addEventListener("submit",async event=>{
-  event.preventDefault();
+const availabilityEndInput=
+  document.getElementById("availabilityEnd");
 
-  const rows=[];
+const availabilityInfo=
+  document.getElementById("availabilityInfo");
 
-  for(let day=0;day<=6;day++){
-    const enabled=document.querySelector(`[data-av-enabled="${day}"]`).checked;
-    const start=document.querySelector(`[data-av-start="${day}"]`).value;
-    const end=document.querySelector(`[data-av-end="${day}"]`).value;
+const resetAvailabilityBtn=
+  document.getElementById("resetAvailabilityBtn");
 
-    if(enabled && (!start || !end || end<=start)){
-      alert("Controlla gli orari di disponibilità.");
-      return;
-    }
+const WEEKDAY_LABELS={
+  0:"Domenica",
+  1:"Lunedì",
+  2:"Martedì",
+  3:"Mercoledì",
+  4:"Giovedì",
+  5:"Venerdì",
+  6:"Sabato"
+};
 
-    rows.push({
-      professionista_user_id:currentUser.id,
-      giorno_settimana:day,
-      attivo:enabled,
-      ora_inizio:start || "09:00",
-      ora_fine:end || "19:00",
-      updated_at:new Date().toISOString()
-    });
+function selectedAvailabilityMonthParts(){
+  const raw=availabilityMonthInput.value;
+
+  if(!raw){
+    return null;
   }
 
-  const { error }=await sb
-    .from("beautyslot_disponibilita")
-    .upsert(rows,{
-      onConflict:"professionista_user_id,giorno_settimana"
-    });
+  const [year,month]=raw.split("-").map(Number);
 
-  if(error){
-    alert("Errore durante il salvataggio delle disponibilità.");
+  if(!year || !month){
+    return null;
+  }
+
+  return {year,month};
+}
+
+function selectedWeekdays(){
+  return availabilityWeekdayButtons
+    .filter(button=>button.classList.contains("selected"))
+    .map(button=>Number(button.dataset.weekday));
+}
+
+function setSelectedWeekdays(days){
+  const set=new Set(days.map(Number));
+
+  availabilityWeekdayButtons.forEach(button=>{
+    button.classList.toggle(
+      "selected",
+      set.has(Number(button.dataset.weekday))
+    );
+  });
+}
+
+function fillAvailabilityEditor(){
+  const parts=selectedAvailabilityMonthParts();
+
+  if(!parts) return;
+
+  const weekdays=selectedWeekdays();
+
+  if(!weekdays.length){
+    availabilityInfo.innerHTML=
+      "Seleziona almeno un giorno della settimana.";
     return;
   }
 
-  closeDialog("availabilityDialog");
-  await loadAvailability();
-  renderAll();
+  const firstWeekday=weekdays[0];
+
+  const base=
+    availability[firstWeekday] ||
+    defaultAvailability[firstWeekday];
+
+  const firstKey=monthlyAvailabilityKey(
+    parts.year,
+    parts.month,
+    firstWeekday
+  );
+
+  const firstOverride=
+    monthlyAvailability[firstKey];
+
+  const activeData=
+    firstOverride || base;
+
+  availabilityEnabledInput.checked=
+    activeData?.enabled === true;
+
+  availabilityStartInput.value=
+    activeData?.start || "09:00";
+
+  availabilityEndInput.value=
+    activeData?.end || "19:00";
+
+  const monthName=
+    MONTH_NAMES[parts.month-1];
+
+  const dayNames=
+    weekdays.map(day=>WEEKDAY_LABELS[day]);
+
+  const overridesCount=
+    weekdays.filter(day=>{
+      const key=monthlyAvailabilityKey(
+        parts.year,
+        parts.month,
+        day
+      );
+      return Boolean(monthlyAvailability[key]);
+    }).length;
+
+  availabilityInfo.innerHTML=
+    `<strong>${dayNames.join(" · ")} · ${monthName} ${parts.year}</strong><br>` +
+    (
+      overridesCount
+        ? `${overridesCount} giorno/i hanno già una personalizzazione mensile. `
+        : `Nessuna personalizzazione mensile attiva per la selezione. `
+    ) +
+    `Salvando, lo stesso nuovo orario verrà applicato solo ai giorni selezionati per ${monthName}.`;
+
+  const disabled=
+    !availabilityEnabledInput.checked;
+
+  availabilityStartInput.disabled=disabled;
+  availabilityEndInput.disabled=disabled;
+}
+document.getElementById("availabilityBtn")
+  .addEventListener("click",()=>{
+    const referenceDate=
+      currentViewId()==="monthView"
+        ? monthCursor
+        : selectedDate;
+
+    availabilityMonthInput.value=
+      `${referenceDate.getFullYear()}-${pad(referenceDate.getMonth()+1)}`;
+
+    setSelectedWeekdays([
+      selectedDate.getDay()
+    ]);
+
+    fillAvailabilityEditor();
+    openDialog("availabilityDialog");
+  });
+
+availabilityMonthInput.addEventListener(
+  "change",
+  fillAvailabilityEditor
+);
+
+availabilityWeekdayButtons.forEach(button=>{
+  button.addEventListener("click",()=>{
+    button.classList.toggle("selected");
+
+    if(!selectedWeekdays().length){
+      button.classList.add("selected");
+    }
+
+    fillAvailabilityEditor();
+  });
 });
+
+availabilityEnabledInput.addEventListener(
+  "change",
+  ()=>{
+    const disabled=
+      !availabilityEnabledInput.checked;
+
+    availabilityStartInput.disabled=disabled;
+    availabilityEndInput.disabled=disabled;
+  }
+);
+
+document.getElementById("availabilityForm")
+  .addEventListener("submit",async event=>{
+    event.preventDefault();
+
+    const parts=
+      selectedAvailabilityMonthParts();
+
+    if(!parts){
+      alert("Seleziona il mese.");
+      return;
+    }
+
+    const weekdays=
+      selectedWeekdays();
+
+    if(!weekdays.length){
+      alert("Seleziona almeno un giorno.");
+      return;
+    }
+
+    const enabled=
+      availabilityEnabledInput.checked;
+
+    const start=
+      availabilityStartInput.value || "09:00";
+
+    const end=
+      availabilityEndInput.value || "19:00";
+
+    if(
+      enabled &&
+      (!start || !end || end<=start)
+    ){
+      alert("Controlla gli orari.");
+      return;
+    }
+
+    const rows=
+      weekdays.map(weekday=>({
+        professionista_user_id:currentUser.id,
+        anno:parts.year,
+        mese:parts.month,
+        giorno_settimana:weekday,
+        attivo:enabled,
+        ora_inizio:start,
+        ora_fine:end,
+        updated_at:new Date().toISOString()
+      }));
+
+    const {error}=await sb
+      .from("beautyslot_disponibilita_mensile")
+      .upsert(rows,{
+        onConflict:
+          "professionista_user_id,anno,mese,giorno_settimana"
+      });
+
+    if(error){
+      alert(
+        "Errore durante il salvataggio della disponibilità mensile: " +
+        error.message
+      );
+      return;
+    }
+
+    await loadAvailability();
+    fillAvailabilityEditor();
+    renderAll();
+
+    closeDialog("availabilityDialog");
+  });
+
+resetAvailabilityBtn.addEventListener(
+  "click",
+  async ()=>{
+    const parts=
+      selectedAvailabilityMonthParts();
+
+    if(!parts) return;
+
+    const weekdays=
+      selectedWeekdays();
+
+    if(!weekdays.length){
+      return;
+    }
+
+    const {error}=await sb
+      .from("beautyslot_disponibilita_mensile")
+      .delete()
+      .eq(
+        "professionista_user_id",
+        currentUser.id
+      )
+      .eq("anno",parts.year)
+      .eq("mese",parts.month)
+      .in("giorno_settimana",weekdays);
+
+    if(error){
+      alert(
+        "Non è stato possibile ripristinare l'orario base."
+      );
+      return;
+    }
+
+    await loadAvailability();
+    fillAvailabilityEditor();
+    renderAll();
+  }
+);
+
 
 async function init(){
   const ok=await loadBusiness();
