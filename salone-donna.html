@@ -229,6 +229,43 @@
     .day{color:#72696a}
     .time{color:#544d4e;font-weight:500}
 
+    /* ORARI: stessa struttura della vetrina Uomo */
+    .hours .hours-list{
+      width:100%;
+    }
+
+    .hours .hour-row{
+      display:grid !important;
+      grid-template-columns:minmax(120px,1fr) auto;
+      align-items:center;
+      width:100%;
+      gap:24px;
+      padding-bottom:8px;
+      border-bottom:1px solid rgba(80,70,70,.07);
+      font-size:13px;
+    }
+
+    .hours .hour-row:last-child{
+      border-bottom:0;
+      padding-bottom:0;
+    }
+
+    .hours .day{
+      display:block;
+      min-width:0;
+      color:#72696a;
+      text-align:left;
+      font-weight:400;
+    }
+
+    .hours .time{
+      display:block;
+      color:#544d4e;
+      font-weight:500;
+      text-align:right;
+      white-space:nowrap;
+    }
+
 
     .calendar-box{
       margin-top:20px;
