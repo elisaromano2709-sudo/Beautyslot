@@ -1248,24 +1248,6 @@
 
     <section class="grid" id="shopGrid">
 
-      <article class="shop-card" data-id="beauty-test-01" data-category="estetista" data-name="Aura Beauty Studio">
-        <div class="shop-image">
-          <button class="fav-btn" aria-label="Aggiungi ai preferiti">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 3.5l2.6 5.2 5.7.8-4.1 4 1 5.7-5.2-2.7-5.2 2.7 1-5.7-4.1-4 5.7-.8L12 3.5z"></path>
-            </svg>
-          </button>
-          <div class="shop-mark">AB</div>
-        </div>
-        <div class="shop-body">
-          <span class="category">Estetista</span>
-          <h3>Aura Beauty Studio</h3>
-          <div class="shop-meta"><span>Centro estetico</span><span>★ 4.8</span></div>
-          <p class="shop-desc">Unghie, manicure, semipermanente, gel, pedicure, ceretta, sopracciglia, viso e trattamenti corpo.</p>
-          <a class="book" href="salone-donna.html?id=beauty-test-01">Scopri centro</a>
-        </div>
-      </article>
-
     </section>
   </main>
 
@@ -1509,66 +1491,42 @@
 
     const fallbackCenter = { lat:40.3515, lng:18.1750 };
 
-    const demoOffsets = [
-      [ 0.0060,  0.0030],
-      [-0.0040,  0.0065],
-      [ 0.0025, -0.0060],
-      [-0.0065, -0.0030],
-      [ 0.0070, -0.0045],
-      [-0.0020,  0.0090],
-      [ 0.0040,  0.0100],
-      [-0.0080,  0.0045]
-    ];
-
     function getBusinesses(center){
       const pageCards = [...document.querySelectorAll(".shop-card")];
 
       return pageCards
-        .map(function(card,index){
+        .map(function(card){
           const explicitLat = parseFloat(card.dataset.lat);
           const explicitLng = parseFloat(card.dataset.lng);
+
           const hasRealPosition =
             Number.isFinite(explicitLat) &&
             Number.isFinite(explicitLng);
 
           const isRegisteredSalon =
-            card.dataset.free === "true" ||
             card.dataset.registered === "true" ||
             String(card.dataset.id || "").startsWith("free-");
 
-          /*
-            I saloni registrati non ricevono mai coordinate dimostrative.
-            Se un vecchio profilo non ha ancora lat/lng, viene geocodificato
-            automaticamente dal suo indirizzo salvato prima del rendering.
-          */
-          if(isRegisteredSalon && !hasRealPosition){
+          // Su Donna vengono mostrati soltanto professionisti reali.
+          // Nessuna attività demo e nessuna coordinata inventata.
+          if(!isRegisteredSalon || !hasRealPosition){
             return null;
           }
 
-          const offset =
-            demoOffsets[index % demoOffsets.length];
-
-          const id =
-            card.dataset.id || "donna-" + index;
+          const id = card.dataset.id;
 
           return {
             id:id,
             name:
               card.dataset.name ||
               card.querySelector("h3")?.textContent ||
-              "Salone",
+              "Attività Beautyslot",
             category:
               card.dataset.category || "altro",
-            lat:
-              hasRealPosition
-                ? explicitLat
-                : center.lat + offset[0],
-            lng:
-              hasRealPosition
-                ? explicitLng
-                : center.lng + offset[1],
-            registered:isRegisteredSalon,
-            demo:!hasRealPosition,
+            lat:explicitLat,
+            lng:explicitLng,
+            registered:true,
+            demo:false,
             detailUrl:
               "salone-donna.html?id=" +
               encodeURIComponent(id)
