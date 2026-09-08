@@ -1080,9 +1080,14 @@
               " selezionati";
           }
 
+          const visibleGroupName =
+            groupName === "MAKE-UP"
+              ? "MAKE-UP ARTIST"
+              : groupName;
+
           toggle.innerHTML=
             '<span class="service-group-title">'+
-              groupName+
+              visibleGroupName+
             '</span>'+
             '<span class="service-group-info">'+
               '<span>'+groupInfo+'</span>'+

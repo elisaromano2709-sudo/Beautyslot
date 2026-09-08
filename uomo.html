@@ -1258,8 +1258,6 @@
       <div class="menu-list">
         <button class="menu-item" data-filter="barbiere">Barbiere</button>
         <button class="menu-item" data-filter="parrucchiere">Parrucchiere</button>
-        <button class="menu-item" data-filter="estetista">Estetista</button>
-        <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
 
       <p class="menu-label" style="margin-top:28px">Il mio account</p>
@@ -1286,8 +1284,6 @@
         <button class="map-chip active" data-map-filter="tutti">Tutti</button>
         <button class="map-chip" data-map-filter="barbiere">Barbieri</button>
         <button class="map-chip" data-map-filter="parrucchiere">Parrucchieri</button>
-        <button class="map-chip" data-map-filter="estetista">Estetista</button>
-        <button class="map-chip" data-map-filter="benessere">Benessere</button>
         <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
       </div>
 
@@ -2345,6 +2341,20 @@
         .join("") || "BS";
     }
 
+    function publicPrimaryCategory(categories){
+      const list=Array.isArray(categories) ? categories : [];
+
+      if(list.includes("Parrucchiere")) return "Parrucchiere";
+      if(list.includes("Barbiere")) return "Barbiere";
+      if(list.includes("Estetista")) return "Estetista";
+      if(list.includes("Nail Artist") || list.includes("Unghie")) return "Nail Artist";
+      if(list.includes("Lash Maker") || list.includes("Ciglia e sopracciglia")) return "Lash Maker";
+      if(list.includes("Make-up") || list.includes("Make-up Artist")) return "Make-up Artist";
+      if(list.includes("Benessere")) return "Benessere";
+
+      return "Attività";
+    }
+
     async function loadRegisteredBusinesses(){
       try{
         const publicClient = supabase.createClient(
@@ -2368,19 +2378,11 @@
         const categories = Array.isArray(item.categorie) ? item.categorie : [];
         const pubblico = String(item.pubblico || "").toLowerCase();
 
-        const automaticUomo =
-          categories.includes("Barbiere") ||
-          categories.includes("Estetista") ||
-          categories.includes("Benessere");
-
-        const isHairdresser =
-          categories.includes("Parrucchiere");
-
-        if(automaticUomo){
+        if(categories.includes("Barbiere")){
           return true;
         }
 
-        if(isHairdresser){
+        if(categories.includes("Parrucchiere")){
           return pubblico === "uomo" || pubblico === "unisex";
         }
 
@@ -2398,8 +2400,6 @@
 
         let dataCategory = "parrucchiere";
         if(categories.includes("Barbiere")) dataCategory = "barbiere";
-        else if(categories.includes("Estetista")) dataCategory = "estetista";
-        else if(categories.includes("Benessere")) dataCategory = "benessere";
         else if(categories.includes("Parrucchiere")) dataCategory = "parrucchiere";
 
           const image =
@@ -2473,7 +2473,7 @@
             </div>
 
             <div class="shop-body">
-              <span class="category">${freeEscapeHtml(categories.join(" · ") || "Attività")}</span>
+              <span class="category">${freeEscapeHtml(publicPrimaryCategory(categories))}</span>
               <h3>${freeEscapeHtml(item.nome_attivita || "Attività Beautyslot")}</h3>
 
               <div class="shop-meta">

@@ -808,6 +808,43 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
   }
 }
 @media(max-width:520px){body{padding:20px 11px}.section{padding:19px 14px}.service{grid-template-columns:1fr 110px 36px}}
+
+.estetista-guidance{
+  margin-top:16px;
+  padding:16px 18px;
+  display:flex;
+  gap:13px;
+  align-items:flex-start;
+  border:1px solid rgba(181,124,145,.18);
+  border-radius:18px;
+  background:linear-gradient(135deg,rgba(252,239,244,.92),rgba(241,246,252,.92));
+  color:#75686d;
+}
+.estetista-guidance[hidden]{display:none!important}
+.estetista-guidance-icon{
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  background:#fff;
+  border:1px solid rgba(181,124,145,.18);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:15px;
+  font-weight:700;
+  color:#a66d80;
+}
+.estetista-guidance strong{
+  color:#8f6170;
+}
+.estetista-guidance p{
+  margin:4px 0 0;
+  font-size:11px;
+  line-height:1.65;
+  color:#82767a;
+}
+
 </style>
 </head>
 <body>
@@ -855,16 +892,32 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
     </section>
 
     <section class="section">
-      <div class="head"><div class="num">3</div><div><h2>Categoria e clientela</h2><p>Puoi scegliere più categorie.</p></div></div>
-      <span class="legend req">Categorie</span>
+      <div class="head"><div class="num">3</div><div><h2>Categoria e clientela</h2><p>Scegli la categoria principale della tua attività.</p></div></div>
+      <span class="legend req">Categoria principale</span>
       <div class="choices" id="categories">
         <label class="choice"><input type="checkbox" value="Parrucchiere" id="categoryParrucchiere"><span>Parrucchiere</span></label>
         <label class="choice"><input type="checkbox" value="Barbiere"><span>Barbiere</span></label>
         <label class="choice"><input type="checkbox" value="Estetista"><span>Estetista</span></label>
         <label class="choice"><input type="checkbox" value="Nail Artist"><span>Nail Artist</span></label>
         <label class="choice"><input type="checkbox" value="Lash Maker"><span>Lash Maker</span></label>
-        <label class="choice"><input type="checkbox" value="Make-up"><span>Make-up</span></label>
+        <label class="choice"><input type="checkbox" value="Make-up"><span>Make-up Artist</span></label>
         <label class="choice"><input type="checkbox" value="Benessere"><span>Benessere</span></label>
+      </div>
+
+      <div class="estetista-guidance" id="estetistaGuidance" hidden>
+        <div class="estetista-guidance-icon" aria-hidden="true">i</div>
+        <div>
+          <strong>Se hai scelto Estetista</strong>
+          <p>
+            Se offri anche servizi di unghie, ciglia e sopracciglia o make-up,
+            non aggiungere altre categorie. Mantieni <strong>Estetista</strong>
+            come categoria principale e indica questi trattamenti nella descrizione
+            della tua attività e nelle specializzazioni. Le categorie
+            <strong>Nail Artist</strong>, <strong>Lash Maker</strong> e
+            <strong>Make-up Artist</strong> sono dedicate ai professionisti
+            specializzati principalmente in quel servizio.
+          </p>
+        </div>
       </div>
 
       <div id="clientelaBox" hidden>
@@ -882,7 +935,7 @@ textarea{min-height:115px;padding-top:13px;resize:vertical;line-height:1.55}
 
       <div style="height:17px"></div>
       <label for="specializzazioni">Specializzazioni</label>
-      <input id="specializzazioni" type="text" placeholder="Es. balayage, nail art, curly hair — separate da virgola">
+      <input id="specializzazioni" type="text" placeholder="Es. balayage, manicure, laminazione ciglia, make-up sposa — separate da virgola">
     </section>
 
     <section class="section">
@@ -1357,6 +1410,7 @@ function applyExistingProfile(profile){
   });
 
   updateClientela();
+  updateEstetistaGuidance();
 
   const pubblico=String(profile.pubblico||"unisex");
   const pubblicoRadio=
@@ -1436,21 +1490,19 @@ function clientelaMode(){
 function automaticAudience(categories){
   const list=Array.isArray(categories) ? categories : [];
 
-  const showDonna =
+  if(list.includes("Barbiere")){
+    return "uomo";
+  }
+
+  if(
     list.includes("Estetista") ||
     list.includes("Nail Artist") ||
     list.includes("Lash Maker") ||
     list.includes("Make-up") ||
-    list.includes("Benessere");
-
-  const showUomo =
-    list.includes("Barbiere") ||
-    list.includes("Estetista") ||
-    list.includes("Benessere");
-
-  if(showDonna && showUomo)return "unisex";
-  if(showDonna)return "donna";
-  if(showUomo)return "uomo";
+    list.includes("Benessere")
+  ){
+    return "donna";
+  }
 
   return "unisex";
 }
@@ -1479,11 +1531,43 @@ function updateClientela(){
   }
 }
 
+const estetistaGuidance =
+  document.getElementById("estetistaGuidance");
+
+function updateEstetistaGuidance(){
+  const estetistaSelected =
+    categoryInputs.some(
+      input =>
+        input.value === "Estetista" &&
+        input.checked
+    );
+
+  estetistaGuidance.hidden =
+    !estetistaSelected;
+}
+
+function enforcePrimaryCategory(changedInput){
+  if(changedInput.checked){
+    categoryInputs.forEach(input=>{
+      if(input !== changedInput){
+        input.checked=false;
+      }
+    });
+  }
+
+  updateClientela();
+  updateEstetistaGuidance();
+}
+
 categoryInputs.forEach(input => {
-  input.addEventListener("change", updateClientela);
+  input.addEventListener(
+    "change",
+    ()=>enforcePrimaryCategory(input)
+  );
 });
 
 updateClientela();
+updateEstetistaGuidance();
 
 const addressFields = [
   document.getElementById("indirizzo"),

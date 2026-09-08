@@ -1619,9 +1619,7 @@
         categories.includes("Benessere");
 
       let showUomo=
-        categories.includes("Barbiere") ||
-        categories.includes("Estetista") ||
-        categories.includes("Benessere");
+        categories.includes("Barbiere");
 
       if(categories.includes("Parrucchiere")){
         if(pubblico==="donna" || pubblico==="unisex")showDonna=true;
@@ -2082,11 +2080,7 @@
       const categories=normalizeCategories(profile.categorie);
       const pubblico=String(profile.pubblico||"unisex").toLowerCase();
 
-      if(
-        categories.includes("Barbiere") ||
-        categories.includes("Estetista") ||
-        categories.includes("Benessere")
-      ){
+      if(categories.includes("Barbiere")){
         return true;
       }
 

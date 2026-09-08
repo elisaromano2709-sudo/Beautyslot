@@ -1265,7 +1265,7 @@
         <button class="menu-item" data-filter="estetista">Estetista</button>
         <button class="menu-item" data-filter="nail-artist">Nail Artist</button>
         <button class="menu-item" data-filter="lash-maker">Lash Maker</button>
-        <button class="menu-item" data-filter="make-up">Make-up</button>
+        <button class="menu-item" data-filter="make-up">Make-up Artist</button>
         <button class="menu-item" data-filter="benessere">Benessere</button>
       </div>
 
@@ -1295,7 +1295,7 @@
         <button class="map-chip" data-map-filter="estetista">Estetiste</button>
         <button class="map-chip" data-map-filter="nail-artist">Nail Artist</button>
         <button class="map-chip" data-map-filter="lash-maker">Lash Maker</button>
-        <button class="map-chip" data-map-filter="make-up">Make-up</button>
+        <button class="map-chip" data-map-filter="make-up">Make-up Artist</button>
         <button class="map-chip" data-map-filter="benessere">Benessere</button>
         <button class="locate-btn" id="locateButton">⌖ La mia posizione</button>
       </div>
@@ -2330,6 +2330,20 @@
         .join("") || "BS";
     }
 
+    function publicPrimaryCategory(categories){
+      const list=Array.isArray(categories) ? categories : [];
+
+      if(list.includes("Parrucchiere")) return "Parrucchiere";
+      if(list.includes("Barbiere")) return "Barbiere";
+      if(list.includes("Estetista")) return "Estetista";
+      if(list.includes("Nail Artist") || list.includes("Unghie")) return "Nail Artist";
+      if(list.includes("Lash Maker") || list.includes("Ciglia e sopracciglia")) return "Lash Maker";
+      if(list.includes("Make-up") || list.includes("Make-up Artist")) return "Make-up Artist";
+      if(list.includes("Benessere")) return "Benessere";
+
+      return "Attività";
+    }
+
     async function loadRegisteredBusinesses(){
       try{
         const publicClient = supabase.createClient(
@@ -2387,11 +2401,11 @@
 
         let dataCategory = "estetista";
         if(categories.includes("Parrucchiere")) dataCategory = "parrucchiere";
+        else if(categories.includes("Estetista")) dataCategory = "estetista";
         else if(categories.includes("Nail Artist") || categories.includes("Unghie")) dataCategory = "nail-artist";
         else if(categories.includes("Lash Maker") || categories.includes("Ciglia e sopracciglia")) dataCategory = "lash-maker";
-        else if(categories.includes("Make-up")) dataCategory = "make-up";
+        else if(categories.includes("Make-up") || categories.includes("Make-up Artist")) dataCategory = "make-up";
         else if(categories.includes("Benessere")) dataCategory = "benessere";
-        else if(categories.includes("Estetista")) dataCategory = "estetista";
 
           const image =
             item.logo_url ||
@@ -2464,7 +2478,7 @@
             </div>
 
             <div class="shop-body">
-              <span class="category">${freeEscapeHtml(categories.join(" · ") || "Attività")}</span>
+              <span class="category">${freeEscapeHtml(publicPrimaryCategory(categories))}</span>
               <h3>${freeEscapeHtml(item.nome_attivita || "Attività Beautyslot")}</h3>
 
               <div class="shop-meta">
