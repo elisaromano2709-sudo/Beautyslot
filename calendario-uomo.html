@@ -466,11 +466,11 @@
 
     const SERVICES_BY_CATEGORY = {
       "Barbiere": [
-        {id:"taglio-shampoo", group:"CAPELLI", name:"Taglio + shampoo", duration:45, price:"€ 25"},
-        {id:"taglio-doppio-shampoo", group:"CAPELLI", name:"Taglio + doppio shampoo", duration:55, price:"€ 30"},
-        {id:"taglio-bambino", group:"CAPELLI", name:"Taglio bambino", duration:30, price:"€ 18"},
-        {id:"taglio-sfumatura", group:"CAPELLI", name:"Taglio sfumatura / skin fade", duration:45, price:"€ 27"},
-        {id:"shampoo-styling", group:"CAPELLI", name:"Shampoo + styling", duration:25, price:"€ 15"},
+        {id:"taglio-shampoo", group:"TAGLIO", name:"Taglio + shampoo", duration:45, price:"€ 25"},
+        {id:"taglio-doppio-shampoo", group:"TAGLIO", name:"Taglio + doppio shampoo", duration:55, price:"€ 30"},
+        {id:"taglio-bambino", group:"TAGLIO", name:"Taglio bambino", duration:30, price:"€ 18"},
+        {id:"taglio-sfumatura", group:"TAGLIO", name:"Taglio sfumatura / skin fade", duration:45, price:"€ 27"},
+        {id:"shampoo-styling", group:"TAGLIO", name:"Shampoo + styling", duration:25, price:"€ 15"},
 
         {id:"barba-classica", group:"BARBA", name:"Barba classica", duration:25, price:"€ 15"},
         {id:"barba-relax", group:"BARBA", name:"Barba relax con panno caldo", duration:40, price:"€ 25"},
@@ -478,30 +478,53 @@
         {id:"rasatura-completa", group:"BARBA", name:"Rasatura completa", duration:35, price:"€ 22"},
         {id:"barba-lunga", group:"BARBA", name:"Barba lunga · modellatura", duration:35, price:"€ 23"},
 
-        {id:"colore-uomo", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Colore uomo", duration:60, price:"€ 35"},
-        {id:"copertura-bianchi", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Copertura capelli bianchi", duration:45, price:"€ 28"},
-        {id:"tonalizzante-uomo", group:"COLORE E TRATTAMENTI", kind:"colore", name:"Tonalizzante uomo", duration:40, price:"€ 30"},
+        {id:"colore-uomo", group:"COLORE", kind:"colore", name:"Colore uomo", duration:60, price:"€ 35"},
+        {id:"copertura-bianchi", group:"COLORE", kind:"colore", name:"Copertura capelli bianchi", duration:45, price:"€ 28"},
+        {id:"tonalizzante-uomo", group:"COLORE", kind:"colore", name:"Tonalizzante uomo", duration:40, price:"€ 30"},
 
-        {id:"detox-cute", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Detox cute", duration:30, price:"€ 25"},
-        {id:"anticaduta", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Trattamento anticaduta", duration:35, price:"€ 30"},
-        {id:"impacco-nutriente", group:"COLORE E TRATTAMENTI", kind:"trattamento-cute", name:"Impacco nutriente capelli", duration:30, price:"€ 25"},
-        {id:"black-mask", group:"COLORE E TRATTAMENTI", kind:"trattamento-viso", name:"Black mask viso", duration:30, price:"€ 25"},
-        {id:"pulizia-viso-uomo", group:"COLORE E TRATTAMENTI", kind:"trattamento-viso", name:"Pulizia viso uomo", duration:45, price:"€ 40"}
+        {id:"detox-cute", group:"TRATTAMENTI", kind:"trattamento-cute", name:"Detox cute", duration:30, price:"€ 25"},
+        {id:"anticaduta", group:"TRATTAMENTI", kind:"trattamento-cute", name:"Trattamento anticaduta", duration:35, price:"€ 30"},
+        {id:"impacco-nutriente", group:"TRATTAMENTI", kind:"trattamento-cute", name:"Impacco nutriente capelli", duration:30, price:"€ 25"},
+        {id:"black-mask", group:"TRATTAMENTI", kind:"trattamento-viso", name:"Black mask viso", duration:30, price:"€ 25"},
+        {id:"pulizia-viso-uomo", group:"TRATTAMENTI", kind:"trattamento-viso", name:"Pulizia viso uomo", duration:45, price:"€ 40"}
       ],
       "Parrucchiere": [
-        {id:"taglio-uomo", name:"Taglio uomo", duration:40, price:"€ 22"},
-        {id:"shampoo-taglio", name:"Shampoo + taglio", duration:50, price:"€ 27"},
-        {id:"styling", name:"Styling", duration:25, price:"€ 15"},
-        {id:"colore-uomo", name:"Colore uomo", duration:60, price:"€ 35"},
-        {id:"copertura-bianchi", name:"Copertura capelli bianchi", duration:45, price:"€ 28"},
-        {id:"trattamento-cute", name:"Trattamento cute", duration:40, price:"€ 30"}
+        {id:"taglio-uomo", group:"TAGLIO", name:"Taglio uomo", duration:40, price:"€ 22"},
+        {id:"shampoo-taglio", group:"TAGLIO", name:"Shampoo + taglio", duration:50, price:"€ 27"},
+        {id:"styling", group:"TAGLIO", name:"Styling", duration:25, price:"€ 15"},
+
+        {id:"colore-uomo", group:"COLORE", name:"Colore uomo", duration:60, price:"€ 35"},
+        {id:"copertura-bianchi", group:"COLORE", name:"Copertura capelli bianchi", duration:45, price:"€ 28"},
+
+        {id:"trattamento-cute", group:"TRATTAMENTI", name:"Trattamento cute", duration:40, price:"€ 30"}
       ],
       "Benessere": [
-        {id:"massaggio-relax", name:"Massaggio relax", duration:50, price:"€ 45"},
-        {id:"massaggio-decontratturante", name:"Massaggio decontratturante", duration:50, price:"€ 50"},
-        {id:"trattamento-viso", name:"Trattamento viso uomo", duration:45, price:"€ 40"},
-        {id:"trattamento-corpo", name:"Trattamento corpo", duration:60, price:"€ 55"}
+        {id:"massaggio-relax", group:"MASSAGGI", name:"Massaggio relax", duration:50, price:"€ 45"},
+        {id:"massaggio-decontratturante", group:"MASSAGGI", name:"Massaggio decontratturante", duration:50, price:"€ 50"},
+        {id:"trattamento-viso", group:"VISO", name:"Trattamento viso uomo", duration:45, price:"€ 40"},
+        {id:"trattamento-corpo", group:"CORPO", name:"Trattamento corpo", duration:60, price:"€ 55"}
+      ],
+      "Estetista": [
+        {id:"manicure-uomo", group:"MANI", name:"Manicure", duration:35, price:"€ 25"},
+        {id:"trattamento-mani-uomo", group:"MANI", name:"Trattamento mani", duration:40, price:"€ 30"},
+
+        {id:"pedicure-uomo", group:"PIEDI", name:"Pedicure", duration:45, price:"€ 30"},
+        {id:"trattamento-piedi-uomo", group:"PIEDI", name:"Trattamento piedi", duration:50, price:"€ 35"},
+
+        {id:"depilazione-uomo", group:"CORPO", name:"Depilazione corpo", duration:45, price:"€ 35"},
+        {id:"sopracciglia-uomo", group:"CORPO", name:"Definizione sopracciglia", duration:20, price:"€ 15"},
+
+        {id:"pulizia-viso-uomo-est", group:"TRATTAMENTI", name:"Pulizia viso", duration:60, price:"€ 45"},
+        {id:"trattamento-viso-uomo-est", group:"TRATTAMENTI", name:"Trattamento viso", duration:60, price:"€ 50"},
+        {id:"trattamento-corpo-uomo-est", group:"TRATTAMENTI", name:"Trattamento corpo", duration:60, price:"€ 55"}
       ]
+    };
+
+    const GROUP_ORDER_BY_CATEGORY = {
+      "Parrucchiere":["TAGLIO","COLORE","TRATTAMENTI"],
+      "Barbiere":["TAGLIO","BARBA","COLORE","TRATTAMENTI"],
+      "Estetista":["MANI","PIEDI","CORPO","TRATTAMENTI"],
+      "Benessere":["MASSAGGI","VISO","CORPO"]
     };
 
     let SERVICES =
@@ -816,7 +839,7 @@
     function getCompatibilityError(service){
       if(!service.group) return "";
 
-      const hair = getSelectedByGroup("CAPELLI");
+      const hair = getSelectedByGroup("TAGLIO");
       const beard = getSelectedByGroup("BARBA");
       const selectedColor =
         selectedServices.find(selected => COLOR_SERVICES.includes(selected.id));
@@ -825,10 +848,10 @@
       const selectedFaceTreatment =
         selectedServices.find(selected => FACE_TREATMENTS.includes(selected.id));
 
-      if(service.group === "CAPELLI" && hair.length){
+      if(service.group === "TAGLIO" && hair.length){
         return (
           "Hai già selezionato “" + hair[0].name + "”. " +
-          "I servizi della sezione Capelli sono alternativi e non possono essere sommati nello stesso appuntamento."
+          "I servizi della sezione Taglio sono alternativi e non possono essere sommati nello stesso appuntamento."
         );
       }
 
@@ -844,7 +867,7 @@
 
       if(
         (service.id === "taglio-bambino" &&
-          selectedServices.some(selected => selected.group !== "CAPELLI")) ||
+          selectedServices.some(selected => selected.group !== "TAGLIO")) ||
         (childHair && service.id !== "taglio-bambino")
       ){
         return (
@@ -1009,57 +1032,129 @@
     function renderServices(){
       servicesBox.innerHTML = "";
 
-      const groupedServices = SERVICES.some(service => service.group);
+      const groupOrder =
+        GROUP_ORDER_BY_CATEGORY[salon.category] ||
+        [];
+
+      const groupedServices =
+        groupOrder.length &&
+        SERVICES.some(service=>service.group);
+
+      const helper =
+        document.querySelector(".treatment-help");
 
       if(groupedServices){
         servicesBox.classList.remove("flat");
-        const groupOrder = ["CAPELLI","BARBA","COLORE E TRATTAMENTI"];
 
-        groupOrder.forEach(groupName => {
-          const groupServices = SERVICES.filter(service => service.group === groupName);
+        if(helper){
+          helper.textContent =
+            "Apri una sezione e scegli uno o più servizi compatibili.";
+        }
+
+        groupOrder.forEach(groupName=>{
+          const groupServices=
+            SERVICES.filter(service=>
+              service.group===groupName
+            );
+
           if(!groupServices.length) return;
 
-          const group = document.createElement("div");
-          group.className = "service-group";
+          const group=
+            document.createElement("div");
 
-          const selectedInGroup = selectedServices.filter(service => service.group === groupName);
-          if(selectedInGroup.length) group.classList.add("open");
+          group.className="service-group";
 
-          const toggle = document.createElement("button");
-          toggle.type = "button";
-          toggle.className = "service-group-toggle";
-          toggle.setAttribute("aria-expanded", selectedInGroup.length ? "true" : "false");
+          const selectedInGroup=
+            selectedServices.filter(service=>
+              service.group===groupName
+            );
 
-          let groupInfo = groupServices.length + " opzioni";
-          if(selectedInGroup.length === 1) groupInfo = selectedInGroup[0].name;
-          if(selectedInGroup.length > 1) groupInfo = selectedInGroup.length + " selezionati";
+          if(selectedInGroup.length){
+            group.classList.add("open");
+          }
 
-          toggle.innerHTML =
-            '<span class="service-group-title">' + groupName + '</span>' +
-            '<span class="service-group-info">' +
-              '<span>' + groupInfo + '</span>' +
-              '<span class="service-group-chevron" aria-hidden="true"></span>' +
+          const toggle=
+            document.createElement("button");
+
+          toggle.type="button";
+          toggle.className="service-group-toggle";
+          toggle.setAttribute(
+            "aria-expanded",
+            selectedInGroup.length
+              ? "true"
+              : "false"
+          );
+
+          let groupInfo=
+            groupServices.length+" opzioni";
+
+          if(selectedInGroup.length===1){
+            groupInfo=
+              selectedInGroup[0].name;
+          }
+
+          if(selectedInGroup.length>1){
+            groupInfo=
+              selectedInGroup.length+
+              " selezionati";
+          }
+
+          toggle.innerHTML=
+            '<span class="service-group-title">'+
+              groupName+
+            '</span>'+
+            '<span class="service-group-info">'+
+              '<span>'+groupInfo+'</span>'+
+              '<span class="service-group-chevron" aria-hidden="true"></span>'+
             '</span>';
 
-          const panel = document.createElement("div");
-          panel.className = "service-group-panel";
-          groupServices.forEach(service => panel.appendChild(createServiceButton(service)));
+          const panel=
+            document.createElement("div");
 
-          toggle.addEventListener("click", () => {
-            const willOpen = !group.classList.contains("open");
-            group.classList.toggle("open", willOpen);
-            toggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
-          });
+          panel.className=
+            "service-group-panel";
+
+          groupServices.forEach(service=>
+            panel.appendChild(
+              createServiceButton(service)
+            )
+          );
+
+          toggle.addEventListener(
+            "click",
+            ()=>{
+              const willOpen=
+                !group.classList.contains("open");
+
+              group.classList.toggle(
+                "open",
+                willOpen
+              );
+
+              toggle.setAttribute(
+                "aria-expanded",
+                willOpen
+                  ? "true"
+                  : "false"
+              );
+            }
+          );
 
           group.appendChild(toggle);
           group.appendChild(panel);
           servicesBox.appendChild(group);
         });
+
         return;
       }
 
       servicesBox.classList.add("flat");
-      SERVICES.forEach(service => servicesBox.appendChild(createServiceButton(service)));
+
+      SERVICES.forEach(service=>
+        servicesBox.appendChild(
+          createServiceButton(service)
+        )
+      );
     }
 
     function renderMonth(){

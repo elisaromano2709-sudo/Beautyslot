@@ -483,11 +483,29 @@
         {id:"detox-cute", group:"TRATTAMENTI", name:"Detox cute", duration:40, price:"€ 30"}
       ],
       "Estetista": [
-        {id:"pulizia-viso", name:"Pulizia viso", duration:60, price:"€ 45"},
-        {id:"ceretta", name:"Ceretta", duration:45, price:"€ 30"},
-        {id:"sopracciglia", name:"Sopracciglia", duration:20, price:"€ 15"},
-        {id:"trattamento-viso", name:"Trattamento viso", duration:60, price:"€ 50"},
-        {id:"trattamento-corpo", name:"Trattamento corpo", duration:60, price:"€ 55"}
+        {id:"manicure-classica", group:"MANI", name:"Manicure classica", duration:35, price:"€ 25"},
+        {id:"semipermanente-mani", group:"MANI", name:"Semipermanente mani", duration:60, price:"€ 35"},
+        {id:"ricostruzione-gel-mani", group:"MANI", name:"Ricostruzione gel mani", duration:120, price:"€ 65"},
+        {id:"refill-gel-mani", group:"MANI", name:"Refill gel mani", duration:90, price:"€ 50"},
+
+        {id:"pedicure-estetico", group:"PIEDI", name:"Pedicure estetico", duration:45, price:"€ 30"},
+        {id:"semipermanente-piedi", group:"PIEDI", name:"Semipermanente piedi", duration:50, price:"€ 35"},
+        {id:"ricostruzione-gel-piedi", group:"PIEDI", name:"Ricostruzione gel piedi", duration:90, price:"€ 55"},
+        {id:"refill-gel-piedi", group:"PIEDI", name:"Refill gel piedi", duration:70, price:"€ 45"},
+
+        {id:"sopracciglia", group:"CORPO", name:"Definizione sopracciglia", duration:20, price:"€ 15"},
+        {id:"ceretta-baffetto", group:"CORPO", name:"Ceretta baffetto", duration:15, price:"€ 10"},
+        {id:"ceretta-ascelle", group:"CORPO", name:"Ceretta ascelle", duration:20, price:"€ 15"},
+        {id:"ceretta-braccia", group:"CORPO", name:"Ceretta braccia", duration:30, price:"€ 22"},
+        {id:"ceretta-gambe", group:"CORPO", name:"Ceretta gambe", duration:40, price:"€ 30"},
+        {id:"ceretta-inguine", group:"CORPO", name:"Ceretta inguine", duration:25, price:"€ 20"},
+
+        {id:"massaggio-relax", group:"TRATTAMENTI", name:"Massaggio relax", duration:50, price:"€ 45"},
+        {id:"massaggio-drenante", group:"TRATTAMENTI", name:"Massaggio drenante", duration:50, price:"€ 50"},
+        {id:"body-care", group:"TRATTAMENTI", name:"Body care", duration:70, price:"€ 60"},
+        {id:"scrub-corpo", group:"TRATTAMENTI", name:"Scrub corpo", duration:45, price:"€ 40"},
+        {id:"pulizia-viso", group:"TRATTAMENTI", name:"Pulizia viso", duration:60, price:"€ 45"},
+        {id:"solarium", group:"TRATTAMENTI", name:"Solarium", duration:15, price:"€ 12"}
       ],
       "EstetistaCompleta": [
         {id:"manicure-classica", group:"MANI", name:"Manicure classica", duration:35, price:"€ 25"},
@@ -515,17 +533,42 @@
         {id:"solarium", group:"TRATTAMENTI", name:"Solarium", duration:15, price:"€ 12"}
       ],
       "Unghie": [
-        {id:"manicure", name:"Manicure", duration:40, price:"€ 25"},
-        {id:"semipermanente", name:"Semipermanente", duration:60, price:"€ 35"},
-        {id:"gel", name:"Ricostruzione gel", duration:100, price:"€ 55"},
-        {id:"pedicure", name:"Pedicure", duration:60, price:"€ 35"}
+        {id:"manicure", group:"MANI", name:"Manicure", duration:40, price:"€ 25"},
+        {id:"semipermanente", group:"MANI", name:"Semipermanente", duration:60, price:"€ 35"},
+        {id:"gel", group:"MANI", name:"Ricostruzione gel", duration:100, price:"€ 55"},
+        {id:"pedicure", group:"PIEDI", name:"Pedicure", duration:60, price:"€ 35"}
       ],
       "Benessere": [
-        {id:"massaggio-relax", name:"Massaggio relax", duration:50, price:"€ 45"},
-        {id:"massaggio-decontratturante", name:"Massaggio decontratturante", duration:50, price:"€ 50"},
-        {id:"trattamento-viso", name:"Trattamento viso", duration:50, price:"€ 45"},
-        {id:"trattamento-corpo", name:"Trattamento corpo", duration:60, price:"€ 55"}
+        {id:"massaggio-relax", group:"MASSAGGI", name:"Massaggio relax", duration:50, price:"€ 45"},
+        {id:"massaggio-decontratturante", group:"MASSAGGI", name:"Massaggio decontratturante", duration:50, price:"€ 50"},
+        {id:"trattamento-viso", group:"VISO", name:"Trattamento viso", duration:50, price:"€ 45"},
+        {id:"trattamento-corpo", group:"CORPO", name:"Trattamento corpo", duration:60, price:"€ 55"}
+      ],
+      "Lash Maker": [
+        {id:"extension-ciglia", group:"CIGLIA", name:"Extension ciglia", duration:120, price:"€ 70"},
+        {id:"refill-ciglia", group:"CIGLIA", name:"Refill ciglia", duration:75, price:"€ 45"},
+        {id:"laminazione-ciglia", group:"CIGLIA", name:"Laminazione ciglia", duration:60, price:"€ 45"},
+        {id:"laminazione-sopracciglia", group:"SOPRACCIGLIA", name:"Laminazione sopracciglia", duration:50, price:"€ 40"},
+        {id:"definizione-sopracciglia", group:"SOPRACCIGLIA", name:"Definizione sopracciglia", duration:25, price:"€ 20"},
+        {id:"trattamento-ciglia", group:"TRATTAMENTI", name:"Trattamento nutriente ciglia", duration:30, price:"€ 25"}
+      ],
+      "Make-up": [
+        {id:"makeup-giorno", group:"MAKE-UP", name:"Make-up giorno", duration:45, price:"€ 40"},
+        {id:"makeup-sera", group:"MAKE-UP", name:"Make-up sera", duration:60, price:"€ 55"},
+        {id:"makeup-evento", group:"MAKE-UP", name:"Make-up evento", duration:75, price:"€ 65"},
+        {id:"makeup-sposa", group:"SPOSA", name:"Make-up sposa", duration:120, price:"€ 120"},
+        {id:"prova-sposa", group:"SPOSA", name:"Prova make-up sposa", duration:90, price:"€ 80"}
       ]
+    };
+
+    const GROUP_ORDER_BY_CATEGORY = {
+      "Parrucchiere":["TAGLIO","COLORE","TRATTAMENTI"],
+      "Estetista":["MANI","PIEDI","CORPO","TRATTAMENTI"],
+      "EstetistaCompleta":["MANI","PIEDI","CORPO","TRATTAMENTI"],
+      "Unghie":["MANI","PIEDI"],
+      "Benessere":["MASSAGGI","VISO","CORPO"],
+      "Lash Maker":["CIGLIA","SOPRACCIGLIA","TRATTAMENTI"],
+      "Make-up":["MAKE-UP","SPOSA"]
     };
 
     let SERVICES =
@@ -611,11 +654,12 @@
     function normalizeCategoryForCalendar(categories){
       const list = Array.isArray(categories) ? categories : [];
 
-      if(list.includes("Barbiere")) return "Barbiere";
       if(list.includes("Parrucchiere")) return "Parrucchiere";
-      if(list.includes("Benessere")) return "Benessere";
       if(list.includes("Estetista")) return "Estetista";
       if(list.includes("Nail Artist") || list.includes("Unghie")) return "Unghie";
+      if(list.includes("Lash Maker") || list.includes("Ciglia e sopracciglia")) return "Lash Maker";
+      if(list.includes("Make-up") || list.includes("Make up")) return "Make-up";
+      if(list.includes("Benessere")) return "Benessere";
 
       return "Parrucchiere";
     }
@@ -969,77 +1013,113 @@
     function renderServices(){
       servicesBox.innerHTML = "";
 
-      if(
-        salon.category === "Parrucchiere" ||
-        salon.category === "EstetistaCompleta"
-      ){
+      const groupOrder =
+        GROUP_ORDER_BY_CATEGORY[salon.category] ||
+        [];
+
+      const groupedServices =
+        groupOrder.length &&
+        SERVICES.some(service=>service.group);
+
+      const helper =
+        document.querySelector(".treatment-help");
+
+      if(groupedServices){
         servicesBox.classList.remove("flat");
 
-        const groupOrder =
-          salon.category === "Parrucchiere"
-            ? ["TAGLIO","COLORE","TRATTAMENTI"]
-            : ["MANI","PIEDI","CORPO","TRATTAMENTI"];
+        if(helper){
+          helper.textContent =
+            "Apri una sezione e scegli uno o più servizi. Puoi combinare le prestazioni disponibili.";
+        }
 
-        groupOrder.forEach(groupName => {
-          const groupServices = SERVICES.filter(service =>
-            service.group === groupName
-          );
+        groupOrder.forEach(groupName=>{
+          const groupServices=
+            SERVICES.filter(service=>
+              service.group===groupName
+            );
 
           if(!groupServices.length) return;
 
-          const group = document.createElement("div");
-          group.className = "service-group";
+          const group=
+            document.createElement("div");
 
-          const selectedInGroup =
-            selectedServices.some(service => service.group === groupName);
+          group.className="service-group";
 
-          if(selectedInGroup){
+          const selectedInThisGroup=
+            selectedServices.filter(service=>
+              service.group===groupName
+            );
+
+          if(selectedInThisGroup.length){
             group.classList.add("open");
           }
 
-          const toggle = document.createElement("button");
-          toggle.type = "button";
-          toggle.className = "service-group-toggle";
-          toggle.setAttribute("aria-expanded", selectedInGroup ? "true" : "false");
+          const toggle=
+            document.createElement("button");
 
-          const selectedInThisGroup =
-            selectedServices.filter(service => service.group === groupName);
+          toggle.type="button";
+          toggle.className="service-group-toggle";
+          toggle.setAttribute(
+            "aria-expanded",
+            selectedInThisGroup.length
+              ? "true"
+              : "false"
+          );
 
-          let groupInfo = groupServices.length + " opzioni";
+          let groupInfo=
+            groupServices.length+" opzioni";
 
-          if(selectedInThisGroup.length === 1){
-            groupInfo = selectedInThisGroup[0].name;
+          if(selectedInThisGroup.length===1){
+            groupInfo=
+              selectedInThisGroup[0].name;
           }
 
-          if(selectedInThisGroup.length > 1){
-            groupInfo = selectedInThisGroup.length + " selezionati";
+          if(selectedInThisGroup.length>1){
+            groupInfo=
+              selectedInThisGroup.length+
+              " selezionati";
           }
 
-          toggle.innerHTML =
-            '<span class="service-group-title">' + groupName + '</span>' +
-            '<span class="service-group-info">' +
-              '<span>' + groupInfo + '</span>' +
-              '<span class="service-group-chevron" aria-hidden="true"></span>' +
+          toggle.innerHTML=
+            '<span class="service-group-title">'+
+              groupName+
+            '</span>'+
+            '<span class="service-group-info">'+
+              '<span>'+groupInfo+'</span>'+
+              '<span class="service-group-chevron" aria-hidden="true"></span>'+
             '</span>';
 
-          const panel = document.createElement("div");
-          panel.className = "service-group-panel";
+          const panel=
+            document.createElement("div");
 
-          groupServices.forEach(service => {
-            panel.appendChild(createServiceButton(service));
+          panel.className=
+            "service-group-panel";
+
+          groupServices.forEach(service=>{
+            panel.appendChild(
+              createServiceButton(service)
+            );
           });
 
-          toggle.addEventListener("click", () => {
-            const willOpen = !group.classList.contains("open");
+          toggle.addEventListener(
+            "click",
+            ()=>{
+              const willOpen=
+                !group.classList.contains("open");
 
-            if(willOpen){
-              group.classList.add("open");
-              toggle.setAttribute("aria-expanded","true");
-            }else{
-              group.classList.remove("open");
-              toggle.setAttribute("aria-expanded","false");
+              group.classList.toggle(
+                "open",
+                willOpen
+              );
+
+              toggle.setAttribute(
+                "aria-expanded",
+                willOpen
+                  ? "true"
+                  : "false"
+              );
             }
-          });
+          );
 
           group.appendChild(toggle);
           group.appendChild(panel);
@@ -1050,9 +1130,12 @@
       }
 
       servicesBox.classList.add("flat");
-      SERVICES.forEach(service => {
-        servicesBox.appendChild(createServiceButton(service));
-      });
+
+      SERVICES.forEach(service=>
+        servicesBox.appendChild(
+          createServiceButton(service)
+        )
+      );
     }
 
     function renderMonth(){
