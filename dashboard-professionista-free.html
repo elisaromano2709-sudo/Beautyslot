@@ -2077,9 +2077,30 @@
     }
 
     function canShowUomo(profile){
-      const categories=normalizeCategories(profile.categorie);
-      const pubblico=String(profile.pubblico||"unisex").toLowerCase();
+      const categories=(Array.isArray(profile.categorie) ? profile.categorie : []).map(category=>{
+        if(category==="Unghie")return "Nail Artist";
+        if(category==="Ciglia e sopracciglia")return "Lash Maker";
+        if(category==="Make-up Artist")return "Make-up";
+        return category;
+      });
 
+      const pubblico=String(profile.pubblico||"").toLowerCase();
+
+      // Categorie SOLO DONNA: precedenza assoluta.
+      // Anche un vecchio profilo salvato con più categorie non deve
+      // mostrare la vetrina Uomo se contiene una di queste categorie.
+      const femaleOnly =
+        categories.includes("Estetista") ||
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up") ||
+        categories.includes("Benessere");
+
+      if(femaleOnly){
+        return false;
+      }
+
+      // Uomo soltanto per Barbiere o Parrucchiere Uomo/Unisex.
       if(categories.includes("Barbiere")){
         return true;
       }

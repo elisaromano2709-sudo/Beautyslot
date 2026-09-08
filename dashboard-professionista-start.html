@@ -1738,9 +1738,7 @@
         categories.includes("Benessere");
 
       let showUomo=
-        categories.includes("Barbiere") ||
-        categories.includes("Estetista") ||
-        categories.includes("Benessere");
+        categories.includes("Barbiere");
 
       if(categories.includes("Parrucchiere")){
         if(pubblico==="donna" || pubblico==="unisex")showDonna=true;
@@ -2198,14 +2196,31 @@
     }
 
     function canShowUomo(profile){
-      const categories=normalizeCategories(profile.categorie);
-      const pubblico=String(profile.pubblico||"unisex").toLowerCase();
+      const categories=(Array.isArray(profile.categorie) ? profile.categorie : []).map(category=>{
+        if(category==="Unghie")return "Nail Artist";
+        if(category==="Ciglia e sopracciglia")return "Lash Maker";
+        if(category==="Make-up Artist")return "Make-up";
+        return category;
+      });
 
-      if(
-        categories.includes("Barbiere") ||
+      const pubblico=String(profile.pubblico||"").toLowerCase();
+
+      // Categorie SOLO DONNA: precedenza assoluta.
+      // Anche un vecchio profilo salvato con più categorie non deve
+      // mostrare la vetrina Uomo se contiene una di queste categorie.
+      const femaleOnly =
         categories.includes("Estetista") ||
-        categories.includes("Benessere")
-      ){
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up") ||
+        categories.includes("Benessere");
+
+      if(femaleOnly){
+        return false;
+      }
+
+      // Uomo soltanto per Barbiere o Parrucchiere Uomo/Unisex.
+      if(categories.includes("Barbiere")){
         return true;
       }
 
@@ -2567,9 +2582,50 @@
         return;
       }
 
-      const {data:{user},error}=await sb.auth.getUser();
+      // Recupera PRIMA la sessione locale già presente nel browser.
+      // Questo evita il falso "utente non autenticato" durante il ritorno
+      // dalla vetrina, che causava il lampo di login.html.
+      let user=null;
 
-      if(error || !user){
+      const {
+        data:{session:localSession},
+        error:sessionError
+      }=await sb.auth.getSession();
+
+      if(!sessionError && localSession?.user){
+        user=localSession.user;
+      }
+
+      // Secondo tentativo breve: serve nei rarissimi casi in cui
+      // Supabase sta ancora ripristinando la sessione dopo la navigazione.
+      if(!user){
+        await new Promise(resolve=>setTimeout(resolve,180));
+
+        const {
+          data:{session:retrySession}
+        }=await sb.auth.getSession();
+
+        if(retrySession?.user){
+          user=retrySession.user;
+        }
+      }
+
+      // Solo se non esiste davvero alcuna sessione proviamo la verifica remota.
+      if(!user){
+        const {
+          data:{user:verifiedUser},
+          error:userError
+        }=await sb.auth.getUser();
+
+        if(!userError && verifiedUser){
+          user=verifiedUser;
+        }
+      }
+
+      // Il login viene aperto SOLO quando non esiste davvero
+      // nessuna sessione professionista.
+      if(!user){
+        allowDashboardExit=true;
         window.location.replace("login.html");
         return;
       }
@@ -2600,8 +2656,29 @@
         return;
       }
 
-      if(String(profile.piano||"start").toLowerCase()!=="start"){
-        window.location.replace("login.html");
+      const pianoReale=
+        String(profile.piano||"start").toLowerCase();
+
+      if(pianoReale!=="start"){
+        const dashboardPerPiano={
+          free:"dashboard-professionista-free.html",
+          pro:"dashboard-professionista-pro.html",
+          "trial-pro":"dashboard-professionista-pro.html",
+          business:"dashboard-professionista-business.html",
+          enterprise:"dashboard-professionista-enterprise.html"
+        };
+
+        const destinazione=
+          dashboardPerPiano[pianoReale];
+
+        if(destinazione){
+          allowDashboardExit=true;
+          window.location.replace(destinazione);
+          return;
+        }
+
+        loading.textContent=
+          "Piano professionista non riconosciuto.";
         return;
       }
 
