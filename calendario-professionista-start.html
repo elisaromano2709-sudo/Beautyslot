@@ -175,6 +175,9 @@ button{cursor:pointer}
   font-size:10px;
   margin-bottom:2px
 }
+.booking + .booking{
+  margin-top:0;
+}
 .booking.block{border-style:dashed}
 .event-delete{
   position:absolute;
@@ -209,10 +212,13 @@ button{cursor:pointer}
 }
 .day-content{
   min-height:58px;
-  padding:9px;
+  padding:10px;
   border:1px solid var(--line);
   border-radius:14px;
-  background:#fff
+  background:#fff;
+  display:flex;
+  flex-direction:column;
+  gap:8px
 }
 .closed-hour{opacity:.45;background:#faf8f8}
 .empty-note{
@@ -246,6 +252,9 @@ button{cursor:pointer}
 
 .week .slot{
   min-height:62px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
 }
 .week .time{
   min-height:62px;
