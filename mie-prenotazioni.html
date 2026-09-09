@@ -790,26 +790,25 @@
             currentUser
           ){
             const {
+              data:cancelled,
               error
             }=
-              await sb
-                .from(
-                  "beautyslot_agenda"
-                )
-                .update({
-                  stato:"annullata"
-                })
-                .eq(
-                  "id",
-                  activeBooking.id
-                )
-                .eq(
-                  "cliente_user_id",
-                  currentUser.id
-                );
+              await sb.rpc(
+                "beautyslot_annulla_prenotazione_cliente",
+                {
+                  p_booking_id:
+                    String(activeBooking.id)
+                }
+              );
 
             if(error){
               throw error;
+            }
+
+            if(cancelled !== true){
+              throw new Error(
+                "La prenotazione non è stata annullata. Controlla che appartenga all'account attualmente collegato."
+              );
             }
           }
 
@@ -828,7 +827,8 @@
           );
 
           alert(
-            "Non sono riuscito a disdire l'appuntamento. Riprova."
+            "Non sono riuscito a disdire l'appuntamento. " +
+            (error?.message || "Riprova.")
           );
         }finally{
           confirmCancelButton.disabled=
