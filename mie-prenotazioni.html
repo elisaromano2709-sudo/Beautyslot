@@ -188,6 +188,7 @@
 
     let activeBooking = null;
     let currentUser = null;
+    let bookingsChannel = null;
 
     function formatDate(value){
       if(!value){
@@ -703,6 +704,38 @@
         "none";
     }
 
+    function subscribeBookingsRealtime(){
+      if(!currentUser){
+        return;
+      }
+
+      if(bookingsChannel){
+        return;
+      }
+
+      bookingsChannel=
+        sb
+          .channel(
+            "beautyslot-client-bookings-" +
+            currentUser.id
+          )
+          .on(
+            "postgres_changes",
+            {
+              event:"*",
+              schema:"public",
+              table:"beautyslot_agenda",
+              filter:
+                "cliente_user_id=eq." +
+                currentUser.id
+            },
+            async ()=>{
+              await loadBookings();
+            }
+          )
+          .subscribe();
+    }
+
     function removeMatchingSessionBooking(
       booking
     ){
@@ -867,7 +900,23 @@
       }
     );
 
-    loadBookings();
+    async function initBookingsPage(){
+      await loadBookings();
+      subscribeBookingsRealtime();
+    }
+
+    window.addEventListener(
+      "beforeunload",
+      ()=>{
+        if(bookingsChannel){
+          sb.removeChannel(
+            bookingsChannel
+          );
+        }
+      }
+    );
+
+    initBookingsPage();
   </script>
 </body>
 </html>

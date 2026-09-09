@@ -1889,7 +1889,21 @@ function renderBooking(event){
     >
       <strong>${timeText}${event.client ? " · "+event.client : ""}</strong>
       ${detail}
-      <button class="event-delete" type="button" data-delete-event="${event.id}" title="Elimina">×</button>
+      ${
+        event.type==="prenotazione"
+          ? `<button
+               class="event-delete"
+               type="button"
+               data-cancel-client-booking="${event.id}"
+               title="Disdici appuntamento cliente"
+             >×</button>`
+          : `<button
+               class="event-delete"
+               type="button"
+               data-delete-event="${event.id}"
+               title="Elimina"
+             >×</button>`
+      }
     </div>
   `;
 }
@@ -2073,6 +2087,53 @@ async function insertAgenda(payload){
   return true;
 }
 
+async function cancelClientBookingByProfessional(id){
+  const {
+    data,
+    error
+  }=await sb.functions.invoke(
+    "beautyslot-cancel-booking-professional",
+    {
+      body:{
+        booking_id:String(id)
+      }
+    }
+  );
+
+  if(error){
+    console.error(
+      "Disdetta appuntamento cliente:",
+      error
+    );
+
+    alert(
+      "Non riesco a disdire l'appuntamento. " +
+      (error?.message || "Riprova.")
+    );
+
+    return false;
+  }
+
+  if(!data?.ok){
+    alert(
+      data?.error ||
+      "Non riesco a disdire l'appuntamento."
+    );
+
+    return false;
+  }
+
+  await loadAgenda();
+  renderAll();
+
+  alert(
+    "Appuntamento disdetto. " +
+    "Il cliente è stato avvisato automaticamente via email."
+  );
+
+  return true;
+}
+
 async function deleteAgendaEvent(id){
   const { error }=await sb
     .from("beautyslot_agenda")
@@ -2132,6 +2193,28 @@ document.addEventListener("click",async event=>{
   if(month){
     monthCursor=new Date(fullYear,Number(month.dataset.openMonth),1);
     activateView("monthView");
+    return;
+  }
+
+  const cancelClient=
+    event.target.closest(
+      "[data-cancel-client-booking]"
+    );
+
+  if(cancelClient){
+    const confirmed=
+      confirm(
+        "Disdire l'appuntamento del cliente?\n\n" +
+        "L'appuntamento sparirà anche da Le mie prenotazioni " +
+        "del cliente e riceverà automaticamente una email di disdetta."
+      );
+
+    if(confirmed){
+      await cancelClientBookingByProfessional(
+        cancelClient.dataset.cancelClientBooking
+      );
+    }
+
     return;
   }
 
