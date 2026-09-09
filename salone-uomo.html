@@ -787,18 +787,38 @@
 
 
     // Ritorno contestuale:
-    // - se la vetrina è stata aperta dalla dashboard professionista, torna alla dashboard;
-    // - altrimenti mantiene il normale ritorno alla pagina Uomo.
+    // - dalla dashboard professionista torna alla dashboard del piano reale;
+    // - da link personale o navigazione pubblica torna alla sezione Uomo.
     const salonBackButton = document.getElementById("salonBackButton");
+
+    function dashboardTargetFromPlan(plan){
+      const normalized=String(plan || "").toLowerCase();
+
+      if(normalized==="free")return "dashboard-professionista-free.html";
+      if(normalized==="start")return "dashboard-professionista-start.html";
+      if(normalized==="pro" || normalized==="trial-pro")return "dashboard-professionista-pro.html";
+      if(normalized==="business")return "dashboard-professionista-business.html";
+      if(normalized==="enterprise")return "dashboard-professionista-enterprise.html";
+
+      return "dashboard-professionista-start.html";
+    }
+
     if(salonBackButton){
-      const openedFromDashboard =
-        new URLSearchParams(window.location.search).get("from") === "dashboard";
+      const navigationParams=
+        new URLSearchParams(window.location.search);
 
-      const backTarget = openedFromDashboard
-        ? "dashboard-professionista-free.html"
-        : "https://beauty-slot.it/uomo.html";
+      const openedFromDashboard=
+        navigationParams.get("from")==="dashboard";
 
-      salonBackButton.href = backTarget;
+      const dashboardPlan=
+        navigationParams.get("dashboard_plan") || "start";
+
+      const backTarget=
+        openedFromDashboard
+          ? dashboardTargetFromPlan(dashboardPlan)
+          : "https://beauty-slot.it/uomo.html";
+
+      salonBackButton.href=backTarget;
       salonBackButton.setAttribute(
         "aria-label",
         openedFromDashboard
@@ -806,11 +826,11 @@
           : "Torna a Uomo"
       );
 
-      salonBackButton.addEventListener("click", function(event){
+      salonBackButton.addEventListener("click",function(event){
         event.preventDefault();
         event.stopPropagation();
         window.location.replace(backTarget);
-      }, true);
+      },true);
     }
 
     const SUPABASE_URL = "https://kfhjydwgjtiyjdkedvrp.supabase.co";

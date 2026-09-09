@@ -468,6 +468,24 @@
       color:var(--muted);
     }
 
+    .personal-link-url{
+      display:block;
+      margin-top:10px;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      color:#6b565a;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:700;
+      line-height:1.35;
+    }
+
+    .personal-link-url:hover{
+      text-decoration:underline;
+    }
+
     .content-grid{
       display:grid;
       grid-template-columns:minmax(0,1.35fr) minmax(320px,.65fr);
@@ -1275,10 +1293,17 @@
         <div class="stat-sub" id="profileMissing">Controllo dati profilo…</div>
       </div>
 
-      <div class="stat">
-        <div class="stat-label">Foto attività</div>
-        <div class="stat-value" id="photoCount">0</div>
-        <div class="stat-sub">Copertina + galleria</div>
+      <div class="stat personal-link-stat">
+        <div class="stat-label">Link personale</div>
+        <a
+          class="personal-link-url"
+          id="personalSalonLink"
+          href="#"
+          target="_blank"
+          rel="noopener"
+        >—</a>
+        <div class="stat-sub">Condividilo sui tuoi social</div>
+        <span id="photoCount" hidden>0</span>
       </div>
 
       <div class="stat">
@@ -2257,6 +2282,35 @@
       box.innerHTML=buttons.join(" ");
     }
 
+    function personalLinkSlug(value){
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .toLowerCase()
+        .replace(/&/g," e ")
+        .replace(/['’]/g,"")
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-+|-+$/g,"")
+        .replace(/-+/g,"-");
+    }
+
+    function renderPersonalSalonLink(profile){
+      const linkElement=document.getElementById("personalSalonLink");
+      if(!linkElement)return;
+
+      const slug=
+        personalLinkSlug(profile?.nome_attivita) ||
+        ("attivita-" + String(profile?.user_id || "").slice(0,8));
+
+      const url=
+        "https://beauty-slot.it/" + encodeURIComponent(slug);
+
+      linkElement.href=url;
+      linkElement.textContent=
+        "beauty-slot.it/" + slug;
+      linkElement.title=url;
+    }
+
     function renderBusiness(user,profile){
       business=profile;
 
@@ -2347,6 +2401,7 @@
       renderHours(profile);
       renderGallery(profile);
       renderShowcaseButtons(profile);
+      renderPersonalSalonLink(profile);
 
       loading.hidden=true;
       dashboard.hidden=false;

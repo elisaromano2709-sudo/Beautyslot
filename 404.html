@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautyslot — Apertura vetrina</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root{
+      --bg:#f9f6f7;
+      --text:#705e61;
+      --muted:#9a8589;
+      --line:rgba(157,104,112,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%}
+    body{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+      background:
+        radial-gradient(circle at 20% 25%,rgba(247,226,231,.8),transparent 32%),
+        radial-gradient(circle at 80% 28%,rgba(224,235,247,.85),transparent 32%),
+        var(--bg);
+      color:var(--text);
+      font-family:"Helvetica Neue",Arial,sans-serif;
+    }
+    .card{
+      width:min(520px,100%);
+      padding:36px 30px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:rgba(255,255,255,.82);
+      text-align:center;
+      box-shadow:0 18px 50px rgba(80,65,70,.08);
+    }
+    .brand{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:30px;
+      font-weight:500;
+    }
+    .message{
+      margin:14px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
+    .home{
+      display:none;
+      margin-top:24px;
+      min-height:46px;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      background:linear-gradient(90deg,#c97e96,#9baed1);
+      color:#fff;
+      text-decoration:none;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+    }
+    .home.show{display:flex}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1 class="brand">Beautyslot</h1>
+    <p class="message" id="message">Apro la vetrina…</p>
+    <a class="home" id="homeLink" href="https://beauty-slot.it/">Vai a Beautyslot</a>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL =
+      "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
+    const sb=
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+    function slugify(value){
+      return String(value || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"")
+        .toLowerCase()
+        .replace(/&/g," e ")
+        .replace(/['’]/g,"")
+        .replace(/[^a-z0-9]+/g,"-")
+        .replace(/^-+|-+$/g,"")
+        .replace(/-+/g,"-");
+    }
+
+    function normalizeCategories(values){
+      return (Array.isArray(values) ? values : [])
+        .map(value=>{
+          const category=String(value || "").trim();
+
+          if(category==="Unghie")return "Nail Artist";
+          if(category==="Ciglia e sopracciglia")return "Lash Maker";
+          if(category==="Make-up Artist")return "Make-up";
+
+          return category;
+        })
+        .filter(Boolean);
+    }
+
+    function choosePublicSide(profile){
+      const categories=
+        normalizeCategories(profile.categorie);
+
+      const pubblico=
+        String(profile.pubblico || "").toLowerCase();
+
+      const femaleOnly=
+        categories.includes("Estetista") ||
+        categories.includes("Nail Artist") ||
+        categories.includes("Lash Maker") ||
+        categories.includes("Make-up") ||
+        categories.includes("Benessere");
+
+      if(femaleOnly)return "donna";
+      if(categories.includes("Barbiere"))return "uomo";
+
+      if(categories.includes("Parrucchiere")){
+        if(pubblico==="donna")return "donna";
+        if(pubblico==="uomo")return "uomo";
+
+        return Math.random() < 0.5 ? "donna" : "uomo";
+      }
+
+      return "donna";
+    }
+
+    async function resolvePersonalLink(){
+      const message=
+        document.getElementById("message");
+
+      const homeLink=
+        document.getElementById("homeLink");
+
+      const pathSlug=
+        decodeURIComponent(
+          window.location.pathname
+            .replace(/^\/+|\/+$/g,"")
+        );
+
+      if(!pathSlug){
+        window.location.replace(
+          "https://beauty-slot.it/"
+        );
+        return;
+      }
+
+      try{
+        const {data,error}=
+          await sb
+            .from("beautyslot_professionisti")
+            .select(
+              "user_id,nome_attivita,categorie,pubblico,pubblicato"
+            )
+            .eq("pubblicato",true);
+
+        if(error)throw error;
+
+        const profile=
+          (data || []).find(item=>
+            slugify(item.nome_attivita)===pathSlug
+          );
+
+        if(!profile){
+          message.textContent=
+            "Questa vetrina non è disponibile.";
+          homeLink.classList.add("show");
+          return;
+        }
+
+        const side=
+          choosePublicSide(profile);
+
+        const salonId=
+          "free-" + profile.user_id;
+
+        const destination=
+          side==="uomo"
+            ? "https://beauty-slot.it/salone-uomo.html?id=" +
+              encodeURIComponent(salonId) +
+              "&source=personal"
+            : "https://beauty-slot.it/salone-donna.html?id=" +
+              encodeURIComponent(salonId) +
+              "&source=personal";
+
+        window.location.replace(destination);
+
+      }catch(error){
+        console.error(
+          "Beautyslot link personale:",
+          error
+        );
+
+        message.textContent=
+          "Non riesco ad aprire la vetrina in questo momento.";
+        homeLink.classList.add("show");
+      }
+    }
+
+    resolvePersonalLink();
+  </script>
+</body>
+</html>
