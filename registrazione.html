@@ -736,6 +736,14 @@
     const requestedPlan = (params.get("piano") || "").toLowerCase();
     const selectedPlan = VALID_PLANS.includes(requestedPlan) ? requestedPlan : "trial-pro";
 
+    /*
+      Nuova registrazione volontaria:
+      una sessione professionista già aperta NON deve impedire di creare
+      un nuovo account. Il vecchio account viene disconnesso soltanto
+      quando il nuovo form viene inviato.
+      Il blocco "non tornare indietro" resta sulla dashboard.
+    */
+
     const PLAN_INFO = {
       "free": {name:"FREE · €0/mese", desc:"Profilo e visibilità su Beautyslot, senza calendario online."},
       "start": {name:"START · €14,90/mese", desc:"Per un professionista singolo con calendario e prenotazioni online."},
@@ -769,85 +777,6 @@
     const operatorsInput = document.getElementById("numero_operatori");
     const locationsInput = document.getElementById("numero_sedi");
     const backLink = document.getElementById("backLink");
-
-    function dashboardProfessionistaPerPiano(plan){
-      const normalized = String(plan || "").toLowerCase();
-
-      if(normalized === "free"){
-        return "dashboard-professionista-free.html";
-      }
-
-      if(normalized === "start"){
-        return "dashboard-professionista-start.html";
-      }
-
-      if(normalized === "pro" || normalized === "trial-pro"){
-        return "dashboard-professionista-pro.html";
-      }
-
-      if(normalized === "business"){
-        return "dashboard-professionista-business.html";
-      }
-
-      if(normalized === "enterprise"){
-        return "dashboard-professionista-enterprise.html";
-      }
-
-      return "login.html";
-    }
-
-    async function redirectProfessionistaGiaRegistrato(){
-      const { data:{ user:currentUser }, error:userError } =
-        await supabaseClient.auth.getUser();
-
-      if(userError || !currentUser) return false;
-
-      const metadata = currentUser.user_metadata || {};
-
-      if(metadata.tipo_utente !== "professionista") return false;
-
-      const { data:existingProfile, error:profileError } =
-        await supabaseClient
-          .from("beautyslot_professionisti")
-          .select("user_id,piano")
-          .eq("user_id", currentUser.id)
-          .maybeSingle();
-
-      const onboardingCompletato =
-        metadata.onboarding_azienda_completato === true;
-
-      if(
-        !onboardingCompletato &&
-        (profileError || !existingProfile)
-      ){
-        return false;
-      }
-
-      const pianoReale = String(
-        existingProfile?.piano ||
-        metadata.piano_attivo ||
-        metadata.piano_scelto ||
-        metadata.piano_base ||
-        selectedPlan ||
-        "free"
-      ).toLowerCase();
-
-      window.location.replace(
-        dashboardProfessionistaPerPiano(pianoReale)
-      );
-
-      return true;
-    }
-
-    // Protezione immediata: un professionista già registrato
-    // non può riaprire la registrazione normale.
-    redirectProfessionistaGiaRegistrato();
-
-    // Protezione anche quando il browser ripristina la pagina
-    // con il tasto Indietro dalla cache di navigazione.
-    window.addEventListener("pageshow",()=>{
-      redirectProfessionistaGiaRegistrato();
-    });
 
     function setOperatorOptions(max){
       operatorsInput.innerHTML = '<option value="">Seleziona</option>';
@@ -1032,13 +961,6 @@
       event.preventDefault();
       clearEmailStatus();
 
-      if(
-        tipo === "professionista" &&
-        await redirectProfessionistaGiaRegistrato()
-      ){
-        return;
-      }
-
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
@@ -1092,7 +1014,9 @@
                 : (
                     selectedPlan === "free"
                       ? "https://beauty-slot.it/registrazione-azienda-free.html"
-                      : "https://beauty-slot.it/login.html"
+                      : selectedPlan === "start"
+                        ? "https://beauty-slot.it/registrazione-azienda-start.html"
+                        : "https://beauty-slot.it/login.html"
                   ),
             data: {
               nome: nome,
@@ -1161,7 +1085,9 @@
               : (
                   selectedPlan === "free"
                     ? "registrazione-azienda-free.html"
-                    : "login.html"
+                    : selectedPlan === "start"
+                      ? "registrazione-azienda-start.html"
+                      : "login.html"
                 );
         }
       } catch (error) {
