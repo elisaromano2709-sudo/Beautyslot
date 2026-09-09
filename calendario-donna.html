@@ -1642,6 +1642,51 @@
       renderMonth();
     });
 
+    function buildPendingBooking(bookingName){
+      return {
+        version:2,
+        gender:"donna",
+        salonId:salonId,
+        professionalUserId:professionalUserId || "",
+        salon:salon.name,
+        bookingName:bookingName,
+        serviceId:selectedServices[0]?.id || "",
+        serviceName:getSelectedNames().join(" + "),
+        duration:getTotalDuration(),
+        services:selectedServices.map(service => ({
+          id:service.id,
+          group:service.group || "",
+          name:service.name,
+          duration:service.duration,
+          price:service.price
+        })),
+        dateKey:dateKey(selectedDate),
+        date:formatLongDate(selectedDate),
+        time:selectedTime,
+        createdAt:new Date().toISOString()
+      };
+    }
+
+    function savePendingBooking(bookingName){
+      const pending=buildPendingBooking(bookingName);
+      const serialized=JSON.stringify(pending);
+
+      // sessionStorage mantiene il flusso nella scheda corrente.
+      sessionStorage.setItem(
+        "beautyslot_pending_booking",
+        serialized
+      );
+
+      // localStorage rende la scelta disponibile anche quando il link
+      // di conferma email si apre in una nuova scheda dello stesso browser.
+      localStorage.setItem(
+        "beautyslot_pending_booking",
+        serialized
+      );
+
+      return pending;
+    }
+
     bookButton.addEventListener("click", async () => {
       const bookingName = bookingNameInput.value.trim();
 
@@ -1669,28 +1714,7 @@
             Nessuna prenotazione viene registrata prima dell'accesso.
             Portiamo direttamente alla registrazione cliente.
           */
-          sessionStorage.setItem(
-            "beautyslot_pending_booking",
-            JSON.stringify({
-              gender: "donna",
-              salonId: salonId,
-              salon: salon.name,
-              bookingName: bookingName,
-              serviceId: selectedServices[0]?.id || "",
-              serviceName: getSelectedNames().join(" + "),
-              duration: getTotalDuration(),
-              services: selectedServices.map(service => ({
-                id: service.id,
-                group: service.group || "",
-                name: service.name,
-                duration: service.duration,
-                price: service.price
-              })),
-              dateKey: dateKey(selectedDate),
-              date: formatLongDate(selectedDate),
-              time: selectedTime
-            })
-          );
+                    savePendingBooking(bookingName);
 
           window.location.href =
             "registrazione.html?tipo=cliente";
@@ -1703,28 +1727,7 @@
           error
         );
 
-        sessionStorage.setItem(
-          "beautyslot_pending_booking",
-          JSON.stringify({
-              gender: "donna",
-              salonId: salonId,
-              salon: salon.name,
-              bookingName: bookingName,
-              serviceId: selectedServices[0]?.id || "",
-              serviceName: getSelectedNames().join(" + "),
-              duration: getTotalDuration(),
-              services: selectedServices.map(service => ({
-                id: service.id,
-                group: service.group || "",
-                name: service.name,
-                duration: service.duration,
-                price: service.price
-              })),
-              dateKey: dateKey(selectedDate),
-              date: formatLongDate(selectedDate),
-              time: selectedTime
-            })
-        );
+                  savePendingBooking(bookingName);
 
         window.location.href =
           "registrazione.html?tipo=cliente";
@@ -1823,6 +1826,9 @@
         ora non serve più.
       */
       sessionStorage.removeItem(
+        "beautyslot_pending_booking"
+      );
+      localStorage.removeItem(
         "beautyslot_pending_booking"
       );
 

@@ -38,6 +38,7 @@
     .lead{margin:0 0 24px;font-size:13px;line-height:1.6;color:var(--muted)}
     .booking{display:none;padding:20px;border:1px solid var(--line);border-radius:18px;background:#fff}
     .booking.show{display:block}
+    .booking + .booking{margin-top:14px}
     .row{display:grid;grid-template-columns:120px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
     .row:last-child{border-bottom:0}
     .label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted)}
@@ -96,18 +97,11 @@
       <h1>Le mie prenotazioni</h1>
       <p class="lead">Qui troverai gli appuntamenti associati al tuo account Beautyslot.</p>
 
-      <div class="booking" id="booking">
-        <div class="row"><div class="label">Salone</div><div class="value" id="salon">—</div></div>
-        <div class="row"><div class="label">Trattamento</div><div class="value" id="service">—</div></div>
-        <div class="row"><div class="label">Data</div><div class="value" id="date">—</div></div>
-        <div class="row"><div class="label">Orario</div><div class="value" id="time">—</div></div>
-        <div class="booking-actions">
-          <button class="action-btn primary" id="mapButton" type="button">Apri mappa</button>
-          <button class="action-btn danger" id="cancelButton" type="button">Disdici appuntamento</button>
-        </div>
-      </div>
+      <div id="bookingsList"></div>
 
-      <div class="empty" id="empty">Non ci sono ancora prenotazioni disponibili in questa sessione.</div>
+      <div class="empty" id="empty">
+        Non ci sono ancora prenotazioni associate al tuo account.
+      </div>
     </section>
   </main>
 
@@ -121,160 +115,759 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const tema = params.get("tema") === "uomo" ? "uomo" : "donna";
-    const bookingStorageKey = "beautyslot_last_booking_" + tema;
+    const SUPABASE_URL=
+      "https://kfhjydwgjtiyjdkedvrp.supabase.co";
 
-    // Compatibilità con le prenotazioni create prima della separazione Donna/Uomo.
-    // Una vecchia prenotazione viene assegnata alla sezione corretta solo se il tema
-    // è già salvato oppure se il salone è uno di quelli presenti nel demo attuale.
-    const donnaSalons = new Set([
-      "Atelier Hair",
-      "Maison Beauty",
-      "Nails Studio",
-      "Skin & Wellness",
-      "Blush Hair Lab",
-      "Pure Beauty"
-    ]);
+    const SUPABASE_PUBLISHABLE_KEY=
+      "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
 
-    const uomoSalons = new Set([
-      "Gentlemen Barber",
-      "Urban Hair Men",
-      "Man Wellness",
-      "The Barber Club",
-      "Man Style Studio"
-    ]);
-
-    function getBookingTheme(booking){
-      const explicitTheme = booking?.tema || booking?.gender || "";
-      if(explicitTheme === "donna" || explicitTheme === "uomo") return explicitTheme;
-      if(donnaSalons.has(booking?.salon)) return "donna";
-      if(uomoSalons.has(booking?.salon)) return "uomo";
-      return "";
-    }
-
-    function getThemeBookingRaw(){
-      const currentRaw = sessionStorage.getItem(bookingStorageKey);
-      if(currentRaw) return currentRaw;
-
-      const legacyRaw = sessionStorage.getItem("beautyslot_last_booking");
-      if(!legacyRaw) return null;
-
-      try{
-        const legacyBooking = JSON.parse(legacyRaw);
-        const legacyTheme = getBookingTheme(legacyBooking);
-        if(!legacyTheme) return null;
-
-        const legacyThemeKey = "beautyslot_last_booking_" + legacyTheme;
-        if(!sessionStorage.getItem(legacyThemeKey)){
-          sessionStorage.setItem(legacyThemeKey, legacyRaw);
+    const sb=
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth:{
+            persistSession:true,
+            autoRefreshToken:true
+          }
         }
+      );
 
-        return legacyTheme === tema ? legacyRaw : null;
-      }catch(error){
-        console.warn("Beautyslot migrazione prenotazione precedente:", error);
-        return null;
-      }
-    }
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const tema =
+      params.get("tema") === "uomo"
+        ? "uomo"
+        : "donna";
+
+    const bookingStorageKey =
+      "beautyslot_last_booking_" +
+      tema;
 
     if(tema === "uomo"){
-      document.body.classList.add("uomo");
-      document.getElementById("backLink").href = "./uomo.html";
+      document.body.classList.add(
+        "uomo"
+      );
+
+      document
+        .getElementById("backLink")
+        .href =
+          "./uomo.html";
     }
 
-    const bookingBox = document.getElementById("booking");
-    const emptyBox = document.getElementById("empty");
-    const mapButton = document.getElementById("mapButton");
-    const cancelButton = document.getElementById("cancelButton");
-    const cancelModal = document.getElementById("cancelModal");
-    const keepBookingButton = document.getElementById("keepBookingButton");
-    const confirmCancelButton = document.getElementById("confirmCancelButton");
+    const bookingsList =
+      document.getElementById(
+        "bookingsList"
+      );
 
-    let activeBookingRaw = null;
+    const emptyBox =
+      document.getElementById(
+        "empty"
+      );
+
+    const cancelModal =
+      document.getElementById(
+        "cancelModal"
+      );
+
+    const keepBookingButton =
+      document.getElementById(
+        "keepBookingButton"
+      );
+
+    const confirmCancelButton =
+      document.getElementById(
+        "confirmCancelButton"
+      );
+
+    let activeBooking = null;
+    let currentUser = null;
+
+    function formatDate(value){
+      if(!value){
+        return "—";
+      }
+
+      const parts=
+        String(value)
+          .split("-")
+          .map(Number);
+
+      if(parts.length !== 3){
+        return value;
+      }
+
+      const date=
+        new Date(
+          parts[0],
+          parts[1]-1,
+          parts[2]
+        );
+
+      return new Intl.DateTimeFormat(
+        "it-IT",
+        {
+          weekday:"long",
+          day:"numeric",
+          month:"long",
+          year:"numeric"
+        }
+      ).format(date);
+    }
+
+    function timeShort(value){
+      return (
+        String(value || "")
+          .slice(0,5) ||
+        "—"
+      );
+    }
+
+    function buildMapUrl(booking){
+      const lat=
+        Number(
+          booking.lat ??
+          booking.latitude
+        );
+
+      const lng=
+        Number(
+          booking.lng ??
+          booking.longitude
+        );
+
+      if(
+        Number.isFinite(lat) &&
+        Number.isFinite(lng)
+      ){
+        return (
+          "https://www.google.com/maps/search/?api=1&query=" +
+          encodeURIComponent(
+            lat + "," + lng
+          )
+        );
+      }
+
+      const query=
+        [
+          booking.salon,
+          booking.address
+        ]
+          .filter(Boolean)
+          .join(" ");
+
+      return (
+        "https://www.google.com/maps/search/?api=1&query=" +
+        encodeURIComponent(
+          query ||
+          "Beautyslot"
+        )
+      );
+    }
 
     function openCancelModal(booking){
-      cancelModal.classList.add("open");
-      cancelModal.setAttribute("aria-hidden", "false");
+      activeBooking=
+        booking;
+
+      cancelModal.classList.add(
+        "open"
+      );
+
+      cancelModal.setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
       confirmCancelButton.focus();
     }
 
     function closeCancelModal(){
-      cancelModal.classList.remove("open");
-      cancelModal.setAttribute("aria-hidden", "true");
-      cancelButton.focus();
+      cancelModal.classList.remove(
+        "open"
+      );
+
+      cancelModal.setAttribute(
+        "aria-hidden",
+        "true"
+      );
     }
 
-    function buildMapUrl(booking){
-      const lat = Number(booking.lat ?? booking.latitude);
-      const lng = Number(booking.lng ?? booking.longitude);
+    function bookingCard(booking){
+      const card=
+        document.createElement(
+          "div"
+        );
 
-      if(Number.isFinite(lat) && Number.isFinite(lng)){
-        return "https://www.google.com/maps/search/?api=1&query=" +
-          encodeURIComponent(lat + "," + lng);
+      card.className=
+        "booking show";
+
+      card.dataset.bookingId=
+        booking.id ||
+        "";
+
+      card.innerHTML=`
+        <div class="row">
+          <div class="label">Salone</div>
+          <div class="value" data-field="salon"></div>
+        </div>
+        <div class="row">
+          <div class="label">Trattamento</div>
+          <div class="value" data-field="service"></div>
+        </div>
+        <div class="row">
+          <div class="label">Data</div>
+          <div class="value" data-field="date"></div>
+        </div>
+        <div class="row">
+          <div class="label">Orario</div>
+          <div class="value" data-field="time"></div>
+        </div>
+        <div class="booking-actions">
+          <button
+            class="action-btn primary"
+            data-action="map"
+            type="button"
+          >
+            Apri mappa
+          </button>
+          <button
+            class="action-btn danger"
+            data-action="cancel"
+            type="button"
+          >
+            Disdici appuntamento
+          </button>
+        </div>
+      `;
+
+      card.querySelector(
+        '[data-field="salon"]'
+      ).textContent=
+        booking.salon ||
+        "Salone Beautyslot";
+
+      card.querySelector(
+        '[data-field="service"]'
+      ).textContent=
+        booking.service ||
+        "—";
+
+      card.querySelector(
+        '[data-field="date"]'
+      ).textContent=
+        booking.date ||
+        "—";
+
+      card.querySelector(
+        '[data-field="time"]'
+      ).textContent=
+        booking.time ||
+        "—";
+
+      card.querySelector(
+        '[data-action="map"]'
+      ).addEventListener(
+        "click",
+        ()=>{
+          window.open(
+            buildMapUrl(booking),
+            "_blank",
+            "noopener,noreferrer"
+          );
+        }
+      );
+
+      card.querySelector(
+        '[data-action="cancel"]'
+      ).addEventListener(
+        "click",
+        ()=>{
+          openCancelModal(
+            booking
+          );
+        }
+      );
+
+      return card;
+    }
+
+    function sessionFallbackBooking(){
+      const currentRaw=
+        sessionStorage.getItem(
+          bookingStorageKey
+        );
+
+      const legacyRaw=
+        sessionStorage.getItem(
+          "beautyslot_last_booking"
+        );
+
+      const candidates=
+        [
+          currentRaw,
+          legacyRaw
+        ].filter(Boolean);
+
+      for(const raw of candidates){
+        try{
+          const booking=
+            JSON.parse(raw);
+
+          const explicitTheme=
+            booking?.tema ||
+            booking?.gender ||
+            "";
+
+          if(
+            explicitTheme &&
+            explicitTheme !== tema
+          ){
+            continue;
+          }
+
+          return {
+            id:null,
+            source:"session",
+            salon:
+              booking.salon ||
+              "",
+            service:
+              booking.service ||
+              "",
+            date:
+              booking.date ||
+              "",
+            time:
+              booking.time ||
+              "",
+            lat:
+              booking.lat ??
+              booking.latitude,
+            lng:
+              booking.lng ??
+              booking.longitude,
+            address:
+              booking.address ||
+              "",
+            raw:raw
+          };
+        }catch(error){
+          console.warn(
+            "Beautyslot prenotazione sessione:",
+            error
+          );
+        }
       }
 
-      const query = [booking.salon, booking.address].filter(Boolean).join(" ");
-      return "https://www.google.com/maps/search/?api=1&query=" +
-        encodeURIComponent(query || "Beautyslot");
+      return null;
     }
 
-    const raw = getThemeBookingRaw();
-    if(raw){
-      try{
-        const booking = JSON.parse(raw);
-        document.getElementById("salon").textContent = booking.salon || "—";
-        document.getElementById("service").textContent = booking.service || "—";
-        document.getElementById("date").textContent = booking.date || "—";
-        document.getElementById("time").textContent = booking.time || "—";
-        bookingBox.classList.add("show");
-        emptyBox.style.display = "none";
+    async function loadBookings(){
+      bookingsList.innerHTML=
+        "";
 
-        mapButton.addEventListener("click", function(){
-          window.open(buildMapUrl(booking), "_blank", "noopener,noreferrer");
+      const {
+        data:{user},
+        error:userError
+      }=
+        await sb.auth.getUser();
+
+      currentUser=
+        user ||
+        null;
+
+      if(
+        userError ||
+        !currentUser
+      ){
+        const fallback=
+          sessionFallbackBooking();
+
+        if(fallback){
+          bookingsList.appendChild(
+            bookingCard(fallback)
+          );
+          emptyBox.style.display=
+            "none";
+        }else{
+          emptyBox.textContent=
+            "Accedi al tuo account per vedere le tue prenotazioni.";
+          emptyBox.style.display=
+            "block";
+        }
+
+        return;
+      }
+
+      const {
+        data:rows,
+        error
+      }=
+        await sb
+          .from(
+            "beautyslot_agenda"
+          )
+          .select(
+            "id,professionista_user_id,data,ora_inizio,ora_fine,servizio_nome,servizi,stato,tema"
+          )
+          .eq(
+            "cliente_user_id",
+            currentUser.id
+          )
+          .eq(
+            "tipo",
+            "prenotazione"
+          )
+          .neq(
+            "stato",
+            "annullata"
+          )
+          .order(
+            "data",
+            {ascending:true}
+          )
+          .order(
+            "ora_inizio",
+            {ascending:true}
+          );
+
+      if(error){
+        console.error(
+          "Beautyslot mie prenotazioni:",
+          error
+        );
+
+        const fallback=
+          sessionFallbackBooking();
+
+        if(fallback){
+          bookingsList.appendChild(
+            bookingCard(fallback)
+          );
+          emptyBox.style.display=
+            "none";
+        }else{
+          emptyBox.textContent=
+            "Non riesco a caricare le prenotazioni in questo momento.";
+          emptyBox.style.display=
+            "block";
+        }
+
+        return;
+      }
+
+      const themeRows=
+        (rows || [])
+          .filter(row=>{
+            if(
+              row.tema === "donna" ||
+              row.tema === "uomo"
+            ){
+              return row.tema === tema;
+            }
+
+            // Per vecchie righe senza tema:
+            // le mostriamo nella sezione corrente anziché perderle.
+            return true;
+          });
+
+      if(!themeRows.length){
+        const fallback=
+          sessionFallbackBooking();
+
+        if(fallback){
+          bookingsList.appendChild(
+            bookingCard(fallback)
+          );
+          emptyBox.style.display=
+            "none";
+        }else{
+          emptyBox.style.display=
+            "block";
+        }
+
+        return;
+      }
+
+      const professionalIds=
+        [
+          ...new Set(
+            themeRows
+              .map(
+                row=>
+                  row.professionista_user_id
+              )
+              .filter(Boolean)
+          )
+        ];
+
+      const professionalsById=
+        {};
+
+      if(
+        professionalIds.length
+      ){
+        const {
+          data:professionals,
+          error:professionalsError
+        }=
+          await sb
+            .from(
+              "beautyslot_professionisti"
+            )
+            .select(
+              "user_id,nome_attivita,indirizzo,comune,provincia,latitude,longitude"
+            )
+            .in(
+              "user_id",
+              professionalIds
+            );
+
+        if(professionalsError){
+          console.warn(
+            "Dati saloni per prenotazioni:",
+            professionalsError.message
+          );
+        }
+
+        (
+          professionals ||
+          []
+        ).forEach(item=>{
+          professionalsById[
+            item.user_id
+          ]=
+            item;
         });
+      }
 
-        activeBookingRaw = raw;
+      themeRows.forEach(row=>{
+        const professional=
+          professionalsById[
+            row.professionista_user_id
+          ] ||
+          {};
 
-        cancelButton.addEventListener("click", function(){
-          openCancelModal(booking);
-        });
-      }catch(error){
-        console.warn(error);
+        const address=
+          [
+            professional.indirizzo,
+            professional.comune,
+            professional.provincia
+          ]
+            .filter(Boolean)
+            .join(", ");
+
+        const booking={
+          id:row.id,
+          source:"supabase",
+          salon:
+            professional.nome_attivita ||
+            "Salone Beautyslot",
+          service:
+            row.servizio_nome ||
+            "—",
+          date:
+            formatDate(
+              row.data
+            ),
+          time:
+            timeShort(
+              row.ora_inizio
+            ) +
+            " – " +
+            timeShort(
+              row.ora_fine
+            ),
+          lat:
+            professional.latitude,
+          lng:
+            professional.longitude,
+          address:
+            address
+        };
+
+        bookingsList.appendChild(
+          bookingCard(
+            booking
+          )
+        );
+      });
+
+      emptyBox.style.display=
+        "none";
+    }
+
+    function removeMatchingSessionBooking(
+      booking
+    ){
+      const themed=
+        sessionStorage.getItem(
+          bookingStorageKey
+        );
+
+      if(themed){
+        try{
+          const parsed=
+            JSON.parse(themed);
+
+          const sameSalon=
+            !booking.salon ||
+            !parsed.salon ||
+            booking.salon ===
+              parsed.salon;
+
+          if(sameSalon){
+            sessionStorage.removeItem(
+              bookingStorageKey
+            );
+          }
+        }catch(error){
+          console.warn(error);
+        }
+      }
+
+      const globalRaw=
+        sessionStorage.getItem(
+          "beautyslot_last_booking"
+        );
+
+      if(globalRaw){
+        try{
+          const parsed=
+            JSON.parse(globalRaw);
+
+          const sameSalon=
+            !booking.salon ||
+            !parsed.salon ||
+            booking.salon ===
+              parsed.salon;
+
+          if(sameSalon){
+            sessionStorage.removeItem(
+              "beautyslot_last_booking"
+            );
+          }
+        }catch(error){
+          console.warn(error);
+        }
       }
     }
 
-    keepBookingButton.addEventListener("click", function(){
-      closeCancelModal();
-    });
-
-    confirmCancelButton.addEventListener("click", function(){
-      sessionStorage.removeItem(bookingStorageKey);
-
-      // Rimuove anche la chiave generale soltanto se contiene proprio
-      // la stessa prenotazione che si sta disdicendo.
-      const globalRaw = sessionStorage.getItem("beautyslot_last_booking");
-      if(globalRaw && activeBookingRaw && globalRaw === activeBookingRaw){
-        sessionStorage.removeItem("beautyslot_last_booking");
-      }
-
-      closeCancelModal();
-      bookingBox.classList.remove("show");
-      emptyBox.textContent = "Appuntamento disdetto. Non ci sono prenotazioni disponibili in questa sessione.";
-      emptyBox.style.display = "block";
-    });
-
-    cancelModal.addEventListener("click", function(event){
-      if(event.target === cancelModal){
+    keepBookingButton.addEventListener(
+      "click",
+      ()=>{
         closeCancelModal();
       }
-    });
+    );
 
-    document.addEventListener("keydown", function(event){
-      if(event.key === "Escape" && cancelModal.classList.contains("open")){
-        closeCancelModal();
+    confirmCancelButton.addEventListener(
+      "click",
+      async ()=>{
+        if(!activeBooking){
+          closeCancelModal();
+          return;
+        }
+
+        confirmCancelButton.disabled=
+          true;
+
+        const originalText=
+          confirmCancelButton.textContent;
+
+        confirmCancelButton.textContent=
+          "Disdetta...";
+
+        try{
+          if(
+            activeBooking.source === "supabase" &&
+            activeBooking.id &&
+            currentUser
+          ){
+            const {
+              error
+            }=
+              await sb
+                .from(
+                  "beautyslot_agenda"
+                )
+                .update({
+                  stato:"annullata"
+                })
+                .eq(
+                  "id",
+                  activeBooking.id
+                )
+                .eq(
+                  "cliente_user_id",
+                  currentUser.id
+                );
+
+            if(error){
+              throw error;
+            }
+          }
+
+          removeMatchingSessionBooking(
+            activeBooking
+          );
+
+          closeCancelModal();
+
+          await loadBookings();
+
+        }catch(error){
+          console.error(
+            "Disdetta prenotazione:",
+            error
+          );
+
+          alert(
+            "Non sono riuscito a disdire l'appuntamento. Riprova."
+          );
+        }finally{
+          confirmCancelButton.disabled=
+            false;
+
+          confirmCancelButton.textContent=
+            originalText;
+        }
       }
-    });
+    );
+
+    cancelModal.addEventListener(
+      "click",
+      event=>{
+        if(
+          event.target ===
+          cancelModal
+        ){
+          closeCancelModal();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      event=>{
+        if(
+          event.key ===
+            "Escape" &&
+          cancelModal.classList.contains(
+            "open"
+          )
+        ){
+          closeCancelModal();
+        }
+      }
+    );
+
+    loadBookings();
   </script>
 </body>
 </html>

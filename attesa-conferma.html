@@ -244,5 +244,32 @@
     </section>
 
   </main>
+  <script>
+    (function preservePendingBooking(){
+      const sessionPending=
+        sessionStorage.getItem(
+          "beautyslot_pending_booking"
+        );
+
+      const localPending=
+        localStorage.getItem(
+          "beautyslot_pending_booking"
+        );
+
+      if(sessionPending && !localPending){
+        localStorage.setItem(
+          "beautyslot_pending_booking",
+          sessionPending
+        );
+      }
+
+      if(localPending && !sessionPending){
+        sessionStorage.setItem(
+          "beautyslot_pending_booking",
+          localPending
+        );
+      }
+    })();
+  </script>
 </body>
 </html>

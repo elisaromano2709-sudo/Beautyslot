@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beautyslot — Completo la prenotazione</title>
+  <meta name="robots" content="noindex">
+  <style>
+    :root{
+      --bg:#f7ecec;
+      --bg2:#eef4f8;
+      --rose:#bb8188;
+      --dark:#806a70;
+      --muted:#9a8589;
+      --line:rgba(157,104,112,.18);
+    }
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      min-height:100%;
+      font-family:"Helvetica Neue",Arial,sans-serif
+    }
+    body{
+      min-height:100vh;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      color:var(--dark);
+      background:
+        radial-gradient(circle at 20% 18%,rgba(248,220,228,.70),transparent 33%),
+        radial-gradient(circle at 82% 22%,rgba(218,233,245,.75),transparent 34%),
+        linear-gradient(180deg,#fbf8f9 0%,#f4f4f6 100%);
+    }
+    .card{
+      width:min(520px,100%);
+      padding:36px 30px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:rgba(255,255,255,.84);
+      text-align:center;
+      box-shadow:0 20px 55px rgba(85,63,70,.08)
+    }
+    h1{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:34px;
+      font-weight:400
+    }
+    p{
+      margin:14px auto 0;
+      max-width:390px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.65
+    }
+    .dot{
+      width:9px;
+      height:9px;
+      margin:24px auto 0;
+      border-radius:50%;
+      background:var(--rose);
+      animation:pulse 1.2s infinite ease-in-out
+    }
+    @keyframes pulse{
+      50%{transform:scale(1.7);opacity:.45}
+    }
+    .error{
+      display:none;
+      margin-top:22px;
+      padding:15px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      color:#8a5f66;
+      background:#fff8f9;
+      font-size:12px;
+      line-height:1.55
+    }
+    .error.show{display:block}
+    .button{
+      display:none;
+      margin-top:18px;
+      padding:13px 18px;
+      border-radius:999px;
+      background:linear-gradient(90deg,#c98598,#9fb5d1);
+      color:#fff;
+      text-decoration:none;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.8px;
+      text-transform:uppercase
+    }
+    .button.show{display:inline-flex}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Completo la tua prenotazione</h1>
+    <p id="status">
+      Account confermato. Sto associando l'appuntamento al tuo profilo Beautyslot.
+    </p>
+    <div class="dot" id="dot"></div>
+    <div class="error" id="errorBox"></div>
+    <a class="button" id="continueButton" href="https://beauty-slot.it/">
+      Continua su Beautyslot
+    </a>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL=
+      "https://kfhjydwgjtiyjdkedvrp.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY=
+      "sb_publishable_BueoI4fhTcQCdkaGnrtk9g_A0cJRkh7";
+
+    const sb=
+      supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY,
+        {
+          auth:{
+            persistSession:true,
+            autoRefreshToken:true,
+            detectSessionInUrl:true
+          }
+        }
+      );
+
+    const statusElement=
+      document.getElementById("status");
+
+    const errorBox=
+      document.getElementById("errorBox");
+
+    const dot=
+      document.getElementById("dot");
+
+    const continueButton=
+      document.getElementById("continueButton");
+
+    function timeToMinutes(value){
+      const parts=
+        String(value || "")
+          .split(":")
+          .map(Number);
+
+      return (
+        (parts[0] || 0) * 60 +
+        (parts[1] || 0)
+      );
+    }
+
+    function minutesToTime(totalMinutes){
+      const normalized=
+        (
+          (totalMinutes % (24 * 60)) +
+          (24 * 60)
+        ) % (24 * 60);
+
+      const h=
+        Math.floor(normalized / 60);
+
+      const m=
+        normalized % 60;
+
+      return (
+        String(h).padStart(2,"0") +
+        ":" +
+        String(m).padStart(2,"0")
+      );
+    }
+
+    function validGender(value){
+      return value === "uomo"
+        ? "uomo"
+        : "donna";
+    }
+
+    function categoryUrl(gender){
+      return gender === "uomo"
+        ? "https://beauty-slot.it/uomo.html"
+        : "https://beauty-slot.it/donna.html";
+    }
+
+    function readLocalPending(){
+      const candidates=[
+        localStorage.getItem(
+          "beautyslot_pending_booking"
+        ),
+        sessionStorage.getItem(
+          "beautyslot_pending_booking"
+        )
+      ].filter(Boolean);
+
+      for(const raw of candidates){
+        try{
+          const pending=
+            JSON.parse(raw);
+
+          if(
+            pending &&
+            pending.salonId &&
+            pending.dateKey &&
+            pending.time
+          ){
+            return pending;
+          }
+        }catch(error){
+          console.warn(
+            "Beautyslot pending locale:",
+            error
+          );
+        }
+      }
+
+      return null;
+    }
+
+    function professionalIdFromPending(pending){
+      const direct=
+        String(
+          pending?.professionalUserId ||
+          ""
+        ).trim();
+
+      if(direct){
+        return direct;
+      }
+
+      const salonId=
+        String(
+          pending?.salonId ||
+          ""
+        );
+
+      if(
+        salonId.startsWith("free-")
+      ){
+        return salonId.replace(
+          /^free-/,
+          ""
+        );
+      }
+
+      return "";
+    }
+
+    async function waitForConfirmedUser(){
+      // Il link di verifica può impiegare alcuni istanti
+      // prima di rendere disponibile la sessione nel browser.
+      for(
+        let attempt=0;
+        attempt<30;
+        attempt++
+      ){
+        const {
+          data:{session}
+        }=
+          await sb.auth.getSession();
+
+        if(session?.user){
+          return session.user;
+        }
+
+        await new Promise(
+          resolve=>
+            setTimeout(resolve,150)
+        );
+      }
+
+      const {
+        data:{user}
+      }=
+        await sb.auth.getUser();
+
+      return user || null;
+    }
+
+    async function bookingAlreadyExists(
+      userId,
+      professionalId,
+      pending
+    ){
+      const {
+        data,
+        error
+      }=
+        await sb
+          .from("beautyslot_agenda")
+          .select("id")
+          .eq(
+            "cliente_user_id",
+            userId
+          )
+          .eq(
+            "professionista_user_id",
+            professionalId
+          )
+          .eq(
+            "data",
+            pending.dateKey
+          )
+          .eq(
+            "ora_inizio",
+            pending.time
+          )
+          .neq(
+            "stato",
+            "annullata"
+          )
+          .limit(1);
+
+      if(error){
+        console.warn(
+          "Controllo duplicato prenotazione:",
+          error.message
+        );
+        return false;
+      }
+
+      return (
+        Array.isArray(data) &&
+        data.length > 0
+      );
+    }
+
+    async function clearPendingMetadata(){
+      localStorage.removeItem(
+        "beautyslot_pending_booking"
+      );
+
+      sessionStorage.removeItem(
+        "beautyslot_pending_booking"
+      );
+
+      try{
+        await sb.auth.updateUser({
+          data:{
+            prenotazione_pendente:null,
+            ritorno_prenotazione:""
+          }
+        });
+      }catch(error){
+        console.warn(
+          "Pulizia metadata prenotazione:",
+          error
+        );
+      }
+    }
+
+    function saveLastBooking(
+      pending,
+      gender,
+      bookingName,
+      serviceName,
+      duration,
+      bookedEnd
+    ){
+      const lastBooking={
+        tema:gender,
+        salonId:
+          pending.salonId || "",
+        salon:
+          pending.salon || "",
+        bookingName:bookingName,
+        service:
+          serviceName +
+          " · " +
+          duration +
+          " min",
+        services:
+          Array.isArray(
+            pending.services
+          )
+            ? pending.services
+            : [],
+        date:
+          pending.date ||
+          pending.dateKey,
+        time:
+          pending.time +
+          " – " +
+          minutesToTime(bookedEnd)
+      };
+
+      const serialized=
+        JSON.stringify(lastBooking);
+
+      sessionStorage.setItem(
+        "beautyslot_last_booking",
+        serialized
+      );
+
+      sessionStorage.setItem(
+        gender === "uomo"
+          ? "beautyslot_last_booking_uomo"
+          : "beautyslot_last_booking_donna",
+        serialized
+      );
+    }
+
+    async function finish(){
+      const user=
+        await waitForConfirmedUser();
+
+      if(!user){
+        throw new Error(
+          "La conferma email è riuscita, ma la sessione non è ancora disponibile. Riapri il link di conferma."
+        );
+      }
+
+      const metadata=
+        user.user_metadata ||
+        {};
+
+      // Il metadata creato durante signup è la fonte più affidabile:
+      // resta legato all'account anche se la mail viene aperta in una nuova scheda.
+      const pending=
+        metadata.prenotazione_pendente ||
+        readLocalPending();
+
+      const gender=
+        validGender(
+          pending?.gender ||
+          metadata.ritorno_prenotazione
+        );
+
+      localStorage.setItem(
+        "beautyslot_user_id",
+        user.id || ""
+      );
+
+      localStorage.setItem(
+        "beautyslot_email",
+        user.email || ""
+      );
+
+      if(metadata.nome){
+        localStorage.setItem(
+          "beautyslot_nome",
+          metadata.nome
+        );
+      }
+
+      if(metadata.cognome){
+        localStorage.setItem(
+          "beautyslot_cognome",
+          metadata.cognome
+        );
+      }
+
+      if(metadata.full_name){
+        localStorage.setItem(
+          "beautyslot_full_name",
+          metadata.full_name
+        );
+      }
+
+      sessionStorage.setItem(
+        "beautyslot_tipo_utente",
+        "cliente"
+      );
+
+      // Registrazione cliente normale, senza prenotazione precedente:
+      // conserva il flusso già esistente.
+      if(!pending){
+        window.location.replace(
+          "https://beauty-slot.it/scelta-trattamenti.html"
+        );
+        return;
+      }
+
+      const professionalId=
+        professionalIdFromPending(
+          pending
+        );
+
+      const duration=
+        Math.max(
+          1,
+          Number(
+            pending.duration
+          ) || 0
+        );
+
+      if(
+        !professionalId ||
+        !pending.dateKey ||
+        !pending.time ||
+        !duration
+      ){
+        throw new Error(
+          "I dati dell'appuntamento non sono completi. La selezione non è stata cancellata."
+        );
+      }
+
+      const services=
+        Array.isArray(
+          pending.services
+        )
+          ? pending.services
+          : [];
+
+      const serviceName=
+        String(
+          pending.serviceName ||
+          services
+            .map(item=>item?.name)
+            .filter(Boolean)
+            .join(" + ") ||
+          "Trattamento"
+        );
+
+      const bookingName=
+        String(
+          pending.bookingName ||
+          metadata.nome ||
+          metadata.full_name ||
+          "Cliente Beautyslot"
+        ).trim();
+
+      const bookedEnd=
+        timeToMinutes(
+          pending.time
+        ) +
+        duration;
+
+      const exists=
+        await bookingAlreadyExists(
+          user.id,
+          professionalId,
+          pending
+        );
+
+      if(!exists){
+        const payload={
+          professionista_user_id:
+            professionalId,
+          cliente_user_id:
+            user.id,
+          tipo:
+            "prenotazione",
+          data:
+            pending.dateKey,
+          ora_inizio:
+            pending.time,
+          ora_fine:
+            minutesToTime(bookedEnd),
+          durata_minuti:
+            duration,
+          cliente_nome:
+            bookingName,
+          servizio_nome:
+            serviceName,
+          servizi:
+            services,
+          stato:
+            "confermata",
+          origine:
+            "cliente",
+          tema:
+            gender
+        };
+
+        const {
+          error
+        }=
+          await sb
+            .from(
+              "beautyslot_agenda"
+            )
+            .insert(payload);
+
+        if(error){
+          const occupied=
+            String(
+              error.message ||
+              ""
+            ).includes(
+              "SLOT_OCCUPATO"
+            );
+
+          if(occupied){
+            throw new Error(
+              "Nel frattempo questo orario è stato occupato. La tua selezione è ancora conservata: torna al calendario per sceglierne un altro."
+            );
+          }
+
+          throw error;
+        }
+      }
+
+      saveLastBooking(
+        pending,
+        gender,
+        bookingName,
+        serviceName,
+        duration,
+        bookedEnd
+      );
+
+      await clearPendingMetadata();
+
+      // Richiesta specifica:
+      // Donna -> donna.html
+      // Uomo  -> uomo.html
+      window.location.replace(
+        categoryUrl(gender)
+      );
+    }
+
+    finish().catch(error=>{
+      console.error(
+        "Completamento prenotazione:",
+        error
+      );
+
+      dot.style.display=
+        "none";
+
+      statusElement.textContent=
+        "Non sono riuscito a completare automaticamente la prenotazione.";
+
+      errorBox.textContent=
+        error?.message ||
+        "Riprova.";
+
+      errorBox.classList.add(
+        "show"
+      );
+
+      const localPending=
+        readLocalPending();
+
+      const gender=
+        validGender(
+          localPending?.gender
+        );
+
+      continueButton.href=
+        categoryUrl(gender);
+
+      continueButton.classList.add(
+        "show"
+      );
+    });
+  </script>
+</body>
+</html>

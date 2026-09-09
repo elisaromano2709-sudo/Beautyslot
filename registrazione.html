@@ -732,6 +732,54 @@
       ? "professionista"
       : "cliente";
 
+    function readPendingBooking(){
+      const candidates=[
+        localStorage.getItem("beautyslot_pending_booking"),
+        sessionStorage.getItem("beautyslot_pending_booking")
+      ].filter(Boolean);
+
+      for(const raw of candidates){
+        try{
+          const pending=JSON.parse(raw);
+
+          if(
+            pending &&
+            (pending.gender==="donna" || pending.gender==="uomo") &&
+            pending.salonId &&
+            pending.dateKey &&
+            pending.time
+          ){
+            const serialized=JSON.stringify(pending);
+
+            // Manteniamo entrambe le copie sincronizzate.
+            localStorage.setItem(
+              "beautyslot_pending_booking",
+              serialized
+            );
+            sessionStorage.setItem(
+              "beautyslot_pending_booking",
+              serialized
+            );
+
+            return pending;
+          }
+        }catch(error){
+          console.warn(
+            "Beautyslot prenotazione pendente non leggibile:",
+            error
+          );
+        }
+      }
+
+      return null;
+    }
+
+    function clientRedirectUrl(pendingBooking){
+      return pendingBooking
+        ? "https://beauty-slot.it/completa-prenotazione-cliente.html"
+        : "https://beauty-slot.it/scelta-trattamenti.html";
+    }
+
     const VALID_PLANS = ["free","start","pro","business","enterprise","trial-pro"];
     const requestedPlan = (params.get("piano") || "").toLowerCase();
     const selectedPlan = VALID_PLANS.includes(requestedPlan) ? requestedPlan : "trial-pro";
@@ -1004,13 +1052,18 @@
         localStorage.removeItem("beautyslot_email");
         sessionStorage.removeItem("beautyslot_tipo_utente");
 
+        const pendingBooking =
+          tipo === "cliente"
+            ? readPendingBooking()
+            : null;
+
         const { data, error } = await supabaseClient.auth.signUp({
           email,
           password: passwordValue,
           options: {
             emailRedirectTo:
               tipo === "cliente"
-                ? "https://beauty-slot.it/scelta-trattamenti.html"
+                ? clientRedirectUrl(pendingBooking)
                 : (
                     selectedPlan === "free"
                       ? "https://beauty-slot.it/registrazione-azienda-free.html"
@@ -1034,7 +1087,15 @@
               piano_base: tipo === "professionista" ? (selectedPlan === "trial-pro" ? "pro" : selectedPlan) : "",
               prova_30_giorni: tipo === "professionista" && selectedPlan === "trial-pro",
               numero_operatori: tipo === "professionista" ? numeroOperatori : "",
-              numero_sedi: tipo === "professionista" ? numeroSedi : ""
+              numero_sedi: tipo === "professionista" ? numeroSedi : "",
+              prenotazione_pendente:
+                tipo === "cliente" && pendingBooking
+                  ? pendingBooking
+                  : null,
+              ritorno_prenotazione:
+                tipo === "cliente" && pendingBooking
+                  ? pendingBooking.gender
+                  : ""
             }
           }
         });
@@ -1081,7 +1142,11 @@
 
           window.location.href =
             tipo === "cliente"
-              ? "scelta-trattamenti.html"
+              ? (
+                  pendingBooking
+                    ? "completa-prenotazione-cliente.html"
+                    : "scelta-trattamenti.html"
+                )
               : (
                   selectedPlan === "free"
                     ? "registrazione-azienda-free.html"
