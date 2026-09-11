@@ -384,7 +384,7 @@
 
     .info-grid{
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:16px;
       margin-top:28px;
     }
@@ -630,6 +630,11 @@
             <div class="label">Instagram</div>
             <div class="value" id="instagram"></div>
           </div>
+
+          <div class="info-card">
+            <div class="label">Facebook</div>
+            <div class="value" id="facebook"></div>
+          </div>
         </div>
 
         <section class="hours">
@@ -864,6 +869,21 @@
         "/";
     }
 
+    function makeFacebookUrl(value){
+      const raw = String(value || "").trim();
+
+      if(!raw){
+        return "";
+      }
+
+      if(/^https?:\/\//i.test(raw)){
+        return raw;
+      }
+
+      return "https://www.facebook.com/" +
+        encodeURIComponent(raw.replace(/^@/,""));
+    }
+
     function formatHours(orari){
       const labels = [
         ["lunedi","Lunedì"],
@@ -926,6 +946,7 @@
         "nome_attivita",
         "telefono",
         "instagram",
+        "facebook",
         "categorie",
         "specializzazioni",
         "orari",
@@ -984,6 +1005,8 @@
         phone:item.telefono || "",
         instagram:item.instagram || "",
         instagramUrl:makeInstagramUrl(item.instagram),
+        facebook:item.facebook || "",
+        facebookUrl:makeFacebookUrl(item.facebook),
         plan:String(item.piano || "free").toLowerCase(),
         calendarActive:item.calendario_attivo === true,
         image:cover,
@@ -1168,6 +1191,39 @@
 
         instagramAction.style.display =
           "none";
+      }
+
+      const facebookElement =
+        document.getElementById("facebook");
+
+      const facebook =
+        String(salon.facebook || "").trim();
+
+      const facebookUrl =
+        salon.facebookUrl ||
+        makeFacebookUrl(facebook);
+
+      if(facebook && facebookUrl){
+        const facebookLink =
+          document.createElement("a");
+
+        facebookLink.href =
+          facebookUrl;
+
+        facebookLink.target =
+          "_blank";
+
+        facebookLink.rel =
+          "noopener";
+
+        facebookLink.textContent =
+          facebook;
+
+        facebookElement.innerHTML = "";
+        facebookElement.appendChild(facebookLink);
+      }else{
+        facebookElement.textContent =
+          "Non disponibile";
       }
 
       const calendarActive =
@@ -1369,6 +1425,8 @@
 
           document.getElementById("instagram").textContent =
             "Non disponibile";
+          document.getElementById("facebook").textContent =
+            "Non disponibile";
 
           document.getElementById("calendarActive").style.display =
             "none";
@@ -1402,6 +1460,8 @@
             "Riprova tra poco";
 
           document.getElementById("instagram").textContent =
+            "Non disponibile";
+          document.getElementById("facebook").textContent =
             "Non disponibile";
 
           document.getElementById("calendarActive").style.display =
