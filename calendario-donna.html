@@ -575,6 +575,8 @@
       SERVICES_BY_CATEGORY[salon.category] ||
       SERVICES_BY_CATEGORY["Parrucchiere"];
 
+    let DYNAMIC_GROUP_ORDER = [];
+
     /*
       Compatibilità decise dal professionista.
       In futuro questo dato arriverà dal profilo professionista / Supabase.
@@ -674,6 +676,86 @@
       return d;
     }
 
+    function escapeBookingHtml(value){
+      return String(value ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function formatSavedServicePrice(value){
+      const amount=Number(value);
+
+      if(!Number.isFinite(amount)){
+        return "€ 0";
+      }
+
+      return new Intl.NumberFormat(
+        "it-IT",
+        {
+          style:"currency",
+          currency:"EUR",
+          minimumFractionDigits:Number.isInteger(amount) ? 0 : 2,
+          maximumFractionDigits:2
+        }
+      ).format(amount);
+    }
+
+    async function loadSavedProfessionalServices(){
+      if(!professionalUserId)return false;
+
+      const {data:rows,error}=await authClient
+        .from("beautyslot_servizi_professionista")
+        .select(
+          "id,gruppo_id,gruppo_nome,servizio_nome,durata_minuti,prezzo,ordinamento_gruppo,ordinamento_servizio,compatibile_colore,attivo"
+        )
+        .eq("professionista_user_id",professionalUserId)
+        .eq("attivo",true)
+        .order("ordinamento_gruppo",{ascending:true})
+        .order("ordinamento_servizio",{ascending:true});
+
+      if(error){
+        console.warn(
+          "Categorie e trattamenti personalizzati non caricati:",
+          error.message
+        );
+        return false;
+      }
+
+      if(!Array.isArray(rows) || !rows.length){
+        return false;
+      }
+
+      const groups=[];
+
+      SERVICES=rows.map(row=>{
+        const group=String(row.gruppo_nome || "ALTRO").trim() || "ALTRO";
+
+        if(!groups.includes(group)){
+          groups.push(group);
+        }
+
+        return {
+          id:"db-"+String(row.id),
+          dynamicSaved:true,
+          group,
+          groupId:String(row.gruppo_id || ""),
+          name:String(row.servizio_nome || "").trim(),
+          duration:Math.max(1,Number(row.durata_minuti || 45)),
+          price:formatSavedServicePrice(row.prezzo),
+          colorCompatible:
+            typeof row.compatibile_colore === "boolean"
+              ? row.compatibile_colore
+              : null
+        };
+      }).filter(service=>service.name);
+
+      DYNAMIC_GROUP_ORDER=groups;
+      return SERVICES.length > 0;
+    }
+
     async function loadDynamicProfessional(){
       if(!professionalUserId) return;
 
@@ -700,9 +782,16 @@
         calendarActive:item.calendario_attivo === true
       };
 
-      SERVICES =
-        SERVICES_BY_CATEGORY[salon.category] ||
-        SERVICES_BY_CATEGORY["Parrucchiere"];
+      const savedServicesLoaded=
+        await loadSavedProfessionalServices();
+
+      if(!savedServicesLoaded){
+        DYNAMIC_GROUP_ORDER=[];
+
+        SERVICES =
+          SERVICES_BY_CATEGORY[salon.category] ||
+          SERVICES_BY_CATEGORY["Parrucchiere"];
+      }
 
       document.getElementById("salonName").textContent = salon.name;
       document.getElementById("sumSalon").textContent = salon.name;
@@ -881,6 +970,9 @@
     }
 
     function treatmentCanCombineWithColor(treatment){
+      if(treatment?.colorCompatible === true)return true;
+      if(treatment?.colorCompatible === false)return false;
+
       const professionalRules =
         PROFESSIONAL_COMPATIBILITY[salonId] ||
         { colorWithTreatments: [] };
@@ -906,7 +998,11 @@
         return;
       }
 
-      const names = getSelectedNames().join(" + ");
+      const names =
+        getSelectedNames()
+          .map(escapeBookingHtml)
+          .join(" + ");
+
       summary.innerHTML =
         names +
         '<br><strong>Totale: ' +
@@ -994,10 +1090,10 @@
       }
 
       btn.innerHTML =
-        '<span class="service-name">' + service.name + '</span>' +
+        '<span class="service-name">' + escapeBookingHtml(service.name) + '</span>' +
         '<span class="service-meta">' +
-          '<span>' + service.duration + ' min</span>' +
-          '<span>' + service.price + '</span>' +
+          '<span>' + escapeBookingHtml(service.duration) + ' min</span>' +
+          '<span>' + escapeBookingHtml(service.price) + '</span>' +
         '</span>' +
         (isServiceSelected(service)
           ? '<span class="service-check" aria-hidden="true">✓</span>'
@@ -1014,8 +1110,12 @@
       servicesBox.innerHTML = "";
 
       const groupOrder =
-        GROUP_ORDER_BY_CATEGORY[salon.category] ||
-        [];
+        DYNAMIC_GROUP_ORDER.length
+          ? DYNAMIC_GROUP_ORDER
+          : (
+              GROUP_ORDER_BY_CATEGORY[salon.category] ||
+              []
+            );
 
       const groupedServices =
         groupOrder.length &&
@@ -1087,7 +1187,7 @@
 
           toggle.innerHTML=
             '<span class="service-group-title">'+
-              visibleGroupName+
+              escapeBookingHtml(visibleGroupName)+
             '</span>'+
             '<span class="service-group-info">'+
               '<span>'+groupInfo+'</span>'+

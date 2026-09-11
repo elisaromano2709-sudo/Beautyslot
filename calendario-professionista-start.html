@@ -1345,6 +1345,7 @@ const SERVICE_EXTRA_COLORS=[
 ];
 
 const dynamicServiceColors={};
+let savedBusinessServiceGroups=[];
 
 function normalizeServiceGroup(value){
   return String(value || "")
@@ -1364,6 +1365,15 @@ function prettyServiceGroup(value){
   return normalized
     .toLowerCase()
     .replace(/(^|\s)\S/g,char=>char.toUpperCase());
+}
+
+function escapeLegendHtml(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
 function serviceGroupColor(group){
@@ -1563,6 +1573,10 @@ function bookingStyle(event){
 }
 
 function defaultLegendGroups(){
+  if(savedBusinessServiceGroups.length){
+    return [...savedBusinessServiceGroups];
+  }
+
   const categories=
     Array.isArray(business?.categorie)
       ? business.categorie
@@ -1636,7 +1650,7 @@ function renderServiceLegend(){
           class="legend-service-color"
           style="background:${serviceGroupColor(group)}"
         ></span>
-        <span>${prettyServiceGroup(group)}</span>
+        <span>${escapeLegendHtml(prettyServiceGroup(group))}</span>
       </div>
     `).join("");
 }
@@ -1675,6 +1689,35 @@ async function loadBusiness(){
   }
 
   business=profile;
+
+  const {
+    data:serviceRows,
+    error:serviceRowsError
+  }=await sb
+    .from("beautyslot_servizi_professionista")
+    .select("gruppo_nome,ordinamento_gruppo,ordinamento_servizio,attivo")
+    .eq("professionista_user_id",user.id)
+    .eq("attivo",true)
+    .order("ordinamento_gruppo",{ascending:true})
+    .order("ordinamento_servizio",{ascending:true});
+
+  if(serviceRowsError){
+    console.warn(
+      "Categorie servizi non caricate nella legenda:",
+      serviceRowsError.message
+    );
+    savedBusinessServiceGroups=[];
+  }else{
+    savedBusinessServiceGroups=[];
+
+    (serviceRows || []).forEach(row=>{
+      const group=String(row.gruppo_nome || "").trim();
+
+      if(group && !savedBusinessServiceGroups.includes(group)){
+        savedBusinessServiceGroups.push(group);
+      }
+    });
+  }
 
   const eyebrow=document.querySelector(".eyebrow");
   if(eyebrow){
